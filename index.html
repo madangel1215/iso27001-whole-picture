@@ -233,8 +233,9 @@ function box(id,title,sub,x,y,w,h,dash){const g=el("g",{class:"node","data-id":i
   wire(g,id,{x:x+w/2,y:y+h/2,r:Math.max(w,h)/2});return g;}
 function bar(id,title,x,y,w,h,vertical){const g=el("g",{class:"node","data-id":id,tabindex:"0",role:"button"});
   g.append(el("rect",{class:"bar",x,y,width:w,height:h,rx:10}));
-  if(vertical){const cx=x+w/2;[...title].forEach((ch,i)=>g.append(tx(cx,y+30+i*20,"nm sm",ch,{"text-anchor":"middle"})));}
-  else g.append(tx(x+w/2,y+h/2+5,"nm sm",title,{"text-anchor":"middle"}));
+  if(vertical){const cx=x+w/2,lh=26,sy=y+h/2-(title.length-1)*lh/2;
+    [...title].forEach((ch,i)=>g.append(tx(cx,sy+i*lh,"nm sm",ch,{"text-anchor":"middle","dominant-baseline":"central"})));}
+  else g.append(tx(x+w/2,y+h/2,"nm sm",title,{"text-anchor":"middle","dominant-baseline":"central"}));
   wire(g,id,{x:x+w/2,y:y+h/2,r:30});return g;}
 function diamond(label,x,y,w,h){const g=el("g",{class:""});g.append(el("polygon",{class:"diamond",points:`${x},${y-h/2} ${x+w/2},${y} ${x},${y+h/2} ${x-w/2},${y}`}));
   g.append(tx(x,y+4,"diamond-text",label));return g;}

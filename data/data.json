@@ -1,7 +1,7 @@
 {
   "meta": {
     "standard": "CNS/ISO/IEC 27001:2023 (對應 ISO/IEC 27001:2022)",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "accent": "#3b82f6",
     "note": "所有說明為自行撰寫之白話轉譯，未複製標準正文（版權）。條款編號與標題為事實引用。",
     "linkTypes": [
@@ -6088,13 +6088,49 @@
       "from": "communication-consultation",
       "to": "scope-context-criteria",
       "rel": "aligns",
-      "note": "溝通諮詢貫穿全程。"
+      "note": "建立情境時即開始溝通諮詢。"
+    },
+    {
+      "from": "communication-consultation",
+      "to": "risk-assessment",
+      "rel": "aligns",
+      "note": "評鑑全程持續溝通諮詢。"
+    },
+    {
+      "from": "communication-consultation",
+      "to": "risk-treatment-options",
+      "rel": "aligns",
+      "note": "處理決策需與利害關係人溝通。"
+    },
+    {
+      "from": "monitoring-review",
+      "to": "risk-assessment",
+      "rel": "aligns",
+      "note": "監督審查回饋到風險評鑑。"
     },
     {
       "from": "monitoring-review",
       "to": "risk-treatment-plan",
       "rel": "aligns",
-      "note": "監督審查貫穿全程。"
+      "note": "處理計畫的成效需持續監督審查。"
+    },
+    {
+      "from": "residual-risks",
+      "to": "monitoring-review",
+      "rel": "aligns",
+      "note": "剩餘風險須持續監督與審查，環境變化時重新評鑑。"
+    },
+    {
+      "from": "residual-risks",
+      "to": "communication-consultation",
+      "rel": "aligns",
+      "note": "剩餘風險須溝通，由風險擁有者知情後正式接受。"
+    },
+    {
+      "from": "residual-risks",
+      "to": "documented-information",
+      "rel": "feeds",
+      "note": "剩餘風險與接受決定納入記錄與報告。"
     },
     {
       "from": "risk-assessment",
