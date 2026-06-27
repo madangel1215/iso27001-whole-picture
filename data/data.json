@@ -1,7 +1,7 @@
 {
   "meta": {
     "standard": "CNS/ISO/IEC 27001:2023 (對應 ISO/IEC 27001:2022)",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "accent": "#3b82f6",
     "note": "所有說明為自行撰寫之白話轉譯，未複製標準正文（版權）。條款編號與標題為事實引用。",
     "linkTypes": [
@@ -38,12 +38,12 @@
   "nodes": [
     {
       "id": "band-devops",
-      "type": "lifecycle-stage",
-      "ref": "ISO 22989",
+      "type": "cross-cutting-band",
+      "ref": "ISO/IEC 22989",
       "title": "開發與營運",
-      "title_en": "Develop and Operations",
+      "title_en": "Development and operations (MLOps)",
       "summary": "建模、部署、監控、再訓練的迭代閉環，貫穿全程",
-      "explanation": "AI 不是上線就結束：要反覆建模、訓練、部署，上線後持續監控效能與資料漂移、必要時再訓練，形成不斷迭代的開發-營運閉環（MLOps），因此這條關注帶貫穿生命週期每一階段。對應 ISMS 的條款 8 運作管制與附錄 A.8 技術控制（變更管理、安全開發、日誌監控），也呼應 PDCA 的執行（Do）與查核（Check）。",
+      "explanation": "AI 不是上線就結束：要反覆建模、訓練、部署，上線後持續監控效能與資料漂移、必要時再訓練，形成不斷迭代的開發-營運閉環（MLOps）。這是工程實務層，對映 ISO/IEC 22989 生命週期裡「design and development」與「operation and monitoring」兩個階段之間的反覆迭代，而不是標準明列的單一概念，因此把它當成橫向貫穿的關注帶來看。對應 ISMS 的條款 8 運作管制與附錄 A.8 技術控制（變更管理、安全開發、日誌監控），也呼應 PDCA 的執行（Do）與查核（Check）。",
       "layers": [
         "lifecycle"
       ],
@@ -60,8 +60,8 @@
     },
     {
       "id": "band-transparency",
-      "type": "lifecycle-stage",
-      "ref": "ISO 22989",
+      "type": "cross-cutting-band",
+      "ref": "ISO/IEC 22989",
       "title": "透明性與可解釋性",
       "title_en": "Transparency and explainability",
       "summary": "資訊可取得、決策可被人理解與追溯",
@@ -72,18 +72,18 @@
       "subconcepts": [
         {
           "label": "透明性 Transparency",
-          "note": "22989：關於 AI 系統開發、部署與運作的資訊是可取得的。"
+          "note": "讓相關人能拿到系統開發、部署與運作的相關資訊，不被黑箱擋住。"
         },
         {
           "label": "可解釋性 Explainability",
-          "note": "22989：能用人類可理解的方式呈現 AI 的運作機制。"
+          "note": "把模型怎麼得出結果，用人聽得懂的方式講清楚。"
         }
       ]
     },
     {
       "id": "band-security-privacy",
-      "type": "lifecycle-stage",
-      "ref": "ISO 22989",
+      "type": "cross-cutting-band",
+      "ref": "ISO/IEC 22989",
       "title": "安全與隱私保護",
       "title_en": "Security and privacy",
       "summary": "全程保護資料、模型與輸出的機密與隱私",
@@ -104,8 +104,8 @@
     },
     {
       "id": "band-risk",
-      "type": "lifecycle-stage",
-      "ref": "ISO 22989",
+      "type": "cross-cutting-band",
+      "ref": "ISO/IEC 22989",
       "title": "風險管理",
       "title_en": "Risk management",
       "summary": "全程識別與處理 AI 特有風險的循環",
@@ -126,8 +126,8 @@
     },
     {
       "id": "band-governance",
-      "type": "lifecycle-stage",
-      "ref": "ISO 22989",
+      "type": "cross-cutting-band",
+      "ref": "ISO/IEC 22989",
       "title": "組織治理",
       "title_en": "Governance",
       "summary": "最上層的政策、問責與監督，統籌全局",
@@ -1126,7 +1126,7 @@
           "可用性"
         ],
         "controlType": [
-          "預防"
+          "矯正"
         ],
         "operationalCapability": [
           "資訊安全事件管理"
@@ -1391,7 +1391,8 @@
           "可用性"
         ],
         "controlType": [
-          "預防"
+          "預防",
+          "矯正"
         ],
         "operationalCapability": [
           "法規與合規",
@@ -3163,7 +3164,7 @@
       "title": "一般（因應風險及機會之行動）",
       "title_en": "General (Actions to address risks and opportunities)",
       "summary": "規劃 ISMS 時同時盯著風險與機會，確保系統能達標。",
-      "explanation": "6.1 的開場。要組織在規劃 ISMS 時，把條款 4（內外部議題）與條款 5（利害關係人要求）的輸入拿來判斷有哪些風險與機會需要因應。目的是確保 ISMS 能達到預期成果、放大正面影響、預防或降低不要的結果，並持續改善。它替後面的 6.1.2 評鑑與 6.1.3 處理鋪好框架。",
+      "explanation": "6.1 的開場。要組織在規劃 ISMS 時，把條款 4.1（內外部議題）與條款 4.2（利害關係人需求）的輸入拿來判斷有哪些風險與機會需要因應。目的是確保 ISMS 能達到預期成果、放大正面影響、預防或降低不要的結果，並持續改善。它替後面的 6.1.2 評鑑與 6.1.3 處理鋪好框架。",
       "layers": [
         "pdca",
         "risk"
@@ -3179,7 +3180,7 @@
         },
         {
           "label": "承先啟後",
-          "note": "輸入來自條款 4/5，輸出餵進 6.1.2 / 6.1.3。"
+          "note": "輸入來自條款 4.1 / 4.2，輸出餵進 6.1.2 / 6.1.3。"
         }
       ]
     },
@@ -3190,7 +3191,7 @@
       "title": "資訊安全風險評鑑",
       "title_en": "Information security risk assessment",
       "summary": "用一致可重複的方法找出、分析並排序資安風險。",
-      "explanation": "要求建立並維護一套風險評鑑流程：先訂出風險接受準則與評鑑準則，確保每次做出來的結果一致可重複；再識別會影響機密性、完整性、可用性的風險並指定風險擁有者；分析其發生可能性與後果得出風險等級，最後評估並排出處理優先順序。2022 版與 ISO 31000 對齊，不再強制使用資產／威脅／弱點單一方法。",
+      "explanation": "要求建立並維護一套風險評鑑流程：先訂出風險接受準則與評鑑準則，確保每次做出來的結果一致可重複；再識別會影響機密性、完整性、可用性的風險並指定風險擁有者；分析其發生可能性與後果得出風險等級，最後評估並排出處理優先順序。自 2013 版起即與 ISO 31000 對齊，不再強制使用資產／威脅／弱點的單一識別方法（2022 版延續此作法）。",
       "layers": [
         "pdca",
         "risk"
@@ -3338,7 +3339,7 @@
       "title": "理解利害關係人的需求與期望",
       "title_en": "Understanding the needs and expectations of interested parties",
       "summary": "找出誰在乎你的資安、他們要求什麼、哪些要納入 ISMS。",
-      "explanation": "要求組織做三件事：誰是與 ISMS 相關的利害關係人（客戶、主管機關、供應商、員工等）；他們有哪些相關要求；這些要求中哪些要透過 ISMS 來處理。這是把外部義務轉成 ISMS 輸入的起點，往後餵進條款 6 的風險規劃。",
+      "explanation": "要求組織做三件事：誰是與 ISMS 相關的利害關係人（CNS 27001:2023 官方譯詞為「關注方」，包含客戶、主管機關、供應商、員工等）；他們有哪些相關要求；這些要求中哪些要透過 ISMS 來處理。這是把外部義務轉成 ISMS 輸入的起點，往後餵進條款 6 的風險規劃。",
       "layers": [
         "pdca",
         "lifecycle"
@@ -3448,10 +3449,10 @@
       "id": "clause-5.3",
       "type": "clause",
       "ref": "5.3",
-      "title": "組織角色、責任及職權",
+      "title": "組織角色、責任及權限",
       "title_en": "Organizational roles, responsibilities and authorities",
       "summary": "明確指派誰負責什麼、有什麼權限。",
-      "explanation": "最高管理階層要指派並在組織內溝通與資安相關的角色、責任與職權：誰負責確保 ISMS 符合標準、誰負責向管理階層回報績效。把職責劃分清楚才有人當責，避免出事時互踢皮球，這也是把領導承諾落實到組織運作的具體機制。",
+      "explanation": "最高管理階層要指派並在組織內溝通與資安相關的角色、責任與權限：誰負責確保 ISMS 符合標準、誰負責向管理階層回報績效。把職責劃分清楚才有人當責，避免出事時互踢皮球，這也是把領導承諾落實到組織運作的具體機制。",
       "layers": [
         "pdca"
       ]
@@ -3884,7 +3885,7 @@
       "title": "風險處理計畫",
       "title_en": "Risk treatment plan",
       "summary": "把控制落地的行動藍圖：做什麼、誰做、何時做。",
-      "explanation": "把選定的控制變成可執行的計畫：要做哪些事、由誰負責、需要哪些資源、時程多久、預期成效怎麼衡量。它是風險處理從「決定」走到「執行」的橋接，並需取得風險擁有者核准。對應 ISO/IEC 27001 條款 6.1.3(e) 與條款 8.3 的運作規劃與管制。",
+      "explanation": "把選定的控制變成可執行的計畫：要做哪些事、由誰負責、需要哪些資源、時程多久、預期成效怎麼衡量。它是風險處理從「決定」走到「執行」的橋接，並需取得風險擁有者核准。對應 ISO/IEC 27001 條款 6.1.3(e)，並在條款 8.3 資訊安全風險處理（實施風險處理計畫）落地執行。",
       "layers": [
         "risk"
       ]
