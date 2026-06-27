@@ -1,0 +1,4368 @@
+{
+  "meta": {
+    "standard": "CNS/ISO/IEC 27001:2023 (對應 ISO/IEC 27001:2022)",
+    "version": "0.2.0",
+    "accent": "#3b82f6",
+    "note": "所有說明為自行撰寫之白話轉譯，未複製標準正文（版權）。條款編號與標題為事實引用。",
+    "linkTypes": [
+      "feeds",
+      "treats",
+      "selects",
+      "implements",
+      "aligns",
+      "contains"
+    ]
+  },
+  "architectures": [
+    {
+      "id": "pdca",
+      "name": "PDCA 管理循環",
+      "summary": "ISMS 的運轉引擎：規劃→執行→查核→行動，對應條款 6/7→8→9→10。"
+    },
+    {
+      "id": "lifecycle",
+      "name": "產品/服務生命週期",
+      "summary": "先搞懂自己在保護什麼：界定範圍與資產的起點（條款 4）。"
+    },
+    {
+      "id": "risk",
+      "name": "風險管理 (ISO 31000)",
+      "summary": "27001 的心臟，採 ISO 31000 方法論，經 ISO 27005 落地到條款 6.1。"
+    },
+    {
+      "id": "controls",
+      "name": "附錄 A 控制措施",
+      "summary": "4 主題 93 控制：組織 A.5 / 人員 A.6 / 實體 A.7 / 技術 A.8。"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "band-devops",
+      "type": "lifecycle-stage",
+      "ref": "ISO 22989",
+      "title": "開發與營運",
+      "title_en": "Develop and Operations",
+      "summary": "建模、部署、監控、再訓練的迭代閉環，貫穿全程",
+      "explanation": "AI 不是上線就結束：要反覆建模、訓練、部署，上線後持續監控效能與資料漂移、必要時再訓練，形成不斷迭代的開發-營運閉環（MLOps），因此這條關注帶貫穿生命週期每一階段。對應 ISMS 的條款 8 運作管制與附錄 A.8 技術控制（變更管理、安全開發、日誌監控），也呼應 PDCA 的執行（Do）與查核（Check）。",
+      "layers": [
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "持續監控",
+          "note": "上線後追蹤模型效能與資料／概念漂移。"
+        },
+        {
+          "label": "再訓練與版本控制",
+          "note": "資料或環境改變時更新模型並管理版本。"
+        }
+      ]
+    },
+    {
+      "id": "band-transparency",
+      "type": "lifecycle-stage",
+      "ref": "ISO 22989",
+      "title": "透明性與可解釋性",
+      "title_en": "Transparency and explainability",
+      "summary": "資訊可取得、決策可被人理解與追溯",
+      "explanation": "指 AI 的資訊要可取得、決策機制能用人話解釋。從設計階段就得決定揭露什麼、留下什麼紀錄、模型能不能被追溯與理解，這要求貫穿資料、訓練、部署到運維全程，讓使用者與稽核者看得懂、追得到。對應 ISMS 的文件化資訊（7.5）與日誌記錄（A.8.15），也是對利害關係人要求（4.2）的回應。",
+      "layers": [
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "透明性 Transparency",
+          "note": "22989：關於 AI 系統開發、部署與運作的資訊是可取得的。"
+        },
+        {
+          "label": "可解釋性 Explainability",
+          "note": "22989：能用人類可理解的方式呈現 AI 的運作機制。"
+        }
+      ]
+    },
+    {
+      "id": "band-security-privacy",
+      "type": "lifecycle-stage",
+      "ref": "ISO 22989",
+      "title": "安全與隱私保護",
+      "title_en": "Security and privacy",
+      "summary": "全程保護資料、模型與輸出的機密與隱私",
+      "explanation": "AI 全程都有資安與個資風險：訓練資料、模型權重、推論 API 與輸出都要保護，還得防資料中毒、對抗式攻擊、模型竊取與隱私外洩。這正是 ISMS 的本業——以機密性、完整性、可用性三性搭配附錄 A 全套控制來守護，並可延伸到個資保護（ISO 27701），是資安與 AI 治理最直接的交集。",
+      "layers": [
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "資料中毒／對抗式攻擊",
+          "note": "惡意輸入污染訓練資料或誤導推論結果。"
+        },
+        {
+          "label": "模型與隱私保護",
+          "note": "防模型權重遭竊、防訓練資料洩漏個資。"
+        }
+      ]
+    },
+    {
+      "id": "band-risk",
+      "type": "lifecycle-stage",
+      "ref": "ISO 22989",
+      "title": "風險管理",
+      "title_en": "Risk management",
+      "summary": "全程識別與處理 AI 特有風險的循環",
+      "explanation": "每個生命週期階段都要識別、分析、處理並持續監控 AI 特有風險（偏誤、不可靠、安全與倫理衝擊），不是做一次評估，而是貫穿全程的循環。對應 ISMS 條款 6.1 的風險評鑑與處理，方法上採 ISO 31000；AI 專屬風險還可參考 ISO/IEC 23894（AI 風險管理）與 AI 管理系統標準 ISO/IEC 42001。",
+      "layers": [
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "AI 特有風險",
+          "note": "偏誤、不可靠、自動化決策帶來的安全與倫理衝擊。"
+        },
+        {
+          "label": "持續再評估",
+          "note": "模型或環境變化時重新評鑑風險。"
+        }
+      ]
+    },
+    {
+      "id": "band-governance",
+      "type": "lifecycle-stage",
+      "ref": "ISO 22989",
+      "title": "組織治理",
+      "title_en": "Governance",
+      "summary": "最上層的政策、問責與監督，統籌全局",
+      "explanation": "最上層的問責與監督：訂政策、分派角色職責、建立審查與監督機制，確保 AI 全程符合組織目標、倫理與法規，並統籌底下其他關注帶。對應 ISMS 的條款 5 領導與承諾、條款 4 組織背景與附錄 A.5 組織控制；在 AI 領域則對應專門的 AI 管理系統標準 ISO/IEC 42001（AIMS）。",
+      "layers": [
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "角色與問責",
+          "note": "界定 AI 提供者、開發者、使用者等角色的職責。"
+        },
+        {
+          "label": "政策與監督",
+          "note": "訂定 AI 政策並建立審查與監督機制。"
+        }
+      ]
+    },
+    {
+      "id": "ai-inception",
+      "type": "lifecycle-stage",
+      "ref": "ISO 5338 §6.4.1–6.4.3",
+      "title": "起始（概念形成）",
+      "title_en": "Inception",
+      "summary": "把想法變成明確的問題、需求與系統要求。",
+      "explanation": "AI 系統的最前段。先釐清這個 AI 要解決什麼業務或任務問題（6.4.1），再問清楚利害關係人真正需要與在意什麼（6.4.2），最後轉成可驗收的系統需求（6.4.3）。AI 的特別之處在於需求常和資料、效能與可接受錯誤率綁在一起，這裡沒想清楚，後面模型就會走偏。",
+      "layers": [
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "6.4.1 業務或任務分析（Business or mission analysis）",
+          "note": "釐清這個 AI 要解決的業務／任務問題與機會，界定問題範圍。"
+        },
+        {
+          "label": "6.4.2 利害關係人需要與需求定義（Stakeholder needs & requirements definition）",
+          "note": "問清楚使用者與關係人真正需要什麼、在意什麼，並轉成需求。"
+        },
+        {
+          "label": "6.4.3 系統需求定義（System requirements definition）",
+          "note": "把利害關係人需求轉成可驗收的系統技術需求。"
+        }
+      ]
+    },
+    {
+      "id": "ai-design-dev",
+      "type": "lifecycle-stage",
+      "ref": "ISO 5338 §6.4.4–6.4.10",
+      "title": "設計與開發",
+      "title_en": "Design & development",
+      "summary": "定架構、做設計、取得知識與資料、實作並整合。",
+      "explanation": "系統真正被打造的階段。先定整體架構（6.4.4）與細部設計（6.4.5），用系統分析（6.4.6）權衡效能、成本與風險；AI 專屬的是取得領域知識（6.4.7）與 AI 資料工程（6.4.8，蒐集、清理、標註、防偏誤）。接著實作模型與程式（6.4.9），再整合成完整系統（6.4.10）。",
+      "layers": [
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "6.4.4 系統架構定義（System architecture definition）",
+          "note": "決定系統整體結構與主要元件如何組合。"
+        },
+        {
+          "label": "6.4.5 設計定義（Design definition）",
+          "note": "把架構細化成可實作的詳細設計。"
+        },
+        {
+          "label": "6.4.6 系統分析（System analysis）",
+          "note": "用分析與權衡支援設計決策（效能、成本、風險）。"
+        },
+        {
+          "label": "6.4.10 整合（Integration）",
+          "note": "把各元件組合成完整系統並確認介面正確。"
+        },
+        {
+          "label": "6.4.7 知識獲取（Knowledge acquisition）",
+          "note": "AI 專屬：取得並表述領域知識，供系統學習或推理。"
+        },
+        {
+          "label": "6.4.8 AI 資料工程（AI data engineering）",
+          "note": "AI 專屬：蒐集、清理、標註資料並降低偏誤與被攻擊風險。"
+        },
+        {
+          "label": "6.4.9 實施（Implementation）",
+          "note": "實際建出元件——含訓練模型與撰寫程式。"
+        }
+      ]
+    },
+    {
+      "id": "ai-vnv",
+      "type": "lifecycle-stage",
+      "ref": "ISO 5338 §6.4.11 / §6.4.13",
+      "title": "查證與確證",
+      "title_en": "Verification & validation",
+      "summary": "確認「做對了」，也確認「做了對的東西」。",
+      "explanation": "兩個容易混淆但不同的把關。查證（6.4.11）問「有沒有照規格正確做出來」，例如模型指標是否達標、程式是否符合設計；確證（6.4.13）問「放進真實情境是不是真的解決使用者的問題」。AI 行為從資料學來、不易預測，這兩關都要用測試資料與真實場景反覆驗。",
+      "layers": [
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "6.4.11 查證（Verification）",
+          "note": "確認系統是否照規格正確建造（做對了）。"
+        },
+        {
+          "label": "6.4.13 確證（Validation）",
+          "note": "確認系統在真實情境是否滿足使用者需要（做了對的東西）。"
+        }
+      ]
+    },
+    {
+      "id": "ai-deployment",
+      "type": "lifecycle-stage",
+      "ref": "ISO 5338 §6.4.12",
+      "title": "部署",
+      "title_en": "Deployment",
+      "summary": "把通過驗證的系統搬進正式營運環境。",
+      "explanation": "轉移（6.4.12）指把開發完成的 AI 系統交付、安裝、上線到實際運作環境，包含訓練使用者、移交維運責任、確認能與既有系統銜接。對 AI 還要特別注意：上線環境的資料分布若和訓練時不同，效果可能掉，所以部署不是「丟上去就好」，要先準備好監控與可回復的機制。",
+      "layers": [
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "6.4.12 轉移（Transition）",
+          "note": "把系統交付、安裝、上線到正式營運環境並移交維運。"
+        }
+      ]
+    },
+    {
+      "id": "ai-operation-monitoring",
+      "type": "lifecycle-stage",
+      "ref": "ISO 5338 §6.4.15–6.4.16",
+      "title": "營運與監督",
+      "title_en": "Operation & monitoring",
+      "summary": "日常運行、監看表現並做維護修補。",
+      "explanation": "上線後的長期照顧。營運（6.4.15）是讓系統穩定提供服務、監看使用與表現；維護（6.4.16）是修錯、更新、因應環境變化做調整。AI 的關鍵差異是模型會「變舊」——資料漂移或概念漂移會讓準確度悄悄下滑，所以監督不只看系統有沒有當機，更要盯模型表現有沒有退化。",
+      "layers": [
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "6.4.15 營運（Operation）",
+          "note": "讓系統穩定提供服務並監看使用與表現。"
+        },
+        {
+          "label": "6.4.16 維護（Maintenance）",
+          "note": "修錯、更新、因應環境變化做調整。"
+        }
+      ]
+    },
+    {
+      "id": "ai-continuous-validation",
+      "type": "lifecycle-stage",
+      "ref": "ISO 5338 §6.4.14",
+      "title": "持續確證",
+      "title_en": "Continuous validation",
+      "summary": "上線後仍持續重驗模型是否還可信。",
+      "explanation": "這是 5338 為 AI 新增、傳統軟體沒有的流程（6.4.14）。模型不像一般程式裝好就固定，它的表現會隨真實資料改變而退化或產生新風險。持續確證就是定期拿新資料重新測試、比對效能與安全性，及早抓出資料漂移、概念漂移或新出現的偏誤，必要時觸發重新訓練或重新評估。",
+      "layers": [
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "6.4.14 持續確證（Continuous validation）",
+          "note": "AI 專屬：上線後定期重測，抓資料／概念漂移與新風險。"
+        }
+      ]
+    },
+    {
+      "id": "ai-reevaluation",
+      "type": "lifecycle-stage",
+      "ref": "ISO 5338 §6.3.8 / §6.4.2 / §6.4.13",
+      "title": "重新評估",
+      "title_en": "Re-evaluation",
+      "summary": "定期回頭檢視系統是否仍該存在、仍合格。",
+      "explanation": "它不是單一固定流程，而是借助品質保證（6.3.8）、回頭重看利害關係人需求（6.4.2）與重做確證（6.4.13）的綜合動作。目的是定期自問：這個 AI 還符合當初目標嗎？需求變了嗎？品質與合規還守得住嗎？評估結果可能導向繼續維運、重大改版，或進入汰除。",
+      "layers": [
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "6.3.8 品質保證（Quality assurance）",
+          "note": "確保流程與產出持續達到品質要求。"
+        },
+        {
+          "label": "6.4.2 利害關係人需要與需求定義（Stakeholder needs & requirements definition）",
+          "note": "回頭重看需求是否已經改變。"
+        },
+        {
+          "label": "6.4.13 確證（Validation）",
+          "note": "重做確證，確認系統仍滿足當初目標。"
+        }
+      ]
+    },
+    {
+      "id": "ai-retirement",
+      "type": "lifecycle-stage",
+      "ref": "ISO 5338 §6.4.17",
+      "title": "汰除",
+      "title_en": "Retirement",
+      "summary": "讓系統有計畫地除役並善後。",
+      "explanation": "汰除（6.4.17）是生命週期的終點：有計畫地停用、移除 AI 系統，並處理善後——資料如何刪除或保存、模型與文件如何封存、使用者如何轉到替代方案、法規與合約上的留存義務怎麼滿足。對 AI 特別重要的是訓練資料與模型本身要安全銷毀，避免敏感資料外流。",
+      "layers": [
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "6.4.17 汰除（Disposal）",
+          "note": "有計畫地除役並處理資料、模型與文件的善後。"
+        }
+      ]
+    },
+    {
+      "id": "control-a.5.1",
+      "type": "control",
+      "ref": "A.5.1",
+      "title": "資訊安全政策",
+      "title_en": "Policies for information security",
+      "summary": "由高層核定並公告資安政策，定期審查。",
+      "explanation": "要求最高管理階層制定資訊安全政策與各主題式子政策，核定後向員工與相關方公告，並定期或在重大變更時審查更新。它是整個 ISMS 的方向與承諾來源，下層所有規範與控制都要向它對齊。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "治理"
+        ],
+        "securityDomain": [
+          "治理與生態系",
+          "韌性"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.2",
+      "type": "control",
+      "ref": "A.5.2",
+      "title": "資訊安全之角色及責任",
+      "title_en": "Information security roles and responsibilities",
+      "summary": "明確劃分誰負責哪些資安工作。",
+      "explanation": "要求依組織需求界定並分派資安相關的角色與責任，讓每項資安工作都有清楚的負責人。避免「以為別人會做」的空窗，是落實政策、推動各項控制的人事基礎。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "治理"
+        ],
+        "securityDomain": [
+          "治理與生態系",
+          "保護",
+          "韌性"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.3",
+      "type": "control",
+      "ref": "A.5.3",
+      "title": "職務區隔",
+      "title_en": "Segregation of duties",
+      "summary": "把互相衝突的職務拆給不同人，避免一手遮天。",
+      "explanation": "要求把彼此衝突的職務與責任區隔開來，例如申請與核准、開發與上線不由同一人包辦。目的是降低舞弊、人為錯誤與繞過控制的風險；人力不足時可改用監督等補償措施。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "治理",
+          "身分與存取管理"
+        ],
+        "securityDomain": [
+          "治理與生態系"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.4",
+      "type": "control",
+      "ref": "A.5.4",
+      "title": "管理階層責任",
+      "title_en": "Management responsibilities",
+      "summary": "要求主管帶頭督促員工依規定落實資安。",
+      "explanation": "要求各級管理階層帶頭，要求並支持所有員工與承包商依組織既定的政策、程序與規範落實資安。把資安從紙上文件變成日常被執行的行為，是領導承諾向中階管理的延伸。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "治理"
+        ],
+        "securityDomain": [
+          "治理與生態系"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.5",
+      "type": "control",
+      "ref": "A.5.5",
+      "title": "與權責機關之聯繫",
+      "title_en": "Contact with authorities",
+      "summary": "預先建立與主管機關的聯繫管道。",
+      "explanation": "要求事先建立並維持與相關主管機關（如監理單位、執法機關、CERT）的聯繫管道，遇到資安事故或法規需求時能即時通報與取得協助。重點是平時就把線接好，別事到臨頭才找人。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防",
+          "矯正"
+        ],
+        "operationalCapability": [
+          "治理"
+        ],
+        "securityDomain": [
+          "防禦",
+          "韌性"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.6",
+      "type": "control",
+      "ref": "A.5.6",
+      "title": "與特殊關注群組之聯繫",
+      "title_en": "Contact with special interest groups",
+      "summary": "加入專業社群，掌握最新資安情勢。",
+      "explanation": "鼓勵組織與資安專業社群、論壇及產業協會保持聯繫，以掌握最新威脅、漏洞與最佳實務，並能在需要時交流情報。讓組織不閉門造車，及早接收外部預警。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防",
+          "矯正"
+        ],
+        "operationalCapability": [
+          "治理"
+        ],
+        "securityDomain": [
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.7",
+      "type": "control",
+      "ref": "A.5.7",
+      "title": "威脅情報",
+      "title_en": "Threat intelligence",
+      "summary": "蒐集分析威脅情報，提前防範。",
+      "explanation": "2022 版新增控制。要求蒐集並分析與資安威脅相關的資訊，轉化成可行動的威脅情報，用來預判攻擊手法、調整防護措施。讓防禦從被動挨打變成主動因應。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防",
+          "偵測",
+          "矯正"
+        ],
+        "operationalCapability": [
+          "威脅與弱點管理"
+        ],
+        "securityDomain": [
+          "防禦",
+          "韌性"
+        ]
+      },
+      "subconcepts": [
+        {
+          "label": "2022 新增控制",
+          "note": "11 項新控制之一，回應主動防禦趨勢。"
+        }
+      ]
+    },
+    {
+      "id": "control-a.5.8",
+      "type": "control",
+      "ref": "A.5.8",
+      "title": "專案管理之資訊安全",
+      "title_en": "Information security in project management",
+      "summary": "把資安要求內建到每個專案裡。",
+      "explanation": "要求在專案管理流程中納入資安考量，從規劃階段就評估與處理風險，而不是等系統做完才補。確保新系統、服務或變更從一開始就把安全設計進去。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "治理"
+        ],
+        "securityDomain": [
+          "治理與生態系",
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.9",
+      "type": "control",
+      "ref": "A.5.9",
+      "title": "資訊及其他相關聯資產之清冊",
+      "title_en": "Inventory of information and other associated assets",
+      "summary": "列出並維護資產清冊與其負責人。",
+      "explanation": "要求識別組織的資訊與相關資產，建立並維護清冊，並指定各資產的負責人。你保護不了不知道存在的東西，這份清冊是資產管理與後續分類、保護的基礎。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "資產管理"
+        ],
+        "securityDomain": [
+          "治理與生態系",
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.10",
+      "type": "control",
+      "ref": "A.5.10",
+      "title": "可接受使用資訊及其他相關聯資產",
+      "title_en": "Acceptable use of information and other associated assets",
+      "summary": "訂出資產可以怎麼用、不能怎麼用。",
+      "explanation": "要求訂定並公告資訊與資產的可接受使用規則，以及處理它們的作業程序。讓使用者清楚知道哪些行為被允許、哪些禁止，例如能否私用、能否帶離公司。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "資產管理",
+          "資訊保護"
+        ],
+        "securityDomain": [
+          "治理與生態系",
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.11",
+      "type": "control",
+      "ref": "A.5.11",
+      "title": "資產之歸還",
+      "title_en": "Return of assets",
+      "summary": "離職或合約終止時收回所有資產。",
+      "explanation": "要求人員在離職、調職或合約結束時，歸還其持有的組織資產，如筆電、門禁卡、文件與資料。避免機敏資訊隨人帶走，是人員異動時的收尾控制。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "資產管理"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.12",
+      "type": "control",
+      "ref": "A.5.12",
+      "title": "資訊之分類",
+      "title_en": "Classification of information",
+      "summary": "依重要性與敏感度替資訊分級。",
+      "explanation": "要求依資訊的機密性、完整性、可用性需求及法規要求，將資訊分類分級。分級結果決定該用多強的保護，讓資源花在刀口上，是後續標示與處理規則的依據。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "資訊保護"
+        ],
+        "securityDomain": [
+          "保護",
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.13",
+      "type": "control",
+      "ref": "A.5.13",
+      "title": "資訊之標示",
+      "title_en": "Labelling of information",
+      "summary": "依分級替資訊貼上對應標示。",
+      "explanation": "要求建立並落實一套資訊標示程序，依分類結果為資訊與資產加上標示，如「機密」「內部使用」。讓使用者一眼辨識敏感度，知道該如何正確處理與傳遞。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "資訊保護"
+        ],
+        "securityDomain": [
+          "保護",
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.14",
+      "type": "control",
+      "ref": "A.5.14",
+      "title": "資訊傳送",
+      "title_en": "Information transfer",
+      "summary": "訂規則保護傳輸中的資訊。",
+      "explanation": "要求針對組織內部及與外部之間各種方式（電子、實體、口頭）的資訊傳送，訂定規則、程序與協議，保護傳送過程中的資訊不被竊取或竄改。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "資產管理",
+          "資訊保護"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.15",
+      "type": "control",
+      "ref": "A.5.15",
+      "title": "存取控制",
+      "title_en": "Access control",
+      "summary": "依業務與資安需求訂定存取規則。",
+      "explanation": "要求依業務與資安需求，建立並落實實體與邏輯的存取控制規則，決定誰能存取哪些資訊與資產。是落實「最小權限」與「需知原則」的政策層基礎。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "身分與存取管理"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.16",
+      "type": "control",
+      "ref": "A.5.16",
+      "title": "身分管理",
+      "title_en": "Identity management",
+      "summary": "管好每個人與服務的身分全生命週期。",
+      "explanation": "要求管理身分的完整生命週期，從建立、使用到停用，確保每個使用者或服務都有可究責的唯一身分。這是存取控制能正確運作的前提。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "身分與存取管理"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.17",
+      "type": "control",
+      "ref": "A.5.17",
+      "title": "鑑別資訊",
+      "title_en": "Authentication information",
+      "summary": "妥善管理密碼等鑑別資訊。",
+      "explanation": "要求透過管理流程控管密碼、金鑰等鑑別資訊的配發與使用，並要求使用者妥善保管。目的是防止帳號被冒用，是身分驗證能否可信的關鍵。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "身分與存取管理"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.18",
+      "type": "control",
+      "ref": "A.5.18",
+      "title": "存取權限",
+      "title_en": "Access rights",
+      "summary": "依政策核發、調整、撤銷存取權。",
+      "explanation": "要求依存取控制政策，落實存取權限的核發、審查、調整與撤銷。人員職務一變動就同步更新權限，避免權限不斷累積或離職後仍能進入系統。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "身分與存取管理"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.19",
+      "type": "control",
+      "ref": "A.5.19",
+      "title": "供應者關係中之資訊安全",
+      "title_en": "Information security in supplier relationships",
+      "summary": "管理使用供應商產品與服務帶來的資安風險。",
+      "explanation": "要求界定並落實程序，管理因使用供應商產品與服務而產生的資安風險。把資安要求延伸到供應鏈，確保外部夥伴不會成為你的破口。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "供應商關係安全"
+        ],
+        "securityDomain": [
+          "治理與生態系",
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.20",
+      "type": "control",
+      "ref": "A.5.20",
+      "title": "於供應者協議中闡明資訊安全",
+      "title_en": "Addressing information security within supplier agreements",
+      "summary": "把資安要求白紙黑字寫進跟供應商簽的合約裡。",
+      "explanation": "跟供應商往來前，先在雙方協議裡寫清楚資安責任：對方要遵守哪些保護規定、能存取什麼資料、出事如何通報、合約結束怎麼歸還或銷毀資料。目的是讓外包與採購不會變成資安破口，把口頭期待轉成可追究的契約義務。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "供應者關係安全"
+        ],
+        "securityDomain": [
+          "治理與生態系",
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.21",
+      "type": "control",
+      "ref": "A.5.21",
+      "title": "管理 ICT 供應鏈中之資訊安全",
+      "title_en": "Managing information security in the ICT supply chain",
+      "summary": "連供應商的上游一起管，看穿整條供應鏈。",
+      "explanation": "你的供應商背後還有更上游的零件、軟體與雲端服務商，風險會層層傳遞。這條要求把資安要求沿著整條 ICT 供應鏈往下傳，掌握元件與軟體來源、要求供應商也約束自己的下游，避免在你看不到的環節被植入後門或突然斷鏈。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "供應者關係安全"
+        ],
+        "securityDomain": [
+          "治理與生態系",
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.22",
+      "type": "control",
+      "ref": "A.5.22",
+      "title": "供應者服務之監視、審查及變更管理",
+      "title_en": "Monitoring, review and change management of supplier services",
+      "summary": "持續盯供應商有沒有照約定做，變更要管控。",
+      "explanation": "簽完約不是結束。要定期監視與審查供應商提供的服務是否仍符合資安約定（看報告、做稽核、追 SLA），當對方換人、改流程或變更服務內容時也要先評估風險再放行。確保關係存續期間，安全水準不會悄悄退步。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防",
+          "偵測"
+        ],
+        "operationalCapability": [
+          "供應者關係安全",
+          "資訊安全保證"
+        ],
+        "securityDomain": [
+          "治理與生態系",
+          "保護",
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.23",
+      "type": "control",
+      "ref": "A.5.23",
+      "title": "使用雲端服務之資訊安全",
+      "title_en": "Information security for use of cloud services",
+      "summary": "用雲端服務，從採購到退場都要顧資安。",
+      "explanation": "2022 版新增控制。針對採用雲端服務（IaaS/PaaS/SaaS）訂出一套流程：選用前評估資安、釐清你與雲商各自負責什麼（責任共擔）、設定使用規範，並事先規劃好哪天要搬離或停用時，如何安全取回與刪除資料。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "供應者關係安全"
+        ],
+        "securityDomain": [
+          "治理與生態系",
+          "保護"
+        ]
+      },
+      "subconcepts": [
+        {
+          "label": "責任共擔 Shared responsibility",
+          "note": "釐清雲商與客戶各自負責的安全邊界。"
+        },
+        {
+          "label": "退場策略 Exit strategy",
+          "note": "停用時如何安全取回並刪除資料。"
+        }
+      ]
+    },
+    {
+      "id": "control-a.5.24",
+      "type": "control",
+      "ref": "A.5.24",
+      "title": "資訊安全事故管理之規劃及準備",
+      "title_en": "Information security incident management planning and preparation",
+      "summary": "事故發生前先把流程、角色、權責準備好。",
+      "explanation": "趁平時就把事故應變的劇本寫好：定義什麼算事故、誰負責、如何通報與分級、聯絡窗口與處理程序。等真的出事才不會手忙腳亂。這是整個事故管理（A.5.24–A.5.28）的起點，強調事前準備勝過臨場反應。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "矯正"
+        ],
+        "operationalCapability": [
+          "治理",
+          "資訊安全事件管理"
+        ],
+        "securityDomain": [
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.25",
+      "type": "control",
+      "ref": "A.5.25",
+      "title": "資訊安全事件之評鑑及決策",
+      "title_en": "Assessment and decision on information security events",
+      "summary": "判斷一個資安事件夠不夠格升級成「事故」。",
+      "explanation": "每天會冒出很多資安「事件」（異常登入、告警），但不是每件都是真正的「事故」。這條要求建立一致的評估與分類標準，由負責人判斷事件嚴重度、決定要不要升級成事故進入正式應變，避免漏報重大事件、也避免被雜訊淹沒。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "偵測"
+        ],
+        "operationalCapability": [
+          "資訊安全事件管理"
+        ],
+        "securityDomain": [
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.26",
+      "type": "control",
+      "ref": "A.5.26",
+      "title": "對資訊安全事故之回應",
+      "title_en": "Response to information security incidents",
+      "summary": "照事先定好的程序把事故壓下來、復原。",
+      "explanation": "確認是事故後，依規劃好的程序動起來：圍堵、止血、根除原因、復原服務，過程留下記錄並對內外通報。重點是有紀律地照劇本走、由指定人員執行，把損害降到最低並讓營運盡快回到正軌。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "矯正"
+        ],
+        "operationalCapability": [
+          "資訊安全事件管理"
+        ],
+        "securityDomain": [
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.27",
+      "type": "control",
+      "ref": "A.5.27",
+      "title": "從資訊安全事故中學習",
+      "title_en": "Learning from information security incidents",
+      "summary": "事後檢討，把教訓變成更強的防護。",
+      "explanation": "事故處理完不能就算了。要分析事故的根因、影響與處理過程，從中萃取教訓，回頭強化控制措施、更新程序與教育訓練，降低同類事故再發生的機率。讓每一次受傷都換來系統變得更耐打。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "資訊安全事件管理"
+        ],
+        "securityDomain": [
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.28",
+      "type": "control",
+      "ref": "A.5.28",
+      "title": "證據之蒐集",
+      "title_en": "Collection of evidence",
+      "summary": "用站得住腳的方式保全事故相關證據。",
+      "explanation": "事故可能牽涉法律訴訟或內部懲處，因此要建立一套識別、蒐集、取得與保存證據的程序，確保數位證據的完整性與可信度（如保管鏈、原始性）。日後若要當作呈堂或申訴依據，證據才不會因處理不當而失效。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "矯正"
+        ],
+        "operationalCapability": [
+          "資訊安全事件管理"
+        ],
+        "securityDomain": [
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.29",
+      "type": "control",
+      "ref": "A.5.29",
+      "title": "中斷期間之資訊安全",
+      "title_en": "Information security during disruption",
+      "summary": "災難或中斷時，資安水準也不能崩盤。",
+      "explanation": "當組織遇到重大中斷（天災、攻擊、系統故障）啟動應變或復原時，常會為了趕快恢復而便宜行事。這條要求事先規劃，確保即使在中斷與復原期間，資訊的機密性、完整性與可用性仍維持在可接受的保護水準。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防",
+          "矯正"
+        ],
+        "operationalCapability": [
+          "營運持續"
+        ],
+        "securityDomain": [
+          "保護",
+          "韌性"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.30",
+      "type": "control",
+      "ref": "A.5.30",
+      "title": "營運持續之 ICT 備妥性",
+      "title_en": "ICT readiness for business continuity",
+      "summary": "讓 IT 系統有能力在災後依目標時間復原。",
+      "explanation": "2022 版新增控制。把營運持續的需求（可容忍中斷多久、要復原到什麼程度）轉成對 ICT 的具體要求，並據此規劃、建置、維護與測試系統的備援與復原能力，確保關鍵服務在中斷後能在預定時間內恢復可用。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "可用性"
+        ],
+        "controlType": [
+          "矯正"
+        ],
+        "operationalCapability": [
+          "營運持續"
+        ],
+        "securityDomain": [
+          "保護",
+          "韌性"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.31",
+      "type": "control",
+      "ref": "A.5.31",
+      "title": "法律、法令、法規與合約要求",
+      "title_en": "Legal, statutory, regulatory and contractual requirements",
+      "summary": "把適用的法規與合約要求識別清楚並落實。",
+      "explanation": "識別並記錄與資安、隱私相關的所有法律、法規及合約義務，並確保組織的作法持續符合。這正是條款 4.2 識別出的外部義務，最終落地成的控制；做不到可能挨罰或違約。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "法規與合規"
+        ],
+        "securityDomain": [
+          "治理與生態系",
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.32",
+      "type": "control",
+      "ref": "A.5.32",
+      "title": "智慧財產權",
+      "title_en": "Intellectual property rights",
+      "summary": "尊重並保護智財，別誤用他人或外洩自家。",
+      "explanation": "確保組織合法使用受智慧財產權保護的素材（如授權軟體、文件、字型），避免盜版或侵權；同時保護自家的智財不被不當散布。透過政策與程序管控授權數量與使用方式，降低法律與商譽風險。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "法規與合規"
+        ],
+        "securityDomain": [
+          "治理與生態系"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.33",
+      "type": "control",
+      "ref": "A.5.33",
+      "title": "記錄之保護",
+      "title_en": "Protection of records",
+      "summary": "重要記錄要防遺失、竄改、未授權存取。",
+      "explanation": "針對組織需保存的重要記錄（財務、法遵、稽核紀錄等），依法規與營運需求妥善保護，避免遺失、毀損、竄改、未經授權存取或外洩，並依保存期限留存與安全銷毀。確保需要時調得出、且內容可信。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "法規與合規",
+          "資產管理",
+          "資訊保護"
+        ],
+        "securityDomain": [
+          "防禦",
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.34",
+      "type": "control",
+      "ref": "A.5.34",
+      "title": "隱私及個人可識別資訊 (PII) 之保護",
+      "title_en": "Privacy and protection of personally identifiable information (PII)",
+      "summary": "依法保護個資，落實隱私要求。",
+      "explanation": "識別並遵循適用的個資保護法令與合約要求（如個資法、GDPR），對所蒐集、處理的個人可識別資訊（PII）採取適當保護措施，貫穿蒐集、使用、保存到刪除全程，保障當事人隱私並降低違規風險。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "資訊保護",
+          "法規與合規"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      },
+      "subconcepts": [
+        {
+          "label": "PII",
+          "note": "個人可識別資訊，可單獨或結合辨識特定個人之資料。"
+        }
+      ]
+    },
+    {
+      "id": "control-a.5.35",
+      "type": "control",
+      "ref": "A.5.35",
+      "title": "資訊安全之獨立審查",
+      "title_en": "Independent review of information security",
+      "summary": "定期找獨立角色來檢視 ISMS 有沒有走鐘。",
+      "explanation": "由獨立、客觀的角色（內部稽核或外部單位）定期審查資安管理作法與控制是否仍適切、有效並被落實。獨立性能避免自己查自己的盲點，及早發現偏差，是 ISMS 持續改善與取得管理階層信心的重要機制。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防",
+          "矯正"
+        ],
+        "operationalCapability": [
+          "資訊安全保證"
+        ],
+        "securityDomain": [
+          "治理與生態系"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.36",
+      "type": "control",
+      "ref": "A.5.36",
+      "title": "遵循資訊安全之政策、規則及標準",
+      "title_en": "Compliance with policies, rules and standards for information security",
+      "summary": "確認大家真的有照資安政策與標準執行。",
+      "explanation": "定期查核各單位的實際作法是否符合組織制定的資安政策、規則、程序與技術標準。這是「由內往下」的合規檢查（對應 A.5.35 的獨立審查），透過抽查、技術掃描等方式找出不符之處並要求改正。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "法規與合規",
+          "資訊安全保證"
+        ],
+        "securityDomain": [
+          "治理與生態系"
+        ]
+      }
+    },
+    {
+      "id": "control-a.5.37",
+      "type": "control",
+      "ref": "A.5.37",
+      "title": "書面化作業程序",
+      "title_en": "Documented operating procedures",
+      "summary": "把關鍵作業寫成文件，照表操課不靠記憶。",
+      "explanation": "把處理資訊設施的重要作業（備份、設定、變更、事故處理等）寫成清楚的書面程序，並提供給需要的人。確保工作不依賴特定個人的腦袋，換人也能照標準正確執行，減少人為失誤並維持作業一致性。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防",
+          "矯正"
+        ],
+        "operationalCapability": [
+          "資產管理",
+          "實體安全",
+          "系統與網路安全",
+          "營運持續",
+          "資訊安全事件管理"
+        ],
+        "securityDomain": [
+          "治理與生態系",
+          "保護",
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.6.1",
+      "type": "control",
+      "ref": "A.6.1",
+      "title": "篩選",
+      "title_en": "Screening",
+      "summary": "人員取得存取權前先做背景查核，確認適任可信。",
+      "explanation": "在錄取的人員（含正職、約聘、外包）正式取得資訊存取權之前，依適用法令與職務敏感度做背景查核，例如核對學經歷、推薦人，必要時查信用或前科紀錄。目的是確保進來的人適任且可信，從源頭降低內部人員帶來的風險。此外，對敏感或高風險職務，背景查核不只在入職前做一次，還應依職務重要性定期重做，以確認在職者持續適任。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "人力資源安全"
+        ],
+        "securityDomain": [
+          "治理與生態系"
+        ]
+      }
+    },
+    {
+      "id": "control-a.6.2",
+      "type": "control",
+      "ref": "A.6.2",
+      "title": "聘用條款及條件",
+      "title_en": "Terms and conditions of employment",
+      "summary": "把資安責任寫進聘用合約，讓員工一開始就清楚義務。",
+      "explanation": "把資安責任明文寫進聘用合約或相關文件，讓員工一開始就清楚自己在保護資訊上該做什麼、違反會有什麼後果。內容常含保密義務、智財歸屬、以及離職後仍須遵守的事項，把口頭期待變成白紙黑字的約束。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "人力資源安全"
+        ],
+        "securityDomain": [
+          "治理與生態系"
+        ]
+      }
+    },
+    {
+      "id": "control-a.6.3",
+      "type": "control",
+      "ref": "A.6.3",
+      "title": "資訊安全認知、教育及訓練",
+      "title_en": "Information security awareness, education and training",
+      "summary": "定期教育訓練，讓每個人都知道並做到自己的資安責任。",
+      "explanation": "定期讓全體人員與相關合作方接受資安認知宣導與教育訓練，內容對齊組織政策及其職務相關程序，並隨威脅與政策更新而更新。目的是讓每個人都知道自己的資安責任並真的落實，把人從最弱的環節變成第一道防線。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "人力資源安全"
+        ],
+        "securityDomain": [
+          "治理與生態系"
+        ]
+      }
+    },
+    {
+      "id": "control-a.6.4",
+      "type": "control",
+      "ref": "A.6.4",
+      "title": "懲處過程",
+      "title_en": "Disciplinary process",
+      "summary": "事先訂好違規懲處流程，公平處理並嚇阻違規。",
+      "explanation": "事先訂好並公告一套處理違反資安規定的懲處流程，讓大家知道違規會有什麼後果。發生違規時依此公平處理，兼具事前嚇阻（預防）與事後矯正的作用，避免主管臨時起意或標準不一致。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防",
+          "矯正"
+        ],
+        "operationalCapability": [
+          "人力資源安全"
+        ],
+        "securityDomain": [
+          "治理與生態系"
+        ]
+      }
+    },
+    {
+      "id": "control-a.6.5",
+      "type": "control",
+      "ref": "A.6.5",
+      "title": "聘用終止或變更後之責任",
+      "title_en": "Responsibilities after termination or change of employment",
+      "summary": "離職或轉調後仍延續的資安責任要事先界定並執行。",
+      "explanation": "規範人員離職或轉調後仍須延續的資安責任，例如持續保密、歸還資產、撤銷存取權限。要在異動前就把這些責任界定清楚並傳達，避免離職者帶走機密，或留著不該再有的權限而造成風險。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "人力資源安全",
+          "資產管理"
+        ],
+        "securityDomain": [
+          "治理與生態系"
+        ]
+      }
+    },
+    {
+      "id": "control-a.6.6",
+      "type": "control",
+      "ref": "A.6.6",
+      "title": "機密性或保密協議",
+      "title_en": "Confidentiality or non-disclosure agreements",
+      "summary": "用 NDA 把保護機密資訊的法律義務明文化。",
+      "explanation": "與員工、外部廠商或合作方簽訂保密協議（NDA），把保護機密資訊的法律義務明文化。協議要載明保密範圍、期限與違反責任，並定期檢視更新。這是用合約手段守住機密性的常見作法。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "人力資源安全",
+          "資訊保護",
+          "供應商關係安全"
+        ],
+        "securityDomain": [
+          "治理與生態系",
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.6.7",
+      "type": "control",
+      "ref": "A.6.7",
+      "title": "遠端工作",
+      "title_en": "Remote working",
+      "summary": "人員在辦公室外作業時，對資訊採取對應保護措施。",
+      "explanation": "當人員在辦公室以外（如在家、出差）存取、處理或儲存組織資訊時，採取對應的保護措施，例如安全連線（VPN）、裝置加密、實體環境管控、避免被旁人窺視。確保資訊離開辦公場域後依然受到保護。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "資產管理",
+          "資訊保護",
+          "實體安全",
+          "系統與網路安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.6.8",
+      "type": "control",
+      "ref": "A.6.8",
+      "title": "資訊安全事件通報",
+      "title_en": "Information security event reporting",
+      "summary": "建立暢通管道，讓人員及時通報可疑資安事件。",
+      "explanation": "建立暢通的管道與機制，讓人員一發現可疑資安事件或弱點就能即時、依規定通報。重點是讓回報變簡單、不究責，因為及早發現才能及早處理。屬偵測性控制，是事故應變流程的觸發起點。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "偵測"
+        ],
+        "operationalCapability": [
+          "資安事件管理"
+        ],
+        "securityDomain": [
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.7.1",
+      "type": "control",
+      "ref": "A.7.1",
+      "title": "實體安全周界",
+      "title_en": "Physical security perimeters",
+      "summary": "用實體界線圈出要保護的區域。",
+      "explanation": "在存放重要資訊或設備的場所，先畫出清楚的安全邊界（牆、門、圍籬、門禁），把外人擋在外面。重點是先定義「哪裡算受保護區」，再用合適的實體屏障把它包起來，讓敏感資產不會輕易被接觸。這是所有實體控制的最外層防線。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "實體安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.7.2",
+      "type": "control",
+      "ref": "A.7.2",
+      "title": "實體進入",
+      "title_en": "Physical entry",
+      "summary": "只讓有授權的人進得了管制區。",
+      "explanation": "對受保護區域設進出管制，確保只有經授權者能進入，且進出有紀錄可查。包含門禁卡、訪客登記與陪同、身分查驗等做法，讓「誰、何時、進了哪裡」都管得住，防止未授權的人闖入接觸資產。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "實體安全",
+          "身分識別與存取管理"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.7.3",
+      "type": "control",
+      "ref": "A.7.3",
+      "title": "保全辦公室、房間及設施",
+      "title_en": "Securing offices, rooms and facilities",
+      "summary": "辦公空間本身要設計得安全。",
+      "explanation": "在規劃與佈置辦公室、機房、檔案室等空間時，就把安全納入考量，例如避免敏感區域太顯眼、門窗加固、重要設施不對外公開位置。目的是讓日常工作場所天生就比較難被入侵或窺探，而不是事後才補強。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "實體安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.7.4",
+      "type": "control",
+      "ref": "A.7.4",
+      "title": "實體安全監視",
+      "title_en": "Physical security monitoring",
+      "summary": "持續監看場所，抓未授權的進出。",
+      "explanation": "2022 版新增的控制。要求對場所做持續監視，以偵測並嚇阻未經授權的實體闖入。它補上「事前管制之外，事中也要看得到」這一塊，讓異常進出能被即時發現並留存證據。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防",
+          "偵測"
+        ],
+        "operationalCapability": [
+          "實體安全"
+        ],
+        "securityDomain": [
+          "保護",
+          "防禦"
+        ]
+      },
+      "subconcepts": [
+        {
+          "label": "監視器 CCTV",
+          "note": "錄影留存，可事後追查與嚇阻。"
+        },
+        {
+          "label": "警報系統",
+          "note": "門窗、動作感測觸發即時告警。"
+        },
+        {
+          "label": "保全巡邏",
+          "note": "人員巡查補監視器死角。"
+        }
+      ]
+    },
+    {
+      "id": "control-a.7.5",
+      "type": "control",
+      "ref": "A.7.5",
+      "title": "防範實體及環境威脅",
+      "title_en": "Protecting against physical and environmental threats",
+      "summary": "防天災與人為的實體破壞。",
+      "explanation": "針對火災、水患、地震、停電等天然災害，以及蓄意破壞等人為實體威脅，事先設計防護措施，例如消防、防水、結構補強、選址避災。目的是降低環境與實體事故對資訊設施造成的衝擊。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "實體安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.7.6",
+      "type": "control",
+      "ref": "A.7.6",
+      "title": "於安全區域內工作",
+      "title_en": "Working in secure areas",
+      "summary": "在敏感區工作要守的規矩。",
+      "explanation": "對在機房、資料中心等高安全區域內工作的人，訂出行為規則，例如限制攝錄、管制攜帶裝置、無人時上鎖。確保即使是有權進入的人，在區內的行為也受約束，減少資料外洩或破壞的風險。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "實體安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.7.7",
+      "type": "control",
+      "ref": "A.7.7",
+      "title": "桌面淨空及螢幕淨空",
+      "title_en": "Clear desk and clear screen",
+      "summary": "離開時桌面與螢幕別留機密。",
+      "explanation": "要求員工離座或下班時，把紙本文件、可攜媒體收好，並鎖定螢幕，避免敏感資訊被路過的人看到或順手帶走。是成本低但很有效的日常習慣，主要保護機密性。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "實體安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.7.8",
+      "type": "control",
+      "ref": "A.7.8",
+      "title": "設備安置及保護",
+      "title_en": "Equipment siting and protection",
+      "summary": "設備擺放位置要安全、受保護。",
+      "explanation": "妥善安置 IT 設備，讓它遠離環境風險（高溫、潮濕、人潮）與被窺視、被竊取的機會，並加上必要保護。例如螢幕背對門口、伺服器放專屬機房，降低設備受損或資訊被偷看的可能。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "實體安全",
+          "資產管理"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.7.9",
+      "type": "control",
+      "ref": "A.7.9",
+      "title": "場所外資產之安全",
+      "title_en": "Security of assets off-premises",
+      "summary": "帶出公司的設備也要顧好。",
+      "explanation": "對離開公司場所使用的設備與資產（如筆電、手機、外勤裝置）提供保護，因為它們脫離了原本的實體防線。包含攜出授權、加密、不離身、遺失通報等措施，避免在外被偷或被未授權存取。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "實體安全",
+          "資產管理"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.7.10",
+      "type": "control",
+      "ref": "A.7.10",
+      "title": "儲存媒體",
+      "title_en": "Storage media",
+      "summary": "媒體一生的管理：取得到報廢。",
+      "explanation": "對隨身碟、硬碟、磁帶、光碟等儲存媒體，依資訊分類分級，在取得、使用、運送到汰除的整個生命週期都加以管理。重點是防止媒體在傳遞或丟棄過程中，把裡面的資料外洩出去。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "實體安全",
+          "資產管理"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      },
+      "subconcepts": [
+        {
+          "label": "取得與使用",
+          "note": "依分類分級決定可用範圍與加密。"
+        },
+        {
+          "label": "運送",
+          "note": "外送途中防遺失、防竊取。"
+        },
+        {
+          "label": "汰除",
+          "note": "報廢前安全清除內容。"
+        }
+      ]
+    },
+    {
+      "id": "control-a.7.11",
+      "type": "control",
+      "ref": "A.7.11",
+      "title": "支援之公用服務事業",
+      "title_en": "Supporting utilities",
+      "summary": "保住電力等公用設施不中斷。",
+      "explanation": "確保電力、空調、供水、通訊等支援設施穩定，並防範它們失效造成的中斷。常見做法如不斷電系統、備援發電機、冗餘線路。主要保護可用性，讓資訊處理設施不會因斷電斷網而停擺。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防",
+          "偵測"
+        ],
+        "operationalCapability": [
+          "實體安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      },
+      "subconcepts": [
+        {
+          "label": "UPS / 發電機",
+          "note": "停電時維持運轉、平順切換。"
+        },
+        {
+          "label": "空調",
+          "note": "控溫控濕，避免設備過熱。"
+        }
+      ]
+    },
+    {
+      "id": "control-a.7.12",
+      "type": "control",
+      "ref": "A.7.12",
+      "title": "佈纜安全",
+      "title_en": "Cabling security",
+      "summary": "保護電纜與網路線不被竊聽破壞。",
+      "explanation": "保護傳送電力與資料的纜線，避免被竊聽、干擾或破壞，例如走線埋設、配線間上鎖、電力與資料線分離。重點在維持線路的機密性與可用性，防止有人從纜線下手攔截資料或切斷服務。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "實體安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.7.13",
+      "type": "control",
+      "ref": "A.7.13",
+      "title": "設備維護",
+      "title_en": "Equipment maintenance",
+      "summary": "定期保養設備，維持可用與安全。",
+      "explanation": "對設備做定期且適當的維護，確保它持續可用，且不因故障引發資安事件。包含按原廠週期保養、由授權人員施作、維修紀錄留存，並注意維修過程中設備上的資料也要受保護。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "實體安全",
+          "資產管理"
+        ],
+        "securityDomain": [
+          "保護",
+          "韌性"
+        ]
+      }
+    },
+    {
+      "id": "control-a.7.14",
+      "type": "control",
+      "ref": "A.7.14",
+      "title": "設備汰除或重新使用之保全",
+      "title_en": "Secure disposal or re-use of equipment",
+      "summary": "設備報廢或再用前先清乾淨資料。",
+      "explanation": "設備要丟棄或轉作他用前，先查證並清除或安全覆寫裡面的敏感資料與授權軟體，避免資訊隨著舊設備外流。主要保護機密性，是「資產退場」階段最容易被忽略的漏洞。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "實體安全",
+          "資產管理"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.1",
+      "type": "control",
+      "ref": "A.8.1",
+      "title": "使用者端點裝置",
+      "title_en": "User endpoint devices",
+      "summary": "保護筆電手機等端點上的資訊。",
+      "explanation": "員工的筆電、手機、平板這些直接拿來用的裝置最容易遺失或被入侵。這條要你訂規則保護存放於、處理於、或透過這些裝置存取的資訊：例如加密、螢幕鎖、遠端清除、限制可安裝的軟體、遺失通報流程，並涵蓋自帶裝置(BYOD)與遠距辦公的情境。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "預防"
+        ],
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "operationalCapability": [
+          "資產管理",
+          "資訊保護"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      },
+      "subconcepts": [
+        {
+          "label": "BYOD",
+          "note": "員工自帶裝置存取公司資料的規範。"
+        },
+        {
+          "label": "遠端清除",
+          "note": "裝置遺失時遠端抹除其中資料。"
+        }
+      ]
+    },
+    {
+      "id": "control-a.8.2",
+      "type": "control",
+      "ref": "A.8.2",
+      "title": "特殊權限存取權",
+      "title_en": "Privileged access rights",
+      "summary": "嚴管系統管理員等高權限帳號。",
+      "explanation": "系統管理員、root 這類「高權限」帳號一旦被濫用或被盜，破壞力極大。這條要求你特別控管：依實際需要才核發、定期審查與回收、不與一般工作帳號混用、記錄其活動，把握有這把「萬能鑰匙」的人數壓到最低。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "預防"
+        ],
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "operationalCapability": [
+          "身分與存取管理"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      },
+      "subconcepts": [
+        {
+          "label": "最小權限",
+          "note": "只給完成工作所需的最低權限。"
+        }
+      ]
+    },
+    {
+      "id": "control-a.8.3",
+      "type": "control",
+      "ref": "A.8.3",
+      "title": "資訊存取限制",
+      "title_en": "Information access restriction",
+      "summary": "依存取政策決定誰能看哪些資訊。",
+      "explanation": "不是每個人都該看到所有資料。這條要你依組織的存取控制政策，限制誰、用什麼方式、能讀或改哪些資訊與功能。常見作法是「最小權限」與「需要才知道」，透過選單控制、權限設定、動態遮蔽等方式落實。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "預防"
+        ],
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "operationalCapability": [
+          "身分與存取管理"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.4",
+      "type": "control",
+      "ref": "A.8.4",
+      "title": "對源碼之存取",
+      "title_en": "Access to source code",
+      "summary": "控管原始碼與開發工具的讀寫權。",
+      "explanation": "程式原始碼、開發工具與函式庫是公司的重要資產，被竄改可能埋入後門。這條要你妥善控管誰能讀取、修改與發布源碼，例如用版本控制權限、程式碼庫存取管理、合併審查流程，避免未授權的更動流入正式系統。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "預防"
+        ],
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "operationalCapability": [
+          "身分與存取管理",
+          "應用程式安全",
+          "安全組態"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.5",
+      "type": "control",
+      "ref": "A.8.5",
+      "title": "安全鑑別",
+      "title_en": "Secure authentication",
+      "summary": "用夠強的方式驗證使用者身分。",
+      "explanation": "「你是不是本人」要驗得夠牢。這條要求依資訊的敏感度選用適當的鑑別技術與程序，例如多因子驗證(MFA)、限制錯誤嘗試次數、不顯示登入失敗細節、安全地儲存密碼，讓帳號不容易被冒用或暴力破解。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "預防"
+        ],
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "operationalCapability": [
+          "身分與存取管理"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      },
+      "subconcepts": [
+        {
+          "label": "MFA 多因子",
+          "note": "結合密碼、手機、生物特徵等多重驗證。"
+        }
+      ]
+    },
+    {
+      "id": "control-a.8.6",
+      "type": "control",
+      "ref": "A.8.6",
+      "title": "容量管理",
+      "title_en": "Capacity management",
+      "summary": "預測並調度資源，避免不夠用。",
+      "explanation": "系統的運算、儲存、頻寬、人力都有上限，用爆了服務就會掛。這條要你監看資源用量、預測未來需求，並提前擴充或最佳化，設定接近門檻時的告警，確保關鍵服務在尖峰時仍維持可用。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "預防",
+          "偵測"
+        ],
+        "cia": [
+          "完整性",
+          "可用性"
+        ],
+        "operationalCapability": [
+          "持續運作"
+        ],
+        "securityDomain": [
+          "治理與生態系",
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.7",
+      "type": "control",
+      "ref": "A.8.7",
+      "title": "防範惡意軟體",
+      "title_en": "Protection against malware",
+      "summary": "防毒、防勒索等惡意程式。",
+      "explanation": "病毒、勒索軟體、木馬會破壞或竊取資料。這條要你結合技術與管理手段防範：安裝並更新防毒、限制執行未授權程式、定期掃描、做好備份與教育使用者別亂點連結附件，從預防、偵測到復原全面布防。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "預防",
+          "偵測",
+          "矯正"
+        ],
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "operationalCapability": [
+          "系統與網路安全",
+          "資訊保護"
+        ],
+        "securityDomain": [
+          "保護",
+          "防禦"
+        ]
+      },
+      "subconcepts": [
+        {
+          "label": "勒索軟體",
+          "note": "加密檔案勒索贖金，需靠備份與防護並重。"
+        }
+      ]
+    },
+    {
+      "id": "control-a.8.8",
+      "type": "control",
+      "ref": "A.8.8",
+      "title": "技術脆弱性管理",
+      "title_en": "Management of technical vulnerabilities",
+      "summary": "及時掌握並修補系統漏洞。",
+      "explanation": "軟硬體會不斷被發現新漏洞，不修就是給駭客開門。這條要你建立流程：盤點有哪些資產、持續取得漏洞情資、評估風險與急迫性，並及時修補或採取緩解措施，必要時搭配弱點掃描與滲透測試。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "預防"
+        ],
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "operationalCapability": [
+          "威脅與脆弱性管理"
+        ],
+        "securityDomain": [
+          "治理與生態系",
+          "保護",
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.9",
+      "type": "control",
+      "ref": "A.8.9",
+      "title": "組態管理",
+      "title_en": "Configuration management",
+      "summary": "統一管控系統的安全設定。",
+      "explanation": "系統、網路設備、軟體若設定鬆散，就會留下破口。這條要你定義安全的基準組態、套用到所有相關資產、記錄並監控設定的變動，避免有人偷偷改成不安全的狀態，確保環境維持在已知且安全的設定。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "預防"
+        ],
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "operationalCapability": [
+          "安全組態"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.10",
+      "type": "control",
+      "ref": "A.8.10",
+      "title": "資訊刪除",
+      "title_en": "Information deletion",
+      "summary": "不再需要的資料要確實刪除。",
+      "explanation": "留著用不到的資料只會增加外洩風險，也可能違反法規。這條要你在資料不再需要時確實刪除：包含系統、設備、雲端與備份中的副本，採用安全的刪除或銷毀方式，並留意法令對保存期限的要求。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "預防"
+        ],
+        "cia": [
+          "機密性"
+        ],
+        "operationalCapability": [
+          "資訊保護",
+          "法規與合規"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.11",
+      "type": "control",
+      "ref": "A.8.11",
+      "title": "資料遮蔽",
+      "title_en": "Data masking",
+      "summary": "遮住敏感欄位，降低曝光。",
+      "explanation": "測試、開發或客服場景常不需看到完整的個資。這條要你依存取政策與法規，用遮蔽、假名化或匿名化等技術，把敏感資料隱藏或替換，讓人能完成工作又不會直接接觸到真實的機敏內容。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "預防"
+        ],
+        "cia": [
+          "機密性"
+        ],
+        "operationalCapability": [
+          "資訊保護"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.12",
+      "type": "control",
+      "ref": "A.8.12",
+      "title": "資料洩漏預防",
+      "title_en": "Data leakage prevention",
+      "summary": "偵測並阻擋機敏資料外流。",
+      "explanation": "機敏資料可能透過 email、隨身碟、雲端上傳被有意或無意帶出去。這條要你在處理、儲存、傳輸敏感資訊的系統與裝置上部署 DLP 機制，監看並阻擋未授權的複製或外傳，及時發現可疑的外洩行為。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "預防",
+          "偵測"
+        ],
+        "cia": [
+          "機密性"
+        ],
+        "operationalCapability": [
+          "資訊保護"
+        ],
+        "securityDomain": [
+          "保護",
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.13",
+      "type": "control",
+      "ref": "A.8.13",
+      "title": "資訊備份",
+      "title_en": "Information backup",
+      "summary": "定期備份並驗證可還原。",
+      "explanation": "資料可能因故障、誤刪、勒索軟體而消失。這條要你依備份政策定期備份資訊、軟體與系統，妥善保護備份(如異地、加密)，並且要定期測試還原，確保真的需要時能把資料救回來，而不是備了卻還不了。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "矯正"
+        ],
+        "cia": [
+          "完整性",
+          "可用性"
+        ],
+        "operationalCapability": [
+          "持續運作"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      },
+      "subconcepts": [
+        {
+          "label": "3-2-1 原則",
+          "note": "3 份副本、2 種媒體、1 份異地。"
+        },
+        {
+          "label": "還原演練",
+          "note": "定期測試真的能把資料救回來。"
+        }
+      ]
+    },
+    {
+      "id": "control-a.8.14",
+      "type": "control",
+      "ref": "A.8.14",
+      "title": "資訊處理設施之多備",
+      "title_en": "Redundancy of information processing facilities",
+      "summary": "關鍵設施做冗餘，避免單點故障。",
+      "explanation": "單一伺服器、機房或線路一旦故障，服務就中斷。這條要你針對可用性要求高的設施建立冗餘：例如備援主機、雙電源、異地機房、自動切換(failover)，讓任一元件失效時系統仍能持續運作。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "預防"
+        ],
+        "cia": [
+          "可用性"
+        ],
+        "operationalCapability": [
+          "持續運作",
+          "資產管理"
+        ],
+        "securityDomain": [
+          "保護",
+          "韌性"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.15",
+      "type": "control",
+      "ref": "A.8.15",
+      "title": "存錄",
+      "title_en": "Logging",
+      "summary": "記錄活動與事件供日後查核。",
+      "explanation": "出事時若沒有紀錄就無從追查。這條要你產生並保存活動、例外、錯誤與資安事件的日誌，保護日誌不被竄改或刪除，並控管誰能存取，讓日後能用它來偵測異常、調查事件與證明合規。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "偵測"
+        ],
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "operationalCapability": [
+          "資訊安全事件管理"
+        ],
+        "securityDomain": [
+          "保護",
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.16",
+      "type": "control",
+      "ref": "A.8.16",
+      "title": "監視活動",
+      "title_en": "Monitoring activities",
+      "summary": "持續監看網路系統找出異常。",
+      "explanation": "光記錄不夠，還要有人或系統盯著看。這條要你持續監視網路、系統與應用程式的行為，設定正常基準，對偏離(如異常登入、流量、存取)發出告警，以便及早察覺潛在的攻擊或資安事件並啟動應變。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "偵測",
+          "矯正"
+        ],
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "operationalCapability": [
+          "資訊安全事件管理"
+        ],
+        "securityDomain": [
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.17",
+      "type": "control",
+      "ref": "A.8.17",
+      "title": "時鐘同步",
+      "title_en": "Clock synchronization",
+      "summary": "所有系統對時到同一時間源。",
+      "explanation": "各系統時間若不一致，日誌的時間戳就對不起來，事件調查與數位鑑識會很困難。這條要你把相關系統的時鐘同步到單一可信的參考時間源(如 NTP)，確保跨系統的紀錄時間一致、可比對，也利於符合法規。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "controlType": [
+          "偵測"
+        ],
+        "cia": [
+          "完整性"
+        ],
+        "operationalCapability": [
+          "資訊安全事件管理"
+        ],
+        "securityDomain": [
+          "保護",
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.18",
+      "type": "control",
+      "ref": "A.8.18",
+      "title": "具特殊權限公用程式之使用",
+      "title_en": "Use of privileged utility programs",
+      "summary": "限制並記錄能繞過安控的強力工具使用。",
+      "explanation": "系統公用程式（如磁碟編輯、設定工具、除錯軟體）能繞過一般的存取與安全控制，威力很大。這條要求限制誰能用、什麼情況下才准用，並把使用過程記錄下來，避免被濫用來竄改系統或竊取資料。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "系統與網路安全",
+          "安全組態",
+          "應用系統安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.19",
+      "type": "control",
+      "ref": "A.8.19",
+      "title": "運作中系統之軟體安裝",
+      "title_en": "Installation of software on operational systems",
+      "summary": "管控正式系統上的軟體安裝與更新。",
+      "explanation": "正式上線的系統不能隨便裝軟體。這條要求管控誰能在運作環境安裝、更新軟體，建立核准與版本控管程序，避免未授權或含漏洞的程式被裝進去，破壞系統的穩定與安全。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "安全組態",
+          "應用系統安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.20",
+      "type": "control",
+      "ref": "A.8.20",
+      "title": "網路安全",
+      "title_en": "Networks security",
+      "summary": "管理並保護網路與其上傳輸的資訊。",
+      "explanation": "要求把組織的網路與網路設備管好、保護好，確保在網路上傳輸的資訊安全。涵蓋網路的規劃、管理與監控，防止未授權存取與資料外洩，是整體技術防線的基礎。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防",
+          "偵測"
+        ],
+        "operationalCapability": [
+          "系統與網路安全"
+        ],
+        "securityDomain": [
+          "保護",
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.21",
+      "type": "control",
+      "ref": "A.8.21",
+      "title": "網路服務之安全",
+      "title_en": "Security of network services",
+      "summary": "為網路服務定義安全機制與服務水準。",
+      "explanation": "對自建或外購的網路服務（如 VPN、頻寬、防火牆服務）要明確定義安全機制、服務等級與管理要求，並寫進協議。確保服務商與內部都清楚該提供什麼樣的保護，不留模糊地帶。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防",
+          "偵測"
+        ],
+        "operationalCapability": [
+          "系統與網路安全"
+        ],
+        "securityDomain": [
+          "保護",
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.22",
+      "type": "control",
+      "ref": "A.8.22",
+      "title": "網路區隔",
+      "title_en": "Segregation of networks",
+      "summary": "把網路分區隔離，限縮攻擊擴散。",
+      "explanation": "把網路依風險與用途切成不同區段（如內網、外網、訪客網、伺服器區），用閘道或防火牆隔開。一段被攻破時不會殃及全部，藉此縮小攻擊面與駭客橫向移動的空間。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "系統與網路安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      },
+      "subconcepts": [
+        {
+          "label": "內部網路區",
+          "note": "員工日常作業使用，信任度較高。"
+        },
+        {
+          "label": "非軍事區 (DMZ)",
+          "note": "對外服務（如網站）擺放區，與內網隔開。"
+        },
+        {
+          "label": "訪客/IoT 網路",
+          "note": "低信任裝置獨立一段，避免接觸核心系統。"
+        }
+      ]
+    },
+    {
+      "id": "control-a.8.23",
+      "type": "control",
+      "ref": "A.8.23",
+      "title": "網頁過濾",
+      "title_en": "Web filtering",
+      "summary": "過濾惡意/不當網站，降低上網風險。",
+      "explanation": "管控使用者能連到哪些外部網站，擋掉惡意或不當的網址。降低員工誤入釣魚頁面、惡意程式散布站、含毒下載點的風險。屬於 2022 版新增的控制措施。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "系統與網路安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.24",
+      "type": "control",
+      "ref": "A.8.24",
+      "title": "密碼技術之使用",
+      "title_en": "Use of cryptography",
+      "summary": "訂加密規則並管好金鑰生命週期。",
+      "explanation": "訂出何時、如何使用加密的規則，並妥善管理金鑰的整個生命週期（產生、保管、輪替、銷毀）。用加密保護資料的機密性與完整性，同時也要顧及法規對密碼技術的限制。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "安全組態"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      },
+      "subconcepts": [
+        {
+          "label": "加密政策",
+          "note": "規範演算法、金鑰長度、適用情境。"
+        },
+        {
+          "label": "金鑰管理",
+          "note": "金鑰產生、分發、保管、輪替與銷毀全程控管。"
+        }
+      ]
+    },
+    {
+      "id": "control-a.8.25",
+      "type": "control",
+      "ref": "A.8.25",
+      "title": "安全開發生命週期",
+      "title_en": "Secure development life cycle",
+      "summary": "開發全程內建安全規則，安全左移。",
+      "explanation": "要求把資安內建到軟體與系統開發的每個階段，從需求、設計、撰碼到測試與上線都有安全規則。讓安全不是事後補洞，而是從一開始就跟著一起做。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "應用系統安全",
+          "系統與網路安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.26",
+      "type": "control",
+      "ref": "A.8.26",
+      "title": "應用系統安全要求事項",
+      "title_en": "Application security requirements",
+      "summary": "開發前先定清楚應用的資安需求。",
+      "explanation": "在開發或採購應用系統之前，先把資安要求講清楚並文件化（如身分驗證、授權、資料保護、交易完整性）。確保系統一開始就照安全需求設計，特別是對外上網或處理交易的應用。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "應用系統安全",
+          "系統與網路安全"
+        ],
+        "securityDomain": [
+          "保護",
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.27",
+      "type": "control",
+      "ref": "A.8.27",
+      "title": "安全系統架構及工程原則",
+      "title_en": "Secure system architecture and engineering principles",
+      "summary": "建立安全設計原則供所有開發遵循。",
+      "explanation": "建立一套安全的設計與工程原則（如最小權限、深度防禦、零信任），讓所有開發與系統建置都遵循。並定期檢討更新，確保跟得上新威脅與最新的最佳實務。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "應用系統安全",
+          "系統與網路安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.28",
+      "type": "control",
+      "ref": "A.8.28",
+      "title": "安全程式設計",
+      "title_en": "Secure coding",
+      "summary": "依安全準則寫程式，避開常見漏洞。",
+      "explanation": "要求開發人員遵循安全的撰碼準則，避免常見漏洞（如 SQL 注入、跨站腳本、緩衝區溢位）。涵蓋撰碼前的準備、撰碼中的把關與事後維護。屬於 2022 版新增的控制措施。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "應用系統安全",
+          "系統與網路安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.29",
+      "type": "control",
+      "ref": "A.8.29",
+      "title": "開發及驗收中之安全測試",
+      "title_en": "Security testing in development and acceptance",
+      "summary": "上線前做安全測試並定通過標準。",
+      "explanation": "在開發過程與系統驗收前安排安全測試，定義測試項目與通過標準，例如弱點掃描、滲透測試、程式碼檢查。確保系統上線前，安全問題已被找出並修補完成。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "應用系統安全",
+          "系統與網路安全",
+          "資安保證"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.30",
+      "type": "control",
+      "ref": "A.8.30",
+      "title": "委外開發",
+      "title_en": "Outsourced development",
+      "summary": "監督委外廠商，把安全要求綁進合約。",
+      "explanation": "把開發外包出去時，要監督與管控廠商，把安全要求寫進合約，並驗證交付的成果有達到安全標準。確保外部團隊寫出來的程式，跟內部開發一樣安全可控。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防",
+          "偵測"
+        ],
+        "operationalCapability": [
+          "系統與網路安全",
+          "應用系統安全",
+          "供應商關係安全"
+        ],
+        "securityDomain": [
+          "保護",
+          "防禦"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.31",
+      "type": "control",
+      "ref": "A.8.31",
+      "title": "開發、測試與運作環境之區隔",
+      "title_en": "Separation of development, test and production environments",
+      "summary": "開發/測試/正式環境分開，避免互相污染。",
+      "explanation": "把開發、測試與正式運作三種環境分開，避免測試的變動或資料污染到正式系統，也防止未經測試的程式直接上線。藉此降低意外與未授權變更帶來的風險。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "應用系統安全",
+          "系統與網路安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      },
+      "subconcepts": [
+        {
+          "label": "開發環境 (Dev)",
+          "note": "工程師寫程式、實驗的地方。"
+        },
+        {
+          "label": "測試環境 (Test)",
+          "note": "驗證功能與安全，模擬正式但獨立。"
+        },
+        {
+          "label": "運作環境 (Prod)",
+          "note": "真正對外服務、存放正式資料的環境。"
+        }
+      ]
+    },
+    {
+      "id": "control-a.8.32",
+      "type": "control",
+      "ref": "A.8.32",
+      "title": "變更管理",
+      "title_en": "Change management",
+      "summary": "變更走正式流程，可控可追溯。",
+      "explanation": "對資訊系統與設施的變更要走正式流程：評估、核准、測試、記錄。避免臨時、未經審查的改動破壞系統安全或穩定，確保每次變更都受控制、可追溯回責任人。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "應用系統安全",
+          "系統與網路安全"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.33",
+      "type": "control",
+      "ref": "A.8.33",
+      "title": "測試資訊",
+      "title_en": "Test information",
+      "summary": "測試資料要慎選與保護，避免外洩。",
+      "explanation": "測試用的資料要謹慎挑選、保護與管理。尤其不要直接拿正式環境的個資或機敏資料來測試，必要時要先去識別化或遮罩，避免測試過程造成資料外洩。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "資訊保護"
+        ],
+        "securityDomain": [
+          "保護"
+        ]
+      }
+    },
+    {
+      "id": "control-a.8.34",
+      "type": "control",
+      "ref": "A.8.34",
+      "title": "稽核測試期間資訊系統之保護",
+      "title_en": "Protection of information systems during audit testing",
+      "summary": "規劃稽核測試，降低對運作系統的干擾。",
+      "explanation": "當稽核或測試需要存取運作中的系統時，要事先規劃並約定範圍與方式，把對營運的干擾降到最低。確保稽核活動本身不會反而造成系統當機或資料受損。",
+      "layers": [
+        "controls"
+      ],
+      "attributes": {
+        "cia": [
+          "機密性",
+          "完整性",
+          "可用性"
+        ],
+        "controlType": [
+          "預防"
+        ],
+        "operationalCapability": [
+          "系統與網路安全",
+          "資訊保護"
+        ],
+        "securityDomain": [
+          "保護",
+          "治理與生態系"
+        ]
+      }
+    },
+    {
+      "id": "clause-6.1.1",
+      "type": "clause",
+      "ref": "6.1.1",
+      "title": "一般（因應風險及機會之行動）",
+      "title_en": "General (Actions to address risks and opportunities)",
+      "summary": "規劃 ISMS 時同時盯著風險與機會，確保系統能達標。",
+      "explanation": "6.1 的開場。要組織在規劃 ISMS 時，把條款 4（內外部議題）與條款 5（利害關係人要求）的輸入拿來判斷有哪些風險與機會需要因應。目的是確保 ISMS 能達到預期成果、放大正面影響、預防或降低不要的結果，並持續改善。它替後面的 6.1.2 評鑑與 6.1.3 處理鋪好框架。",
+      "layers": [
+        "pdca",
+        "risk"
+      ],
+      "subconcepts": [
+        {
+          "label": "風險與機會",
+          "note": "不只防壞事，也要抓住能強化資安的機會。"
+        },
+        {
+          "label": "預期成果",
+          "note": "確保 ISMS 達到目的、放大正面、降低負面結果。"
+        },
+        {
+          "label": "承先啟後",
+          "note": "輸入來自條款 4/5，輸出餵進 6.1.2 / 6.1.3。"
+        }
+      ]
+    },
+    {
+      "id": "clause-6.1.2",
+      "type": "clause",
+      "ref": "6.1.2",
+      "title": "資訊安全風險評鑑",
+      "title_en": "Information security risk assessment",
+      "summary": "用一致可重複的方法找出、分析並排序資安風險。",
+      "explanation": "要求建立並維護一套風險評鑑流程：先訂出風險接受準則與評鑑準則，確保每次做出來的結果一致可重複；再識別會影響機密性、完整性、可用性的風險並指定風險擁有者；分析其發生可能性與後果得出風險等級，最後評估並排出處理優先順序。2022 版與 ISO 31000 對齊，不再強制使用資產／威脅／弱點單一方法。",
+      "layers": [
+        "pdca",
+        "risk"
+      ],
+      "subconcepts": [
+        {
+          "label": "風險準則",
+          "note": "風險接受準則＋執行評鑑的準則，先定才能一致。"
+        },
+        {
+          "label": "風險識別",
+          "note": "找出風險並指定風險擁有者。"
+        },
+        {
+          "label": "風險分析",
+          "note": "評估後果與發生可能性，得出風險等級。"
+        },
+        {
+          "label": "風險評估",
+          "note": "比對準則、排出處理優先順序。"
+        }
+      ]
+    },
+    {
+      "id": "clause-6.1.3",
+      "type": "clause",
+      "ref": "6.1.3",
+      "title": "資訊安全風險處理",
+      "title_en": "Information security risk treatment",
+      "summary": "決定怎麼處置每個風險，並產出 SoA 適用性聲明。",
+      "explanation": "針對評鑑出的風險選擇處置方式（降低、接受、移轉或避免），再決定要採用哪些控制措施；接著比對附錄 A 的 93 條控制確認沒有遺漏，並說明排除的理由。最後產出『適用性聲明（SoA）』記錄選了哪些控制、為什麼、以及實施狀態，並取得風險擁有者對處理計畫與剩餘風險的同意。",
+      "layers": [
+        "pdca",
+        "risk",
+        "controls"
+      ],
+      "subconcepts": [
+        {
+          "label": "風險處置選項",
+          "note": "降低 / 接受 / 移轉 / 避免。"
+        },
+        {
+          "label": "決定控制",
+          "note": "選出處置所需的控制措施。"
+        },
+        {
+          "label": "對照附錄 A",
+          "note": "比對 93 條控制確認無遺漏，記錄排除理由。"
+        },
+        {
+          "label": "SoA 適用性聲明",
+          "note": "列出控制適用性、理由與實施狀態。"
+        },
+        {
+          "label": "風險擁有者同意",
+          "note": "核准處理計畫並接受剩餘風險。"
+        }
+      ]
+    },
+    {
+      "id": "clause-6.2",
+      "type": "clause",
+      "ref": "6.2",
+      "title": "資訊安全目標及其達成之規劃",
+      "title_en": "Information security objectives and planning to achieve them",
+      "summary": "訂可衡量的資安目標，並規劃由誰、用什麼、何時達成。",
+      "explanation": "要求在相關部門與層級訂出資安目標：目標要與資安政策一致、可衡量、要對內溝通、要適時更新，並保存成文件。更重要的是規劃怎麼達成——做什麼、需要什麼資源、誰負責、何時完成、如何評估結果。它把抽象的政策變成可追蹤的具體行動，方便後續在條款 9 查核成效。",
+      "layers": [
+        "pdca",
+        "risk"
+      ],
+      "subconcepts": [
+        {
+          "label": "做什麼",
+          "note": "要採取哪些行動達成目標。"
+        },
+        {
+          "label": "需要什麼資源",
+          "note": "所需的人力、預算、工具。"
+        },
+        {
+          "label": "誰負責",
+          "note": "指定責任人。"
+        },
+        {
+          "label": "何時完成",
+          "note": "設定時程與里程碑。"
+        },
+        {
+          "label": "如何評估結果",
+          "note": "用什麼指標衡量是否達標。"
+        }
+      ]
+    },
+    {
+      "id": "clause-6.3",
+      "type": "clause",
+      "ref": "6.3",
+      "title": "變更之規劃",
+      "title_en": "Planning of changes",
+      "summary": "ISMS 要改時，改動必須有計畫地進行，不能臨時亂改。",
+      "explanation": "2022 版新增的條款。當組織判定 ISMS 需要變更（例如組織重整、導入新系統、法規異動）時，這些變更要以有規劃的方式進行，而非臨時起意。它沒有規定要用特定格式或完整的變更管理流程，重點只在於：改動前先想清楚影響、排好步驟，避免破壞既有的安全控制。",
+      "layers": [
+        "pdca",
+        "risk"
+      ],
+      "subconcepts": [
+        {
+          "label": "觸發時機",
+          "note": "組織、系統或法規變動需要動到 ISMS 時。"
+        },
+        {
+          "label": "有規劃地執行",
+          "note": "先評估影響、排好步驟再動手。"
+        }
+      ]
+    },
+    {
+      "id": "clause-4.1",
+      "type": "clause",
+      "ref": "4.1",
+      "title": "理解組織及其全景",
+      "title_en": "Understanding the organization and its context",
+      "summary": "盤點內外部因素，看哪些會左右 ISMS 成敗。",
+      "explanation": "動手蓋資安管理系統前，先搞清楚會影響它的內部與外部因素：外部像法規、市場、技術趨勢、社會與競爭環境；內部像組織文化、治理結構、人力與既有流程系統。把這些背景條件想清楚，後面的範圍界定與風險規劃才有依據，不會做出脫離現實的系統。",
+      "layers": [
+        "pdca",
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "外部議題",
+          "note": "法規、市場、技術、社會、競爭等外在環境變化。"
+        },
+        {
+          "label": "內部議題",
+          "note": "組織文化、治理、人力、流程與既有資源/系統。"
+        }
+      ]
+    },
+    {
+      "id": "clause-4.2",
+      "type": "clause",
+      "ref": "4.2",
+      "title": "理解利害關係人的需求與期望",
+      "title_en": "Understanding the needs and expectations of interested parties",
+      "summary": "找出誰在乎你的資安、他們要求什麼、哪些要納入 ISMS。",
+      "explanation": "要求組織做三件事：誰是與 ISMS 相關的利害關係人（客戶、主管機關、供應商、員工等）；他們有哪些相關要求；這些要求中哪些要透過 ISMS 來處理。這是把外部義務轉成 ISMS 輸入的起點，往後餵進條款 6 的風險規劃。",
+      "layers": [
+        "pdca",
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "Legal 法律",
+          "note": "一般法律責任與普通法義務。"
+        },
+        {
+          "label": "Legislation 法規/立法",
+          "note": "成文法規與主管機關規定（如個資法）。"
+        },
+        {
+          "label": "Contractual Obligation 合約義務",
+          "note": "客戶/供應商合約中的資安條款、SLA。"
+        },
+        {
+          "label": "Standards 標準",
+          "note": "ISO、產業標準、客戶指定的框架要求。"
+        },
+        {
+          "label": "Policy & Procedure 政策與程序",
+          "note": "組織內部既有的政策與作業程序。"
+        }
+      ]
+    },
+    {
+      "id": "clause-4.3",
+      "type": "clause",
+      "ref": "4.3",
+      "title": "決定資訊安全管理系統之範圍",
+      "title_en": "Determining the scope of the information security management system",
+      "summary": "畫出 ISMS 的邊界：哪些部門、地點、系統、資訊被管。",
+      "explanation": "依據前面盤點的背景與利害關係人要求，明確劃定 ISMS 涵蓋的範圍——包含哪些業務、地點、資產與對外介面，哪些排除、為什麼。範圍須形成文件化資訊。畫得太大難落地、太小會遮蔽真正的風險，這條就是抓平衡的地方，也是日後稽核的依據。",
+      "layers": [
+        "pdca",
+        "lifecycle"
+      ],
+      "subconcepts": [
+        {
+          "label": "邊界與適用性",
+          "note": "明確哪些業務、地點、系統納入或排除。"
+        },
+        {
+          "label": "介面與相依",
+          "note": "與委外、外部單位、其他系統的銜接點也要考量。"
+        }
+      ]
+    },
+    {
+      "id": "clause-4.4",
+      "type": "clause",
+      "ref": "4.4",
+      "title": "資訊安全管理系統",
+      "title_en": "Information security management system",
+      "summary": "真的把 ISMS 建立、實施、維持並持續改善。",
+      "explanation": "這條是條款 4 的收尾，也是整本標準的核心宣告：組織要依照標準把 ISMS 真正建立起來、運作、維護並持續改善，不是寫一堆文件擺著好看。它把後面條款 5 到 10 的所有要求綁成一個會運轉、會自我改進的完整系統。",
+      "layers": [
+        "pdca",
+        "lifecycle"
+      ]
+    },
+    {
+      "id": "clause-5.1",
+      "type": "clause",
+      "ref": "5.1",
+      "title": "領導與承諾",
+      "title_en": "Leadership and commitment",
+      "summary": "高階主管要親自帶頭撐 ISMS，不是丟給 IT。",
+      "explanation": "要求最高管理階層展現真正的領導：把資安方針和組織策略方向對齊、確保資源到位、把 ISMS 要求整合進日常營運、推動全員投入並支持其他主管發揮作用。核心觀念是資安屬於經營層的責任，不能只當成 IT 部門的技術問題。",
+      "layers": [
+        "pdca"
+      ],
+      "subconcepts": [
+        {
+          "label": "對齊策略",
+          "note": "資安方針與組織方向一致。"
+        },
+        {
+          "label": "資源到位",
+          "note": "提供 ISMS 運作所需的人力與資源。"
+        },
+        {
+          "label": "整合營運",
+          "note": "把資安要求融入日常業務流程。"
+        },
+        {
+          "label": "推動投入",
+          "note": "帶動全員當責並支持其他管理者。"
+        }
+      ]
+    },
+    {
+      "id": "clause-5.2",
+      "type": "clause",
+      "ref": "5.2",
+      "title": "政策",
+      "title_en": "Policy",
+      "summary": "由高層核定一份資安政策，定方向與承諾。",
+      "explanation": "最高管理階層要制定一份資訊安全政策：符合組織目的、提供設定資安目標的框架、承諾滿足相關要求並持續改善 ISMS。政策須文件化、在組織內充分溝通，必要時對外提供。它是整個 ISMS 的最高指導原則，下面所有規定與控制都由它展開。",
+      "layers": [
+        "pdca"
+      ]
+    },
+    {
+      "id": "clause-5.3",
+      "type": "clause",
+      "ref": "5.3",
+      "title": "組織角色、責任及職權",
+      "title_en": "Organizational roles, responsibilities and authorities",
+      "summary": "明確指派誰負責什麼、有什麼權限。",
+      "explanation": "最高管理階層要指派並在組織內溝通與資安相關的角色、責任與職權：誰負責確保 ISMS 符合標準、誰負責向管理階層回報績效。把職責劃分清楚才有人當責，避免出事時互踢皮球，這也是把領導承諾落實到組織運作的具體機制。",
+      "layers": [
+        "pdca"
+      ]
+    },
+    {
+      "id": "clause-7.1",
+      "type": "clause",
+      "ref": "7.1",
+      "title": "資源",
+      "title_en": "Resources",
+      "summary": "撥對的人、錢、工具給 ISMS，別只在紙上喊資安。",
+      "explanation": "要求組織判定並提供建立、運作、維持與改善 ISMS 所需的資源——人力、時間、預算、設備與工具。白話說：別只在紙上喊資安，要真的撥人撥錢撥工具。資源不足是 ISMS 失敗常見主因，條款 5 高層的承諾必須在這裡兌現成實際投入。",
+      "layers": [
+        "pdca"
+      ]
+    },
+    {
+      "id": "clause-7.2",
+      "type": "clause",
+      "ref": "7.2",
+      "title": "能力",
+      "title_en": "Competence",
+      "summary": "讓對的人有對的本事，並留下能力證據。",
+      "explanation": "針對會影響資安績效的工作，組織要先界定需要哪些能力，確認人員是否具備（靠教育、訓練或經驗），不足時採取行動補上（培訓、調派或外包），並保留能力證據。重點是「對的人做對的事」，不是有人在做就算數。和 7.3 不同，這裡談的是專業勝任度。",
+      "layers": [
+        "pdca"
+      ]
+    },
+    {
+      "id": "clause-7.3",
+      "type": "clause",
+      "ref": "7.3",
+      "title": "認知",
+      "title_en": "Awareness",
+      "summary": "讓每個人都知道政策、自己的責任、違規的後果。",
+      "explanation": "確保在組織控制下工作的人都「知道」三件事：資安政策是什麼、自己對 ISMS 的貢獻為何重要、以及不遵守規定的後果。和 7.2 能力不同，認知是普及到每個人的基本意識，目標是讓資安變成日常習慣，而不只是少數專責人員的事。",
+      "layers": [
+        "pdca"
+      ]
+    },
+    {
+      "id": "clause-7.4",
+      "type": "clause",
+      "ref": "7.4",
+      "title": "溝通或傳達",
+      "title_en": "Communication",
+      "summary": "事先講好資安要溝通什麼、何時、對誰、怎麼說。",
+      "explanation": "要求組織規劃 ISMS 相關的內部與外部溝通，明確界定「溝通什麼、何時溝通、向誰溝通、用什麼方式」。例如事件通報、政策宣達、對客戶或主管機關的回報。把溝通機制事先講清楚，出事時才不會各自為政、訊息漏接或對外說法不一致。",
+      "layers": [
+        "pdca"
+      ],
+      "subconcepts": [
+        {
+          "label": "What 溝通什麼",
+          "note": "需要傳達的資安事項與內容。"
+        },
+        {
+          "label": "When 何時",
+          "note": "溝通的時機與頻率。"
+        },
+        {
+          "label": "Whom 對誰",
+          "note": "對象：內部團隊、客戶、主管機關等。"
+        },
+        {
+          "label": "How 怎麼說",
+          "note": "管道與方式（公告、通報系統、信件等）。"
+        }
+      ]
+    },
+    {
+      "id": "clause-7.5",
+      "type": "clause",
+      "ref": "7.5",
+      "title": "文件化資訊",
+      "title_en": "Documented information",
+      "summary": "ISMS 該有的書面/電子資訊，怎麼建、怎麼管。",
+      "explanation": "2022 版用「文件化資訊」一詞統包舊版的「文件」與「紀錄」，規範 ISMS 該有哪些資訊、如何建立更新、如何管控。底下分三小節：7.5.1 一般（要有哪些）、7.5.2 建立與更新（怎麼產出把關）、7.5.3 管制（怎麼保護發布）。",
+      "layers": [
+        "pdca"
+      ],
+      "subconcepts": [
+        {
+          "label": "範圍 / 政策 / 目標",
+          "note": "標準明文要求保存的核心文件。"
+        },
+        {
+          "label": "風險評鑑與處理結果",
+          "note": "6.1 流程產出的證據。"
+        },
+        {
+          "label": "SoA 適用性聲明",
+          "note": "標準必備的命脈文件。"
+        }
+      ]
+    },
+    {
+      "id": "clause-7.5.1",
+      "type": "clause",
+      "ref": "7.5.1",
+      "title": "一般",
+      "title_en": "General",
+      "summary": "ISMS 要有標準規定的＋自己認為必要的文件。",
+      "explanation": "說明 ISMS 該包含兩類文件化資訊：一是標準明文要求的（如範圍、政策、SoA、風險評鑑結果），二是組織自認對 ISMS 有效運作有必要的。文件多寡可依組織規模、業務複雜度與人員能力而定——不是越多越好，而是夠用、能證明事情有照規矩做。",
+      "layers": [
+        "pdca"
+      ]
+    },
+    {
+      "id": "clause-7.5.2",
+      "type": "clause",
+      "ref": "7.5.2",
+      "title": "建立與更新",
+      "title_en": "Creating and updating",
+      "summary": "文件要可辨識、看得懂、上線前先審核。",
+      "explanation": "規範建立或更新文件時要顧到的品質：適當的識別與描述（標題、日期、作者、編號）、合適的格式與媒介（語言、版本、紙本或電子），以及發布前的審查與核准。白話說：文件要可辨識、看得懂，而且經過把關才上線，避免錯誤或過期內容流出。",
+      "layers": [
+        "pdca"
+      ]
+    },
+    {
+      "id": "clause-7.5.3",
+      "type": "clause",
+      "ref": "7.5.3",
+      "title": "文件化資訊之管制",
+      "title_en": "Control of documented information",
+      "summary": "對的人在需要時拿得到文件，同時防外洩、防竄改。",
+      "explanation": "確保需要的文件在需要時、給對的人、以可用的形式取得，同時受到妥善保護（避免外洩、誤改或遺失）。涵蓋發布、存取、檢索、儲存、版本控制、保存與汰除，也包含對外部來源文件的管控。本質上就是把機密性、完整性、可用性直接套用在文件本身。",
+      "layers": [
+        "pdca"
+      ]
+    },
+    {
+      "id": "clause-8.1",
+      "type": "clause",
+      "ref": "8.1",
+      "title": "運作之規劃及控制",
+      "title_en": "Operational planning and control",
+      "summary": "把條款 6 規劃好的事真正做出來，PDCA 的 Do。",
+      "explanation": "把條款 6 規劃好的事真正做出來，是 PDCA 的 Do 階段核心。要求組織規劃、實作並控制達成資安要求的過程：訂準則、依準則執行，並留下證明過程照計畫跑的文件。也要管控計畫性變更、檢視非預期變更後果，並確保外包服務同樣受控。",
+      "layers": [
+        "pdca",
+        "risk"
+      ]
+    },
+    {
+      "id": "clause-8.2",
+      "type": "clause",
+      "ref": "8.2",
+      "title": "資訊安全風險評鑑",
+      "title_en": "Information security risk assessment",
+      "summary": "按時或遇重大變更時，實際執行風險評鑑並留紀錄。",
+      "explanation": "把 6.1.2 設計好的風險評鑑流程實際跑起來：在預先規劃的時點、或發生重大變更時執行資安風險評鑑，並保留結果的文件化資訊。差別在——6.1.2 是「定方法」，8.2 是「按時做、做了留紀錄」。風險不是評一次就算，要持續重評。",
+      "layers": [
+        "pdca",
+        "risk"
+      ]
+    },
+    {
+      "id": "clause-8.3",
+      "type": "clause",
+      "ref": "8.3",
+      "title": "資訊安全風險處理",
+      "title_en": "Information security risk treatment",
+      "summary": "照處理計畫把控制措施真正部署上線並留證。",
+      "explanation": "落實 6.1.3 訂出的風險處理計畫，把選定的控制措施真正部署上線，並保留處理結果作為證據。6.1.3 是「決定怎麼處理、產出 SoA 與處理計畫」，8.3 則是「照計畫把控制做到位並留證」。少了 8.3，前面所有風險決策都只停在紙上談兵。",
+      "layers": [
+        "pdca",
+        "risk"
+      ]
+    },
+    {
+      "id": "clause-9.1",
+      "type": "clause",
+      "ref": "9.1",
+      "title": "監視、量測、分析及評估",
+      "title_en": "Monitoring, measurement, analysis and evaluation",
+      "summary": "決定要監看什麼、怎麼量、誰來評，確認 ISMS 真的有效。",
+      "explanation": "要求組織先想清楚『要監視與量測什麼』『用什麼方法、何時做、由誰做』，再分析與評估這些結果，確認資安控制與整個 ISMS 是否真的有效。重點不是蒐集一堆數字，而是把資料變成能判斷成效、支撐後續改進的依據，並保留記錄。這是 PDCA 中 Check 的起點。",
+      "layers": [
+        "pdca"
+      ],
+      "subconcepts": [
+        {
+          "label": "監視/量測對象",
+          "note": "決定哪些控制、流程、指標需要被看。"
+        },
+        {
+          "label": "方法與時機",
+          "note": "確保結果有效、可比較、可重現。"
+        },
+        {
+          "label": "分析與評估",
+          "note": "把數據轉成對成效的判斷。"
+        }
+      ]
+    },
+    {
+      "id": "clause-9.2",
+      "type": "clause",
+      "ref": "9.2",
+      "title": "內部稽核",
+      "title_en": "Internal audit",
+      "summary": "定期自我體檢：查 ISMS 是否符合要求且有效運作。",
+      "explanation": "要求組織按計畫進行內部稽核，確認 ISMS 一方面符合組織自訂要求與本標準，另一方面真的有被落實與維持。需規劃稽核方案（範圍、頻率、方法），由能維持客觀與公正的稽核員執行（實務上通常避免稽核自己負責的工作），結果回報管理階層並推動改正。2022 版拆成 9.2.1 一般要求與 9.2.2 內部稽核方案。",
+      "layers": [
+        "pdca"
+      ],
+      "subconcepts": [
+        {
+          "label": "9.2.1 一般要求",
+          "note": "稽核要查『符合性』與『有效性』兩件事。"
+        },
+        {
+          "label": "9.2.2 內部稽核方案",
+          "note": "規劃頻率、範圍、方法與稽核員獨立性。"
+        }
+      ]
+    },
+    {
+      "id": "clause-9.3",
+      "type": "clause",
+      "ref": "9.3",
+      "title": "管理階層審查",
+      "title_en": "Management review",
+      "summary": "高層定期檢視 ISMS，決定要不要調整資源與方向。",
+      "explanation": "要求最高管理階層定期審查 ISMS，確保它持續適切、充分且有效。輸入包含前次決議追蹤、內外部議題與利害關係人需求的變化、稽核與量測結果、風險處理狀況、回饋與改進機會；輸出則是改進決策與資源/變更安排。2022 版分為 9.3.1 一般、9.3.2 輸入事項、9.3.3 審查結果。",
+      "layers": [
+        "pdca"
+      ],
+      "subconcepts": [
+        {
+          "label": "9.3.1 一般要求",
+          "note": "由高層定期審查，確認持續適切充分有效。"
+        },
+        {
+          "label": "9.3.2 審查輸入事項",
+          "note": "新增『利害關係人需求與期望的變化』。"
+        },
+        {
+          "label": "9.3.3 審查結果",
+          "note": "產出改進機會與變更/資源決策並留記錄。"
+        }
+      ]
+    },
+    {
+      "id": "clause-10.1",
+      "type": "clause",
+      "ref": "10.1",
+      "title": "持續改進",
+      "title_en": "Continual improvement",
+      "summary": "讓 ISMS 的適切性、充分性與有效性不斷提升。",
+      "explanation": "要求組織持續改進 ISMS 的適切性、充分性與有效性，讓它不是通過驗證就停擺，而是隨環境與威脅變化不斷進化。改進的點子來自監視量測、稽核、管理階層審查、不符合事項等各種回饋。這是 PDCA 中 Act 的精神；2022 版把它從舊版後段提前到 10.1。",
+      "layers": [
+        "pdca"
+      ]
+    },
+    {
+      "id": "clause-10.2",
+      "type": "clause",
+      "ref": "10.2",
+      "title": "不符合事項及矯正措施",
+      "title_en": "Nonconformity and corrective action",
+      "summary": "出問題時先止血，再追根因、防止再犯。",
+      "explanation": "當發生不符合（沒達到要求）時，要求組織先反應與控制後果，接著分析根本原因、採取矯正措施消除原因以避免重演，並確認措施是否有效，必要時變更 ISMS（可能包含更新風險評鑑）。整個過程要留下記錄：不符合的內容與後續處置。這同樣對應 PDCA 的 Act。",
+      "layers": [
+        "pdca"
+      ],
+      "subconcepts": [
+        {
+          "label": "反應與控制",
+          "note": "先止血、處理已造成的後果。"
+        },
+        {
+          "label": "根本原因分析",
+          "note": "找出真正原因而非只修表象。"
+        },
+        {
+          "label": "矯正措施與驗效",
+          "note": "消除原因並確認不再重演。"
+        }
+      ]
+    },
+    {
+      "id": "scope-context-criteria",
+      "type": "risk-step",
+      "ref": "31000 §6.3",
+      "title": "範圍、全景及準則",
+      "title_en": "Scope, context and criteria",
+      "summary": "先定清楚：風險管理管到哪、處在什麼環境、用什麼尺規衡量風險。",
+      "explanation": "風險流程的第一步，把「遊戲規則」先講好：界定範圍（管哪些業務、資產與邊界）、盤點內外部全景（法規、利害關係人、目標與既有控制），並訂出風險準則——也就是衡量風險大小、判斷可不可接受的尺規。準則沒先定好，後面的分析與評估都會各說各話。",
+      "layers": [
+        "risk"
+      ],
+      "subconcepts": [
+        {
+          "label": "範圍 Scope",
+          "note": "這次風險評鑑涵蓋的業務、系統與邊界。"
+        },
+        {
+          "label": "全景 Context",
+          "note": "內外部環境，含法規、目標、利害關係人與既有控制。"
+        },
+        {
+          "label": "風險準則 Risk criteria",
+          "note": "衡量風險高低與可接受度的尺規（可能性×後果）。"
+        }
+      ]
+    },
+    {
+      "id": "risk-identification",
+      "type": "risk-step",
+      "ref": "31000 §6.4.2",
+      "title": "風險識別",
+      "title_en": "Risk identification",
+      "summary": "找出有哪些風險：可能發生什麼、為什麼、會影響什麼。",
+      "explanation": "風險評鑑的第一個動作，把可能威脅到目標的風險「找出來、列成清單」。要問：會發生什麼事件、原因與來源是什麼、可能造成哪些後果。找得越完整越好，漏掉的風險之後不會被分析、也不會被處理。資安情境常用資產／威脅／弱點，或事件導向兩種角度切入。",
+      "layers": [
+        "risk"
+      ]
+    },
+    {
+      "id": "risk-analysis",
+      "type": "risk-step",
+      "ref": "31000 §6.4.3",
+      "title": "風險分析",
+      "title_en": "Risk analysis",
+      "summary": "搞懂每個風險的後果有多大、發生機率多高。",
+      "explanation": "把識別出來的每個風險「拆開來理解」：評估它一旦發生的後果嚴重度，以及實際發生的可能性，常合成為一個風險等級。可用定性（高中低）、定量（數字機率／金額）或半定量方法。分析時要把現有控制的效果與不確定性一起考慮，輸出供下一步評估與排序使用。",
+      "layers": [
+        "risk"
+      ]
+    },
+    {
+      "id": "risk-evaluation",
+      "type": "risk-step",
+      "ref": "31000 §6.4.4",
+      "title": "風險評估",
+      "title_en": "Risk evaluation",
+      "summary": "把分析結果對照準則，決定哪些風險要先處理。",
+      "explanation": "拿風險分析的結果去比對第一步訂的風險準則，判斷每個風險是否在可接受範圍內、要不要處理、以及處理的優先順序。輸出是一張排好序的待辦清單：哪些必須立刻治理、哪些可以接受、哪些再觀察。這一步把「技術分析」轉成「管理決策」。",
+      "layers": [
+        "risk"
+      ]
+    },
+    {
+      "id": "risk-assessment",
+      "type": "risk-step",
+      "ref": "31000 §6.4",
+      "title": "風險評鑑",
+      "title_en": "Risk assessment",
+      "summary": "識別＋分析＋評估三步合稱，是風險流程的核心。",
+      "explanation": "風險評鑑是「識別→分析→評估」三個子步驟的總稱，是整個風險流程的核心引擎。ISO/IEC 27001 條款 6.1.2 的資安風險評鑑即對應此處，做法與 ISO 31000、ISO/IEC 27005 對齊。完整跑完一輪，組織才知道自己面對哪些風險、各有多嚴重、哪些得優先處理。",
+      "layers": [
+        "risk"
+      ],
+      "subconcepts": [
+        {
+          "label": "風險識別",
+          "note": "找出有哪些風險（6.4.2）。"
+        },
+        {
+          "label": "風險分析",
+          "note": "理解後果與可能性（6.4.3）。"
+        },
+        {
+          "label": "風險評估",
+          "note": "對照準則排序、決定處理與否（6.4.4）。"
+        }
+      ]
+    },
+    {
+      "id": "risk-treatment-options",
+      "type": "risk-step",
+      "ref": "31000 §6.5.2",
+      "title": "風險處理選項",
+      "title_en": "Selection of risk treatment options",
+      "summary": "對每個要處理的風險，挑一種或多種應對方式。",
+      "explanation": "評鑑後，針對需要處理的風險選擇應對策略。常見選項：降低（加控制把風險壓低）、規避（乾脆不做這件事）、移轉／分擔（保險、外包、合約）、保留／接受（在準則內就知情接受）。各選項可組合使用，並要權衡成本與效益。對應 ISO/IEC 27001 條款 6.1.3(a)。",
+      "layers": [
+        "risk"
+      ],
+      "subconcepts": [
+        {
+          "label": "降低 Modify",
+          "note": "導入控制措施，降低可能性或後果。"
+        },
+        {
+          "label": "規避 Avoid",
+          "note": "不從事或停止會造成風險的活動。"
+        },
+        {
+          "label": "移轉／分擔 Share",
+          "note": "透過保險、外包或合約把風險分出去。"
+        },
+        {
+          "label": "保留／接受 Retain",
+          "note": "風險在可接受準則內，知情後接受。"
+        }
+      ]
+    },
+    {
+      "id": "select-implement-controls",
+      "type": "risk-step",
+      "ref": "27001 6.1.3 b/c",
+      "title": "選擇與實施風險控制措施",
+      "title_en": "Determining and implementing controls",
+      "summary": "決定要用哪些控制、並比對附錄 A 確認沒漏掉。",
+      "explanation": "把「降低風險」的決定落地成具體控制。先依需要決定所有必要的控制措施，再比對 ISO/IEC 27001 附錄 A（93 項）逐一確認有沒有遺漏該有的控制。控制可來自附錄 A、其他框架或自訂。決定好之後就規劃導入並實際運行，對應條款 6.1.3(b)(c)。",
+      "layers": [
+        "risk"
+      ]
+    },
+    {
+      "id": "soa",
+      "type": "bridge",
+      "ref": "SoA",
+      "title": "適用性聲明書 (SoA)",
+      "title_en": "Statement of Applicability",
+      "summary": "風險處理決定與附錄 A 控制之間的橋樑文件。",
+      "explanation": "ISMS 的命脈文件，也是稽核必看的一頁。它逐條列出附錄 A 每項控制是否適用、為何適用或排除、以及目前實施狀態。SoA 把「風險處理選了哪些控制、為什麼」白紙黑字綁起來，是連接風險流程與控制清單的橋樑，對應 ISO/IEC 27001 條款 6.1.3(d)。",
+      "layers": [
+        "risk"
+      ]
+    },
+    {
+      "id": "risk-treatment-plan",
+      "type": "risk-step",
+      "ref": "31000 §6.5.3",
+      "title": "風險處理計畫",
+      "title_en": "Risk treatment plan",
+      "summary": "把控制落地的行動藍圖：做什麼、誰做、何時做。",
+      "explanation": "把選定的控制變成可執行的計畫：要做哪些事、由誰負責、需要哪些資源、時程多久、預期成效怎麼衡量。它是風險處理從「決定」走到「執行」的橋接，並需取得風險擁有者核准。對應 ISO/IEC 27001 條款 6.1.3(e) 與條款 8.3 的運作規劃與管制。",
+      "layers": [
+        "risk"
+      ]
+    },
+    {
+      "id": "residual-risks",
+      "type": "risk-step",
+      "ref": "27001 6.1.3 f",
+      "title": "剩餘風險",
+      "title_en": "Residual risks",
+      "summary": "控制做完後還剩下、需要被接受的風險。",
+      "explanation": "即使導入控制，風險也很少歸零；處理後仍殘留的部分就是剩餘風險。組織要重新評估它的等級，確認是否落在可接受準則內，並由風險擁有者「知情後正式接受」。沒被接受的剩餘風險，得回到流程再加碼處理。對應 ISO/IEC 27001 條款 6.1.3(f)。",
+      "layers": [
+        "risk"
+      ]
+    },
+    {
+      "id": "communication-consultation",
+      "type": "risk-step",
+      "ref": "31000 §6.2",
+      "title": "溝通及諮詢",
+      "title_en": "Communication and consultation",
+      "summary": "全程和利害關係人雙向交流，不是做完才講。",
+      "explanation": "貫穿整個風險流程的橫向活動，不是單一階段。目的是讓內外部利害關係人理解風險、提供不同觀點、並對決策建立共識。溝通是把資訊傳出去，諮詢是把意見收進來。做得好，風險判斷才不會閉門造車，處理決定也更容易被支持與落實。",
+      "layers": [
+        "risk"
+      ]
+    },
+    {
+      "id": "monitoring-review",
+      "type": "risk-step",
+      "ref": "31000 §6.6",
+      "title": "監督及審查",
+      "title_en": "Monitoring and review",
+      "summary": "持續盯著風險與控制是否仍有效、環境有沒有變。",
+      "explanation": "同樣貫穿全程的活動。持續監督風險、控制與環境的變化，並定期審查整個流程是否還適用、有沒有達到預期效果。環境會變、新風險會冒出來、控制也可能失效，所以要不斷回看與調整。對應 PDCA 的 Check，連結 ISO/IEC 27001 條款 9（監督、量測、稽核、管理階層審查）。",
+      "layers": [
+        "risk"
+      ]
+    },
+    {
+      "id": "documented-information",
+      "type": "risk-step",
+      "ref": "31000 §6.7",
+      "title": "文件化資訊（記錄與報告）",
+      "title_en": "Recording and reporting",
+      "summary": "把風險流程的過程與結果留下記錄、對外報告。",
+      "explanation": "風險流程的每個決定與結果都要被記錄並適當報告，才能追溯、稽核與持續改善。記錄提供決策的依據，報告把風險資訊傳達給管理階層與利害關係人以支持決策。對應 ISO 31000 §6.7，並與 ISO/IEC 27001 條款 7.5 文件化資訊的要求相呼應。",
+      "layers": [
+        "risk"
+      ]
+    },
+    {
+      "id": "technique-fmea",
+      "type": "risk-technique",
+      "ref": "IEC 31010",
+      "title": "失效模式與影響分析 (FMEA)",
+      "title_en": "Failure Mode and Effects Analysis",
+      "summary": "系統化盤點每個元件可能怎麼壞、影響多大。",
+      "explanation": "ISO/IEC 31010 列舉的風險評估技術之一。逐一檢視系統或流程的每個元件／步驟，問「它會以什麼方式失效、造成什麼後果、多容易發生、多容易被偵測」，再排出優先處理順序（FMECA 會再加上嚴重度評分）。常用於風險識別與分析階段，特別適合工程與製程場景。",
+      "layers": [
+        "risk"
+      ]
+    },
+    {
+      "id": "technique-bow-tie",
+      "type": "risk-technique",
+      "ref": "IEC 31010",
+      "title": "領結分析 (Bow-tie)",
+      "title_en": "Bow-tie analysis",
+      "summary": "一張圖看清風險的成因、後果與兩側防線。",
+      "explanation": "ISO/IEC 31010 的技術之一。以中間的「危害事件」為結，左邊畫出各種原因與用來預防的控制，右邊畫出可能後果與用來減緩的控制，整體形狀像個領結。它把預防與緩解的防線一次視覺化，溝通直觀，常用來分析重大風險的因果路徑與控制是否足夠。",
+      "layers": [
+        "risk"
+      ]
+    },
+    {
+      "id": "technique-hazop",
+      "type": "risk-technique",
+      "ref": "IEC 31010",
+      "title": "危害與可操作性分析 (HAZOP)",
+      "title_en": "Hazard and Operability study (HAZOP)",
+      "summary": "用引導詞逐點檢查流程哪裡會偏離設計。",
+      "explanation": "ISO/IEC 31010 的結構化技術。由團隊針對流程或系統的每個節點，套用引導詞（如「沒有」「過多」「過少」「相反」），系統性地問「若偏離正常設計會怎樣」，找出潛在危害與可操作性問題。源自化工製程，重視團隊紀律與集思廣益，適合複雜系統的風險識別。",
+      "layers": [
+        "risk"
+      ]
+    },
+    {
+      "id": "technique-brainstorming",
+      "type": "risk-technique",
+      "ref": "IEC 31010",
+      "title": "腦力激盪",
+      "title_en": "Brainstorming",
+      "summary": "團隊自由發想，盡量列出可能的風險。",
+      "explanation": "ISO/IEC 31010 收錄最基本的風險識別技術。集合相關人員，在鼓勵自由發言、先不急著批評的氛圍下，盡量發想可能的風險、原因與情境，再彙整篩選。優點是快速、能激發創意、納入多元觀點；缺點是品質依賴參與者經驗與引導，常作為其他技術的起點。",
+      "layers": [
+        "risk"
+      ]
+    },
+    {
+      "id": "technique-scenario-analysis",
+      "type": "risk-technique",
+      "ref": "IEC 31010",
+      "title": "情境分析",
+      "title_en": "Scenario analysis",
+      "summary": "設想幾種未來劇本，推演各自的風險與後果。",
+      "explanation": "ISO/IEC 31010 的技術之一。針對未來的不確定性，建構數個可能發生的情境（如最佳／最壞／最可能），推演每種情境下會發生什麼、帶來哪些風險與後果。它幫助組織為不同未來預作準備，特別適合長期、高度不確定、或難以用機率精確量化的策略性風險。",
+      "layers": [
+        "risk"
+      ]
+    },
+    {
+      "id": "technique-checklists",
+      "type": "risk-technique",
+      "ref": "IEC 31010",
+      "title": "檢核表法",
+      "title_en": "Checklists",
+      "summary": "用既有清單逐項核對，避免漏看常見風險。",
+      "explanation": "ISO/IEC 31010 的技術之一。把過往經驗、法規或標準整理成檢核清單，使用時逐項核對，確認常見風險或控制有沒有被遺漏。優點是簡單、快速、可重複、不需太多專業；缺點是只能查到清單上列的項目，對全新或未知風險容易視而不見，宜搭配發想型技術一起用。",
+      "layers": [
+        "risk"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "clause-4.1",
+      "to": "clause-4.2",
+      "rel": "feeds",
+      "note": "全景界定後，識別利害關係人。"
+    },
+    {
+      "from": "clause-4.1",
+      "to": "clause-4.3",
+      "rel": "feeds",
+      "note": "全景決定 ISMS 範圍。"
+    },
+    {
+      "from": "clause-4.3",
+      "to": "clause-4.4",
+      "rel": "feeds",
+      "note": "範圍內建立 ISMS。"
+    },
+    {
+      "from": "clause-4.2",
+      "to": "clause-6.1.1",
+      "rel": "feeds",
+      "note": "利害關係人要求 → 風險與改善機會 → 規劃。"
+    },
+    {
+      "from": "clause-6.1.1",
+      "to": "clause-8.1",
+      "rel": "feeds",
+      "note": "計畫(Plan) → 執行(Do)。"
+    },
+    {
+      "from": "clause-8.1",
+      "to": "clause-9.1",
+      "rel": "feeds",
+      "note": "執行(Do) → 查核(Check)。"
+    },
+    {
+      "from": "clause-9.1",
+      "to": "clause-10.1",
+      "rel": "feeds",
+      "note": "查核(Check) → 行動(Act)。"
+    },
+    {
+      "from": "clause-10.1",
+      "to": "clause-6.1.1",
+      "rel": "feeds",
+      "note": "行動(Act) → 回到規劃，循環。"
+    },
+    {
+      "from": "clause-5.1",
+      "to": "clause-6.1.1",
+      "rel": "aligns",
+      "note": "領導 5.1(a)(b) 連到規劃。"
+    },
+    {
+      "from": "clause-5.1",
+      "to": "clause-7.1",
+      "rel": "aligns",
+      "note": "領導 5.1(c)(d)(e) 連到支援/運作。"
+    },
+    {
+      "from": "clause-5.1",
+      "to": "clause-9.1",
+      "rel": "aligns",
+      "note": "領導 5.1(e)(f) 連到績效評估。"
+    },
+    {
+      "from": "clause-5.1",
+      "to": "clause-10.1",
+      "rel": "aligns",
+      "note": "領導 5.1(g) 連到改善。"
+    },
+    {
+      "from": "clause-4.2",
+      "to": "control-a.5.31",
+      "rel": "treats",
+      "note": "法律/合約義務最終由 A.5.31 控制滿足。"
+    },
+    {
+      "from": "risk-assessment",
+      "to": "risk-identification",
+      "rel": "contains"
+    },
+    {
+      "from": "risk-assessment",
+      "to": "risk-analysis",
+      "rel": "contains"
+    },
+    {
+      "from": "risk-assessment",
+      "to": "risk-evaluation",
+      "rel": "contains"
+    },
+    {
+      "from": "scope-context-criteria",
+      "to": "risk-identification",
+      "rel": "feeds"
+    },
+    {
+      "from": "risk-identification",
+      "to": "risk-analysis",
+      "rel": "feeds"
+    },
+    {
+      "from": "risk-analysis",
+      "to": "risk-evaluation",
+      "rel": "feeds"
+    },
+    {
+      "from": "risk-evaluation",
+      "to": "risk-treatment-options",
+      "rel": "feeds",
+      "note": "決策點1 評鑑滿意 → 處理。"
+    },
+    {
+      "from": "risk-treatment-options",
+      "to": "select-implement-controls",
+      "rel": "feeds"
+    },
+    {
+      "from": "select-implement-controls",
+      "to": "soa",
+      "rel": "selects",
+      "note": "選出的控制記入 SoA。"
+    },
+    {
+      "from": "soa",
+      "to": "risk-treatment-plan",
+      "rel": "feeds"
+    },
+    {
+      "from": "risk-treatment-plan",
+      "to": "residual-risks",
+      "rel": "feeds",
+      "note": "決策點2 → 剩餘風險。"
+    },
+    {
+      "from": "communication-consultation",
+      "to": "scope-context-criteria",
+      "rel": "aligns",
+      "note": "溝通諮詢貫穿全程。"
+    },
+    {
+      "from": "monitoring-review",
+      "to": "risk-treatment-plan",
+      "rel": "aligns",
+      "note": "監督審查貫穿全程。"
+    },
+    {
+      "from": "risk-assessment",
+      "to": "documented-information",
+      "rel": "feeds"
+    },
+    {
+      "from": "risk-treatment-plan",
+      "to": "documented-information",
+      "rel": "feeds"
+    },
+    {
+      "from": "risk-identification",
+      "to": "technique-brainstorming",
+      "rel": "implements"
+    },
+    {
+      "from": "risk-identification",
+      "to": "technique-hazop",
+      "rel": "implements"
+    },
+    {
+      "from": "risk-identification",
+      "to": "technique-checklists",
+      "rel": "implements"
+    },
+    {
+      "from": "risk-analysis",
+      "to": "technique-fmea",
+      "rel": "implements"
+    },
+    {
+      "from": "risk-analysis",
+      "to": "technique-bow-tie",
+      "rel": "implements"
+    },
+    {
+      "from": "risk-evaluation",
+      "to": "technique-scenario-analysis",
+      "rel": "implements"
+    },
+    {
+      "from": "clause-6.1.2",
+      "to": "risk-assessment",
+      "rel": "aligns",
+      "note": "27001 6.1.2 即 ISO 31000 風險評鑑。"
+    },
+    {
+      "from": "clause-6.1.3",
+      "to": "risk-treatment-options",
+      "rel": "aligns",
+      "note": "27001 6.1.3 即風險處理。"
+    },
+    {
+      "from": "clause-6.1.3",
+      "to": "soa",
+      "rel": "selects",
+      "note": "6.1.3 產出 SoA。"
+    },
+    {
+      "from": "clause-4.3",
+      "to": "scope-context-criteria",
+      "rel": "aligns"
+    },
+    {
+      "from": "clause-7.4",
+      "to": "communication-consultation",
+      "rel": "aligns"
+    },
+    {
+      "from": "clause-9.1",
+      "to": "monitoring-review",
+      "rel": "aligns"
+    },
+    {
+      "from": "clause-7.5",
+      "to": "documented-information",
+      "rel": "aligns"
+    },
+    {
+      "from": "soa",
+      "to": "control-a.5.31",
+      "rel": "selects"
+    },
+    {
+      "from": "soa",
+      "to": "control-a.8.6",
+      "rel": "selects"
+    },
+    {
+      "from": "soa",
+      "to": "control-a.5.24",
+      "rel": "selects"
+    },
+    {
+      "from": "control-a.8.6",
+      "to": "clause-8.1",
+      "rel": "implements",
+      "note": "容量管理落實於運作。"
+    },
+    {
+      "from": "control-a.8.32",
+      "to": "clause-6.3",
+      "rel": "implements",
+      "note": "變更管理對應變更規劃。"
+    },
+    {
+      "from": "control-a.5.24",
+      "to": "clause-8.1",
+      "rel": "implements",
+      "note": "事故管理落實於運作。"
+    },
+    {
+      "from": "control-a.5.29",
+      "to": "clause-8.1",
+      "rel": "implements",
+      "note": "中斷期間資安落實於運作。"
+    },
+    {
+      "from": "control-a.5.3",
+      "to": "clause-5.3",
+      "rel": "implements",
+      "note": "職責分離對應角色責任。"
+    },
+    {
+      "from": "ai-inception",
+      "to": "ai-design-dev",
+      "rel": "feeds"
+    },
+    {
+      "from": "ai-design-dev",
+      "to": "ai-vnv",
+      "rel": "feeds"
+    },
+    {
+      "from": "ai-vnv",
+      "to": "ai-deployment",
+      "rel": "feeds"
+    },
+    {
+      "from": "ai-deployment",
+      "to": "ai-operation-monitoring",
+      "rel": "feeds"
+    },
+    {
+      "from": "ai-operation-monitoring",
+      "to": "ai-continuous-validation",
+      "rel": "feeds"
+    },
+    {
+      "from": "ai-operation-monitoring",
+      "to": "ai-reevaluation",
+      "rel": "feeds"
+    },
+    {
+      "from": "ai-reevaluation",
+      "to": "ai-design-dev",
+      "rel": "feeds",
+      "note": "重新評估 → 回開發。"
+    },
+    {
+      "from": "ai-reevaluation",
+      "to": "ai-retirement",
+      "rel": "feeds"
+    },
+    {
+      "from": "band-governance",
+      "to": "clause-5.1",
+      "rel": "aligns",
+      "note": "AI 治理 ⇄ ISMS 領導。"
+    },
+    {
+      "from": "band-risk",
+      "to": "risk-assessment",
+      "rel": "aligns",
+      "note": "AI 風險管理 ⇄ 風險評鑑。"
+    },
+    {
+      "from": "band-security-privacy",
+      "to": "clause-8.1",
+      "rel": "aligns",
+      "note": "AI 安全隱私 ⇄ 運作控制。"
+    },
+    {
+      "from": "band-transparency",
+      "to": "clause-7.5",
+      "rel": "aligns",
+      "note": "透明可解釋 ⇄ 文件化資訊。"
+    },
+    {
+      "from": "band-devops",
+      "to": "clause-8.1",
+      "rel": "aligns"
+    },
+    {
+      "from": "ai-operation-monitoring",
+      "to": "clause-9.1",
+      "rel": "aligns",
+      "note": "AI 營運監督 ⇄ 績效評估。"
+    },
+    {
+      "from": "ai-reevaluation",
+      "to": "clause-10.1",
+      "rel": "aligns",
+      "note": "AI 重新評估 ⇄ 改善。"
+    }
+  ]
+}

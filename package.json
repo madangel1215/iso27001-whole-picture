@@ -1,0 +1,19 @@
+{
+  "name": "iso27001-whole-picture",
+  "version": "0.1.0",
+  "private": true,
+  "description": "互動式 ISO/CNS 27001:2023 全景圖 — PDCA + 產品服務生命週期 + 風險管理(ISO 31000) + 附錄A 控制",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dev": "vite",
+    "serve": "vite preview --port 4173"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "vite": "^6.0.0",
+    "vitest": "^2.1.0"
+  }
+}
