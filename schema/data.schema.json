@@ -82,6 +82,15 @@
                 "note": { "type": "string" }
               }
             }
+          },
+          "audit": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "questions": { "type": "array", "items": { "type": "string" } },
+              "evidence": { "type": "array", "items": { "type": "string" } },
+              "nonconformities": { "type": "array", "items": { "type": "string" } }
+            }
           }
         }
       }
