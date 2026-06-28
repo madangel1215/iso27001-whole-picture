@@ -65,6 +65,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-famil
   height:32px;min-width:32px;padding:0 9px;font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:all .16s var(--ease)}
 .icon-btn:hover{color:var(--text);border-color:var(--line-2)}
 .ic{display:inline-block;vertical-align:middle;flex-shrink:0}
+.svgic{color:var(--cat-control)}
 .mic{display:inline-flex;align-items:center;color:var(--text-3);flex-shrink:0}
 .menu-wrap{position:relative;display:flex;gap:8px}
 .menu{position:absolute;top:40px;right:0;min-width:214px;background:var(--glass);backdrop-filter:blur(22px) saturate(1.4);
@@ -889,9 +890,10 @@ function renderAuditFlow(){
     click(g,fn);scene.append(g);});
   // 稽核實務深入(d)：點看細節面板
   const dy=ty+92;scene.append(tx(28,dy-14,"note-h","稽核實務深入 · 點看細節"));
-  const deep=[["不符合 NC","分級 ＋ 報告三要件","nc"],["驗證旅程","Stage 1/2 → 監督 → 再驗證","stage"],["稽核技巧","問句／晤談／抽樣／證據","tech"],["稽核員能力","ISO 19011 §7 行為與知識","competence"]];
-  const dw=(1344/4)-12;deep.forEach(([t,sub,k],i)=>{const x=18+i*(1344/4);const g=el("g",{class:"node","aria-label":t});
+  const deep=[["不符合 NC","分級 ＋ 報告三要件","nc","alert"],["驗證旅程","Stage 1/2 → 監督 → 再驗證","stage","layers"],["稽核技巧","問句／晤談／抽樣／證據","tech","audit"],["稽核員能力","ISO 19011 §7 行為與知識","competence","user"]];
+  const dw=(1344/4)-12;deep.forEach(([t,sub,k,ic],i)=>{const x=18+i*(1344/4);const g=el("g",{class:"node","aria-label":t});
     g.append(el("rect",{class:"box",x,y:dy,width:dw,height:60,rx:9}));
+    g.append(svgIcon(ic,x+13,dy+13,16));
     g.append(tx(x+dw/2,dy+26,"nm sm",t,{"text-anchor":"middle"}));
     g.append(tx(x+dw/2,dy+45,"sub",sub,{"text-anchor":"middle"}));
     click(g,()=>openAuditPanel(k));scene.append(g);});
@@ -950,8 +952,8 @@ function renderDocs(){
   const inTier=d=>!docTierFilter||d.tier===docTierFilter;
   const fmust=must.filter(inTier),fopt=opt.filter(inTier);
   let dB=`<div class="docs-intro">文件化資訊呈<b>金字塔</b>：上層定方向、下層是證據。點任一層可篩選；<b style="color:var(--cat-clause)">文件</b>=維持、<b style="color:var(--cat-risk)">紀錄</b>=保留、<b style="color:var(--warn-strong)">必備</b>=標準強制。</div>`;
-  dB+=`<div class="pyr">`+TIERS.map(([t,zh,w])=>`<button class="pyr-band${docTierFilter===t?" on":""}" data-tier="${t}" style="width:${w}%" aria-pressed="${docTierFilter===t}"><span class="pyr-n">${zh}</span><span class="pyr-c">${tcount(t)}</span></button>`).join("")+
-    `<button class="pyr-band ext${docTierFilter==="外部"?" on":""}" data-tier="外部" style="width:100%" aria-pressed="${docTierFilter==="外部"}"><span class="pyr-n">外部來源文件 External</span><span class="pyr-c">7.5.3</span></button></div>`;
+  dB+=`<div class="pyr">`+TIERS.map(([t,zh,w])=>`<button class="pyr-band${docTierFilter===t?" on":""}" data-tier="${t}" style="width:${w}%" aria-pressed="${docTierFilter===t}"><span class="pyr-n">${icon(TIER_IC[t],14)} ${zh}</span><span class="pyr-c">${tcount(t)}</span></button>`).join("")+
+    `<button class="pyr-band ext${docTierFilter==="外部"?" on":""}" data-tier="外部" style="width:100%" aria-pressed="${docTierFilter==="外部"}"><span class="pyr-n">${icon(TIER_IC["外部"],14)} 外部來源文件 External</span><span class="pyr-c">7.5.3</span></button></div>`;
   if(docTierFilter)dB+=`<div class="sech" style="margin:2px 0 8px">篩選層級：${docTierFilter}　<span class="pyr-clear" data-tier="">✕ 清除</span></div>`;
   dB+=`<div class="doc-grid">${fmust.map(docRow).join("")||`<div class="docs-intro" style="grid-column:1/-1">此層在 27001 必備清單中無強制文件（多為組織自有，如作業指引、外部法規/客戶規範）。</div>`}</div>`;
   if(fopt.length)dB+=`<div class="sech" style="margin:18px 0 8px">關鍵紀錄（稽核常看，非逐字強制）</div><div class="doc-grid">${fopt.map(docRow).join("")}</div>`;
@@ -960,7 +962,7 @@ function renderDocs(){
   const fams=FAM_ORDER.filter(f=>STDS.some(s=>s.family===f)).concat([...new Set(STDS.map(s=>s.family))].filter(f=>!FAM_ORDER.includes(f)));
   let sB=`<div class="docs-intro">圍繞 27001 的標準生態。<b style="color:var(--cat-control)">可驗證</b>=能發證；其餘為指引/流程。卡片標「↳ 繼承自」=血緣。<b>點卡看血緣＋它是哪些節點的量尺</b>。</div>`;
   fams.forEach((f,i)=>{const fid="sec-fam-"+i;const cs=STDS.filter(s=>s.family===f).sort((a,b)=>((a.parent||[]).length?1:0)-((b.parent||[]).length?1:0));
-    sB+=sec(fid,{cls:"sech",html:`${f} <span class="th-c" style="margin-left:auto;font-family:var(--mono)">${cs.length}</span>`},`<div class="std-grid">${cs.map(stdCard).join("")}</div>`);});
+    sB+=sec(fid,{cls:"sech",html:`${icon(FAM_IC[f]||"dot",14)} ${f} <span class="th-c" style="margin-left:auto;font-family:var(--mono)">${cs.length}</span>`},`<div class="std-grid">${cs.map(stdCard).join("")}</div>`);});
   // 頁內目錄資料（☰ 置中彈出）
   tocSections=[{id:"sec-docs",label:"文件化資訊"},{id:"sec-stds",label:"標準家族"},...fams.map((f,i)=>({id:"sec-fam-"+i,label:f,sub:true}))];
   let h=`<button class="toc-fab" id="toc-fab" title="頁內目錄" aria-label="開啟頁內目錄">${icon("menu",18)}</button>`;
