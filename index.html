@@ -284,6 +284,29 @@ svg#canvas{width:100%;height:100%;display:block}
 .ex-score.pass{color:var(--cat-control)}
 .ex-score.fail{color:var(--warn-strong)}
 .ex-result .rmeta{font-size:13px;color:var(--text-3);line-height:1.7}
+/* 排序題 (order) */
+.ord-built{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.ord-row{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--surface-2);border-radius:9px;padding:10px 12px;font-size:14px;line-height:1.5}
+.ord-row .ord-n{font-family:var(--mono);font-size:12px;color:var(--text-3);flex:0 0 18px}
+.ord-row .ord-t{flex:1 1 auto}
+.ord-row.correct{border-color:var(--cat-control);background:color-mix(in srgb,var(--cat-control) 14%,var(--surface))}
+.ord-row.wrong{border-color:var(--warn-strong);background:color-mix(in srgb,var(--warn-strong) 13%,var(--surface))}
+.ord-x{margin-left:auto;background:none;border:0;color:var(--text-3);cursor:pointer;font-size:13px;flex:0 0 auto}
+.ord-x:hover{color:var(--warn-strong)}
+.ord-pool{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:6px}
+.ord-chip{font-size:13.5px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--text);border-radius:9px;padding:9px 13px;cursor:pointer;text-align:left;line-height:1.45}
+.ord-chip:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface))}
+.ord-ans{margin:8px 0;display:flex;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--text-2);align-items:center}
+.ord-ans .ord-ans-i{background:var(--surface-2);border-radius:6px;padding:3px 9px}
+/* 配對題 (match) */
+.mtch{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.mtch-row{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--surface-2);border-radius:9px;padding:10px 12px;flex-wrap:wrap}
+.mtch-row.correct{border-color:var(--cat-control);background:color-mix(in srgb,var(--cat-control) 14%,var(--surface))}
+.mtch-row.wrong{border-color:var(--warn-strong);background:color-mix(in srgb,var(--warn-strong) 13%,var(--surface))}
+.mtch-l{flex:1 1 55%;font-size:14px;line-height:1.5}
+.mtch-r{flex:0 0 auto;font-size:13.5px;color:var(--text-2)}
+.mtch-sel{background:var(--surface-3);color:var(--text);border:1px solid var(--line-2);border-radius:8px;padding:9px 11px;font-size:13.5px;font-family:inherit;cursor:pointer;min-height:40px}
+.mtch-sel:focus-visible{outline:none;border-color:var(--accent)}
 /* 可收合區塊 + 右側頁內目錄(TOC) */
 .dsec{margin-bottom:24px}
 .dsec-h{cursor:pointer;user-select:none}
@@ -1145,9 +1168,14 @@ let EXAM=[], EX={}, exMode="practice", exTopic=null, mockState=null, mockTimer=n
 try{EX=JSON.parse(localStorage.getItem("ismsla_exam")||"{}");}catch(e){EX={};}
 function exSave(){try{localStorage.setItem("ismsla_exam",JSON.stringify(EX));}catch(e){}}
 function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
-const EX_TYPE={single:"單選",multi:"複選",tf:"是非"};
+const EX_TYPE={single:"單選",multi:"複選",tf:"是非",order:"排序",match:"配對"};
+let ordDraft={};  // 排序題：作答中的暫存序列（依 qid）
 function arrEq(a,b){a=[...a].sort();b=[...b].sort();return a.length===b.length&&a.every((x,i)=>x===b[i]);}
-function exGrade(q,picked){return arrEq(picked||[],q.answer);}
+function exGrade(q,picked){picked=picked||[];
+  if(q.type==="order")return picked.length===q.answer.length&&picked.every((k,i)=>k===q.answer[i]);
+  if(q.type==="match")return q.pairs.length>0&&picked.length===q.pairs.length&&q.pairs.every((p,i)=>picked[i]===p.r);
+  return arrEq(picked,q.answer);}
+function matchPool(q){return [...new Set(q.pairs.map(p=>p.r))].sort();}  // 右側選項（穩定排序、不洩答案）
 function examStats(){const done=EXAM.filter(q=>EX[q.id]&&EX[q.id].picked);const ok=done.filter(q=>EX[q.id].correct);return{total:EXAM.length,done:done.length,ok:ok.length,wrong:done.length-ok.length};}
 function examTopics(){return[...new Set(EXAM.map(q=>q.topic))];}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -1156,30 +1184,69 @@ function updateExStat(){const e=examEl.querySelector(".ex-stat");if(e)e.innerHTM
 
 function exFeedbackHTML(q,picked,review){
   const ok=exGrade(q,picked);
-  let s=`<div class="exfb"><div class="exfb-h ${ok?"ok":"no"}">${ok?"✓ 正確":"✗ "+((picked||[]).length?"答錯":"未作答")} — 正解 ${q.answer.join("、")}</div>`;
+  let head;
+  if(q.type==="order")head=ok?"✓ 順序正確":"✗ 順序不對";
+  else if(q.type==="match")head=ok?"✓ 全部配對正確":"✗ 配對有誤";
+  else head=(ok?"✓ 正確":"✗ "+((picked||[]).length?"答錯":"未作答"))+" — 正解 "+q.answer.join("、");
+  let s=`<div class="exfb"><div class="exfb-h ${ok?"ok":"no"}">${head}</div>`;
+  if(q.type==="order")s+=`<div class="ord-ans"><span class="rl">正解順序：</span>`+q.answer.map((k,i)=>`<span class="ord-ans-i">${i+1}. ${esc((q.options.find(o=>o.k===k)||{}).t||k)}</span>`).join("")+`</div>`;
   s+=`<div class="exfb-x">${esc(q.explain)}</div>`;
   const refs=(q.refs||[]).map(r=>{const n=byId.get(r);return n?`<button class="ex-ref" data-ref="${r}">${esc((n.ref?n.ref+" ":"")+(n.title||r))}</button>`:"";}).filter(Boolean);
   if(refs.length)s+=`<div class="exfb-refs"><span class="rl">相關（點可跳回框架）：</span>${refs.join("")}</div>`;
   if(!review)s+=`<button class="ex-redo" data-redo="${q.id}">↺ 重做這題</button>`;
   return s+`</div>`;
 }
+function exOrderBody(q,seq,graded,mock){
+  seq=seq||[];const placed=new Set(seq);
+  let s=`<div class="ord-built">`;
+  for(let i=0;i<q.options.length;i++){const k=seq[i],o=k?q.options.find(x=>x.k===k):null;
+    let cls="ord-row";if(graded&&o)cls+=(q.answer[i]===k)?" correct":" wrong";
+    s+=`<div class="${cls}"><span class="ord-n">${i+1}</span><span class="ord-t">${o?esc(o.t):"—"}</span>`;
+    if(o&&graded)s+=`<span class="exo-mark">${q.answer[i]===k?'<span style="color:var(--cat-control)">✓</span>':'<span style="color:var(--warn-strong)">✗</span>'}</span>`;
+    else if(o&&!graded)s+=`<button class="ord-x" data-unplace="${k}" aria-label="移除">✕</button>`;
+    s+=`</div>`;}
+  s+=`</div>`;
+  if(!graded){const pool=q.options.filter(o=>!placed.has(o.k));
+    if(pool.length)s+=`<div class="ord-pool">`+pool.map(o=>`<button class="ord-chip" data-place="${o.k}">${esc(o.t)}</button>`).join("")+`</div>`;
+    if(!mock&&seq.length===q.options.length)s+=`<button class="ex-submit" data-submit="1">對答案</button>`;
+    if(!mock&&seq.length)s+=` <button class="ex-redo" data-clearord="1">清除排序</button>`;}
+  return s;
+}
+function exMatchBody(q,sel,graded,mock){
+  sel=sel||[];const pool=matchPool(q);
+  let s=`<div class="mtch">`;
+  q.pairs.forEach((p,i)=>{let cls="mtch-row";if(graded)cls+=(sel[i]===p.r)?" correct":" wrong";
+    s+=`<div class="${cls}"><div class="mtch-l">${esc(p.l)}</div><div class="mtch-r">`;
+    if(graded)s+=`${esc(sel[i]||"—")} `+(sel[i]===p.r?'<span style="color:var(--cat-control)">✓</span>':`<span style="color:var(--warn-strong)">✗ 應為 ${esc(p.r)}</span>`);
+    else s+=`<select class="mtch-sel" data-row="${i}" aria-label="配對：${esc(p.l)}"><option value="">— 選擇 —</option>`+pool.map(r=>`<option value="${esc(r)}"${sel[i]===r?" selected":""}>${esc(r)}</option>`).join("")+`</select>`;
+    s+=`</div></div>`;});
+  s+=`</div>`;
+  if(!graded&&!mock)s+=`<button class="ex-submit" data-submit="1">對答案</button>`;
+  return s;
+}
 function exCardHTML(q,opts){
   opts=opts||{};const rec=EX[q.id];const mock=!!opts.mock;
   const graded=!mock&&(opts.review||(!opts.fresh&&rec&&rec.picked));
-  const picked=opts.picked||(graded&&rec?rec.picked:[]);
+  let picked;
+  if(opts.picked!=null)picked=opts.picked;
+  else if(graded&&rec)picked=rec.picked;
+  else if(!mock&&q.type==="order"&&!opts.fresh)picked=ordDraft[q.id]||[];
+  else picked=[];
   let badge="";
   if(graded)badge=exGrade(q,picked)?'<span class="exq-badge ok">✓ 答對</span>':'<span class="exq-badge no">✗ 答錯</span>';
   let s=`<div class="exq" data-qid="${q.id}"><div class="exq-top"><span class="exq-no">${q.id.toUpperCase()}</span><span class="exq-topic">${esc(q.topic)}</span><span class="exq-type">${EX_TYPE[q.type]||""}</span>${badge}</div>`;
   s+=`<div class="exq-stem">${esc(q.stem)}</div>`;
-  for(const o of q.options){
-    let cls="exo",mark="";
-    if(graded){const isAns=q.answer.includes(o.k),isPick=(picked||[]).includes(o.k);
-      if(isAns){cls+=" correct";mark='<span class="exo-mark" style="color:var(--cat-control)">✓</span>';}
-      else if(isPick){cls+=" wrong";mark='<span class="exo-mark" style="color:var(--warn-strong)">✗</span>';}}
-    else if((picked||[]).includes(o.k))cls+=" sel";
-    s+=`<button class="${cls}" data-k="${o.k}"${graded?" disabled":""}><span class="exo-k">${o.k}</span><span class="exo-t">${esc(o.t)}</span>${mark}</button>`;
+  if(q.type==="order")s+=exOrderBody(q,picked,graded,mock);
+  else if(q.type==="match")s+=exMatchBody(q,picked,graded,mock);
+  else{
+    for(const o of q.options){let cls="exo",mark="";
+      if(graded){const isAns=q.answer.includes(o.k),isPick=(picked||[]).includes(o.k);
+        if(isAns){cls+=" correct";mark='<span class="exo-mark" style="color:var(--cat-control)">✓</span>';}
+        else if(isPick){cls+=" wrong";mark='<span class="exo-mark" style="color:var(--warn-strong)">✗</span>';}}
+      else if((picked||[]).includes(o.k))cls+=" sel";
+      s+=`<button class="${cls}" data-k="${o.k}"${graded?" disabled":""}><span class="exo-k">${o.k}</span><span class="exo-t">${esc(o.t)}</span>${mark}</button>`;}
+    if(!graded&&!mock&&q.type==="multi")s+='<button class="ex-submit" data-submit="1">對答案</button>';
   }
-  if(!graded&&!mock&&q.type==="multi")s+='<button class="ex-submit" data-submit="1">對答案</button>';
   if(graded)s+=exFeedbackHTML(q,picked,opts.review);
   return s+`</div>`;
 }
@@ -1231,7 +1298,19 @@ function rebuildCard(card,q,opts){const tmp=document.createElement("div");tmp.in
 function wireCard(card){
   const qid=card.dataset.qid,q=EXAM.find(x=>x.id===qid);if(!q)return;
   card.querySelectorAll("[data-ref]").forEach(b=>b.onclick=()=>select(b.dataset.ref));
-  const redo=card.querySelector("[data-redo]");if(redo)redo.onclick=()=>{delete EX[qid];exSave();rebuildCard(card,q,{fresh:true});updateExStat();};
+  const redo=card.querySelector("[data-redo]");if(redo)redo.onclick=()=>{delete EX[qid];delete ordDraft[qid];exSave();rebuildCard(card,q,{fresh:true});updateExStat();};
+  if(q.type==="order"){
+    card.querySelectorAll("[data-place]").forEach(b=>b.onclick=()=>{ordDraft[qid]=[...(ordDraft[qid]||[]),b.dataset.place];rebuildCard(card,q,{});});
+    card.querySelectorAll("[data-unplace]").forEach(b=>b.onclick=()=>{ordDraft[qid]=(ordDraft[qid]||[]).filter(x=>x!==b.dataset.unplace);rebuildCard(card,q,{});});
+    const clr=card.querySelector("[data-clearord]");if(clr)clr.onclick=()=>{ordDraft[qid]=[];rebuildCard(card,q,{});};
+    const sub=card.querySelector("[data-submit]");if(sub)sub.onclick=()=>{commitAnswer(card,q,ordDraft[qid]||[]);delete ordDraft[qid];};
+    return;
+  }
+  if(q.type==="match"){
+    const sub=card.querySelector("[data-submit]");
+    if(sub)sub.onclick=()=>commitAnswer(card,q,q.pairs.map((_,i)=>{const sel=card.querySelector('.mtch-sel[data-row="'+i+'"]');return sel?sel.value:"";}));
+    return;
+  }
   const live=[...card.querySelectorAll(".exo:not(:disabled)")];if(!live.length)return;
   if(q.type==="multi"){
     live.forEach(o=>o.onclick=()=>o.classList.toggle("sel"));
@@ -1245,11 +1324,17 @@ function wireMock(){
   const again=examEl.querySelector("[data-again]");if(again)again.onclick=()=>{mockState=null;renderExam();};
   if(!mockState||mockState.submitted)return;
   const card=examEl.querySelector(".exq");
-  if(card){const id=card.dataset.qid,q=EXAM.find(x=>x.id===id),opts=[...card.querySelectorAll(".exo")];
-    opts.forEach(o=>o.onclick=()=>{const k=o.dataset.k;let cur=mockState.answers[id]||[];
-      cur=q.type==="multi"?(cur.includes(k)?cur.filter(x=>x!==k):[...cur,k]):[k];
-      mockState.answers[id]=cur;opts.forEach(x=>x.classList.toggle("sel",cur.includes(x.dataset.k)));
-      const a=examEl.querySelector(".mt-ans");if(a)a.textContent="已答 "+mockState.order.filter(x=>(mockState.answers[x]||[]).length).length;});}
+  if(card){const id=card.dataset.qid,q=EXAM.find(x=>x.id===id);
+    const upAns=()=>{const a=examEl.querySelector(".mt-ans");if(a)a.textContent="已答 "+mockState.order.filter(x=>(mockState.answers[x]||[]).some(v=>v)).length;};
+    if(q.type==="order"){
+      card.querySelectorAll("[data-place]").forEach(b=>b.onclick=()=>{mockState.answers[id]=[...(mockState.answers[id]||[]),b.dataset.place];renderExam();});
+      card.querySelectorAll("[data-unplace]").forEach(b=>b.onclick=()=>{mockState.answers[id]=(mockState.answers[id]||[]).filter(x=>x!==b.dataset.unplace);renderExam();});
+    }else if(q.type==="match"){
+      card.querySelectorAll(".mtch-sel").forEach(s=>s.onchange=()=>{const i=+s.dataset.row;const cur=(mockState.answers[id]||[]).slice();cur[i]=s.value;mockState.answers[id]=cur;upAns();});
+    }else{const opts=[...card.querySelectorAll(".exo")];
+      opts.forEach(o=>o.onclick=()=>{const k=o.dataset.k;let cur=mockState.answers[id]||[];
+        cur=q.type==="multi"?(cur.includes(k)?cur.filter(x=>x!==k):[...cur,k]):[k];
+        mockState.answers[id]=cur;opts.forEach(x=>x.classList.toggle("sel",cur.includes(x.dataset.k)));upAns();});}}
   examEl.querySelectorAll("[data-mnav]").forEach(b=>b.onclick=()=>{const a=b.dataset.mnav;
     if(a==="submit"){submitMock();return;}
     if(a==="prev"&&mockState.idx>0)mockState.idx--;else if(a==="next"&&mockState.idx<mockState.order.length-1)mockState.idx++;

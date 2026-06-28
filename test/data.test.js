@@ -266,12 +266,22 @@ describe("考題 (exam — 練習題庫)", () => {
     const ids = exam.items.map((q) => q.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
-  it("正解都落在選項鍵內，且單選恰一個答案", () => {
+  it("各題型結構正確 (選項/答案/配對/排序)", () => {
     const bad = [];
     for (const q of exam.items) {
+      if (q.type === "match") {
+        if (!Array.isArray(q.pairs) || q.pairs.length < 2) bad.push(`${q.id}:match 缺 pairs`);
+        continue;
+      }
+      if (!Array.isArray(q.options) || q.options.length < 2) { bad.push(`${q.id}:缺 options`); continue; }
+      if (!Array.isArray(q.answer) || !q.answer.length) { bad.push(`${q.id}:缺 answer`); continue; }
       const keys = new Set(q.options.map((o) => o.k));
       for (const a of q.answer) if (!keys.has(a)) bad.push(`${q.id}:正解${a}不在選項`);
       if ((q.type === "single" || q.type === "tf") && q.answer.length !== 1) bad.push(`${q.id}:${q.type}卻有${q.answer.length}個答案`);
+      if (q.type === "order") {
+        if (q.answer.length !== q.options.length) bad.push(`${q.id}:order 答案數≠選項數`);
+        if (new Set(q.answer).size !== q.answer.length) bad.push(`${q.id}:order 答案重複`);
+      }
     }
     expect(bad, bad.join(", ")).toEqual([]);
   });
