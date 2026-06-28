@@ -11,7 +11,7 @@ const ZD = ROOT + "data/_zones";
 // ── meta + architectures（產物的固定外殼；非衍生自 zones，故在此維護）──
 const META = {
   standard: "CNS/ISO/IEC 27001:2023 (對應 ISO/IEC 27001:2022)",
-  version: "0.9.5",
+  version: "0.9.6",
   accent: "#3b82f6",
   note: "所有說明為自行撰寫之白話轉譯，未複製標準正文（版權）。條款編號與標題為事實引用。",
   linkTypes: ["feeds", "treats", "selects", "implements", "aligns", "contains"],

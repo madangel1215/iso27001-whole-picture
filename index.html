@@ -175,8 +175,9 @@ svg#canvas{width:100%;height:100%;display:block}
 .layerbar .lb-label{font-size:12px;color:var(--text-3);margin-right:2px}
 .lb-btn{font-size:12.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text-2);cursor:pointer;transition:all .14s var(--ease)}
 .lb-btn:hover{border-color:var(--line-2);color:var(--text)}
-.lb-btn.on{border-color:var(--accent);color:var(--text);background:var(--surface-2)}
-.heat{display:grid;grid-template-columns:auto repeat(3,minmax(56px,1fr)) auto;gap:4px;margin:2px 0 4px}
+.lb-btn.on{border-color:var(--accent);color:var(--text);background:color-mix(in srgb,var(--accent) 10%,var(--surface))}
+table.heat{border-collapse:separate;border-spacing:4px;width:100%;table-layout:fixed;margin:2px 0 4px}
+table.heat th:first-child,table.heat .heat-r,table.heat .heat-tot{width:64px}
 .heat-c{padding:10px 8px;border-radius:6px;text-align:center;font-size:13px;color:var(--text);font-family:var(--mono);text-shadow:0 1px 2px rgba(0,0,0,.45)}
 .heat-tot{color:var(--text-3);background:var(--surface-2)!important;text-shadow:none}
 .heat-h{color:var(--text-3);font-size:11.5px;background:transparent;padding:4px 8px}
@@ -215,7 +216,7 @@ svg#canvas{width:100%;height:100%;display:block}
 .pyr{display:flex;flex-direction:column;align-items:center;gap:5px;margin:8px 0 18px}
 .pyr-band{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 14px;cursor:pointer;transition:all .14s var(--ease);display:flex;align-items:center;justify-content:center;gap:10px;color:var(--text-2)}
 .pyr-band:hover{border-color:var(--accent);background:var(--surface-2);color:var(--text)}
-.pyr-band.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);color:var(--text)}
+.pyr-band.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface));color:var(--text)}
 .pyr-band.ext{border-style:dashed}
 .pyr-band .pyr-n{font-size:13.5px;font-weight:500}
 .pyr-band .pyr-c{font-family:var(--mono);font-size:11px;color:var(--text-3)}
@@ -368,7 +369,7 @@ details.exfb:not([open])>summary::after{transform:rotate(-90deg)}
 .chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
 .chip{background:var(--surface);border:1px solid var(--line);border-radius:10px;transition:border-color .16s var(--ease),background .16s var(--ease),box-shadow .16s var(--ease),transform .16s var(--ease),opacity .2s var(--ease);position:relative}
 .chip:hover{border-color:var(--accent);background:var(--surface-2);box-shadow:0 3px 12px rgba(0,0,0,.16);transform:translateY(-1px)}
-.chip.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.chip.sel{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface))}
 .chip.dim{opacity:.3}
 .chip-open{display:block;width:100%;text-align:left;background:none;border:0;font:inherit;color:inherit;cursor:pointer;padding:10px 12px;border-radius:10px;position:relative}
 .chip-open:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
@@ -391,12 +392,13 @@ details.exfb:not([open])>summary::after{transform:rotate(-90deg)}
 .heat-c.hcell:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--accent)}
 .heat-c.hrow,.heat-c.hhead.hclk{cursor:pointer}
 .heat-c.hrow:hover,.heat-c.hhead.hclk:hover{color:var(--accent)}
+.heat-c.hrow:focus-visible,.heat-c.hhead.hclk:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--accent)}
 /* 控制工具列：狀態篩選 pill + 搜尋 */
 .ctl-stats{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ctl-stat{font-size:12px;padding:5px 11px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--text-2);cursor:pointer;transition:all .12s var(--ease)}
 .ctl-stat:hover{border-color:var(--line-2);color:var(--text)}
 .ctl-stat b{font-family:var(--mono)}
-.ctl-stat.on{border-color:var(--accent);background:var(--surface-2);color:var(--text)}
+.ctl-stat.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface));color:var(--text)}
 .ctl-stat.on.conform{border-color:var(--cat-control)} .ctl-stat.on.observe{border-color:var(--cat-risk)} .ctl-stat.on.nc{border-color:var(--warn-strong)}
 .ctl-tools{display:flex;align-items:center;gap:8px;flex:0 0 auto}
 .ctl-search{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 11px;font-size:13px;color:var(--text);font-family:inherit;width:150px}
@@ -1070,6 +1072,8 @@ function renderAuditFlow(){
 // ---------- VIEW: controls grid ----------
 const LAYERS=[["theme","主題"],["controlType","控制類型"],["cia","CIA"],["securityDomain","安全領域"],["operationalCapability","操作能力"]];
 const themeName={"A.5":"組織控制 Organizational","A.6":"人員控制 People","A.7":"實體控制 Physical","A.8":"技術控制 Technological"};
+function bindActivate(el,fn){el.addEventListener("click",fn);el.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();fn();}});}
+function ctlCounts(){const cs=DATA.nodes.filter(n=>n.type==="control");const by=s=>cs.filter(c=>WS[c.id]&&WS[c.id].status===s).length;return{total:cs.length,marked:cs.filter(c=>WS[c.id]&&WS[c.id].status).length,conform:by("conform"),observe:by("observe"),nc:by("nc")};}
 function wireDsec(container){container.querySelectorAll(".dsec-h[data-sec]").forEach(function(hd){
   const sid=hd.dataset.sec;
   const toggle=function(){const s=document.getElementById(sid);if(!s)return;const c=s.classList.toggle("collapsed");if(c)docCollapsed.add(sid);else docCollapsed.delete(sid);hd.setAttribute("aria-expanded",String(!c));};
@@ -1097,11 +1101,9 @@ function ctlFilterLabel(){
   return p.join(" × ")||"全部";
 }
 function updateCtlStats(){
-  const ctrls=DATA.nodes.filter(n=>n.type==="control");
-  const stN=s=>ctrls.filter(c=>WS[c.id]&&WS[c.id].status===s).length;
-  const marked=ctrls.filter(c=>WS[c.id]&&WS[c.id].status).length;
-  const m=grid.querySelector("#ctl-marked");if(m)m.textContent=marked;
-  grid.querySelectorAll(".ctl-stat").forEach(b=>{const v=b.dataset.status,n=v==="unmarked"?ctrls.length-marked:stN(v),bb=b.querySelector("b");if(bb)bb.textContent=n;});
+  const c=ctlCounts();
+  const m=grid.querySelector("#ctl-marked");if(m)m.textContent=c.marked;
+  grid.querySelectorAll(".ctl-stat").forEach(b=>{const v=b.dataset.status,n=v==="unmarked"?c.total-c.marked:c[v],bb=b.querySelector("b");if(bb)bb.textContent=n;});
 }
 function markCtl(id,status){
   const cur=WS[id]&&WS[id].status,ns=cur===status?undefined:status;
@@ -1129,9 +1131,9 @@ function renderControls(){
   const themeTotal=p=>ctrls.filter(c=>(c.ref||"").startsWith(p)).length;
   let mx=1;for(const p of T4)for(const ty of TY)mx=Math.max(mx,cell(p,ty));
   const isF=(o)=>ctlFilter&&!ctlSearch.trim()&&JSON.stringify(ctlFilter)===JSON.stringify(o);
-  let heat=`<div class="heat" role="group" aria-label="覆蓋熱圖（點格子篩選）"><div class="heat-c heat-h"></div>`+TY.map(ty=>`<div class="heat-c heat-h hhead hclk${isF({type:ty})?" on":""}" data-hcol="${ty}" tabindex="0" role="button" title="篩選 ${ty}" aria-label="篩選控制類型 ${ty}">${ty}</div>`).join("")+`<div class="heat-c heat-h">小計</div>`;
-  for(const p of T4)heat+=`<div class="heat-c heat-r hrow" data-hrow="${p}" tabindex="0" role="button" title="篩選 ${p}" aria-label="篩選主題 ${p}">${p}</div>`+TY.map(ty=>{const n=cell(p,ty);return `<div class="heat-c hcell" data-htheme="${p}" data-htype="${ty}" tabindex="0" role="button" style="background:color-mix(in srgb,var(--cat-control) ${6+Math.round(n/mx*42)}%,var(--surface))" title="篩選 ${p} × ${ty}（${n} 條）" aria-label="${p} ${ty} ${n} 條，點選篩選">${n}</div>`;}).join("")+`<div class="heat-c heat-tot hrow" data-hrow="${p}" tabindex="0" role="button" title="篩選 ${p}（${themeTotal(p)} 條）" aria-label="${p} 小計 ${themeTotal(p)} 條，點選篩選">${themeTotal(p)}</div>`;
-  heat+=`</div>`;
+  let heat=`<table class="heat" aria-label="覆蓋熱圖：附錄A 主題 × 控制類型（點格子篩選）"><thead><tr><th class="heat-c heat-h"></th>`+TY.map(ty=>`<th scope="col" class="heat-c heat-h hhead hclk${isF({type:ty})?" on":""}" data-hcol="${ty}" tabindex="0" title="篩選 ${ty}" aria-label="篩選控制類型 ${ty}">${ty}</th>`).join("")+`<th scope="col" class="heat-c heat-h">小計</th></tr></thead><tbody>`;
+  for(const p of T4)heat+=`<tr><th scope="row" class="heat-c heat-r hrow" data-hrow="${p}" tabindex="0" title="篩選 ${p}" aria-label="篩選主題 ${p}">${p}</th>`+TY.map(ty=>{const n=cell(p,ty);return `<td class="heat-c hcell" data-htheme="${p}" data-htype="${ty}" tabindex="0" style="background:color-mix(in srgb,var(--cat-control) ${6+Math.round(n/mx*42)}%,var(--surface))" title="篩選 ${p} × ${ty}（${n} 條）" aria-label="${p} ${ty} ${n} 條，點選篩選">${n}</td>`;}).join("")+`<td class="heat-c heat-tot hrow" data-hrow="${p}" tabindex="0" title="篩選 ${p}（${themeTotal(p)} 條）" aria-label="${p} 小計 ${themeTotal(p)} 條，點選篩選">${themeTotal(p)}</td></tr>`;
+  heat+=`</tbody></table>`;
   tocSections=[{id:"sec-heat",label:"覆蓋熱圖"},...(filtering?[]:groups.map(g=>({id:g.id,label:g.label})))];
   let html=`<button class="toc-fab" title="頁內目錄" aria-label="開啟頁內目錄">${icon("menu",18)}</button>`;
   html+=`<div class="ctl-toolbar"><div class="ctl-stats"><span class="ctl-hint">附錄 A · ${ctrls.length} 控制 · 已標記 <b style="color:var(--text)" id="ctl-marked">${marked}</b>/${ctrls.length}</span>`+
@@ -1151,7 +1153,7 @@ function renderControls(){
   grid.querySelector(".toc-fab").addEventListener("click",openTocOv);
   grid.querySelectorAll(".lb-btn[data-layer]").forEach(b=>b.addEventListener("click",()=>{ctlLayer=b.dataset.layer;ctlFilter=null;ctlSearch="";renderControls();}));
   const setF=f=>{ctlFilter=f;renderControls();};
-  const kgo=(el,fn)=>{el.addEventListener("click",fn);el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fn();}});};
+  const kgo=bindActivate;
   grid.querySelectorAll(".hcell").forEach(c=>kgo(c,()=>setF({theme:c.dataset.htheme,type:c.dataset.htype})));
   grid.querySelectorAll(".hrow").forEach(c=>kgo(c,()=>setF({theme:c.dataset.hrow})));
   grid.querySelectorAll(".hhead.hclk").forEach(c=>kgo(c,()=>setF({type:c.dataset.hcol})));
@@ -1190,7 +1192,7 @@ function renderDocs(){
   let dB=`<div class="docs-intro">文件化資訊呈<b>金字塔</b>：上層定方向、下層是證據。點任一層可篩選；<b style="color:var(--cat-clause)">文件</b>=維持、<b style="color:var(--cat-risk)">紀錄</b>=保留、<b style="color:var(--warn-strong)">必備</b>=標準強制。</div>`;
   dB+=`<div class="pyr">`+TIERS.map(([t,zh,w])=>`<button class="pyr-band${docTierFilter===t?" on":""}" data-tier="${t}" style="width:${w}%" aria-pressed="${docTierFilter===t}"><span class="pyr-n">${icon(TIER_IC[t],14)} ${zh}</span><span class="pyr-c">${tcount(t)}</span></button>`).join("")+
     `<button class="pyr-band ext${docTierFilter==="外部"?" on":""}" data-tier="外部" style="width:100%" aria-pressed="${docTierFilter==="外部"}"><span class="pyr-n">${icon(TIER_IC["外部"],14)} 外部來源文件 External</span><span class="pyr-c">7.5.3</span></button></div>`;
-  if(docTierFilter)dB+=`<div class="sech" style="margin:2px 0 8px">篩選層級：${docTierFilter}　<span class="pyr-clear" data-tier="">✕ 清除</span></div>`;
+  if(docTierFilter)dB+=`<div class="ctl-filterbar"><span>篩選中：<b>${esc(docTierFilter)}</b> 層 · ${DOCS.filter(inTier).length} 份</span><button class="ctl-clearf" data-tier="">✕ 清除篩選</button></div>`;
   dB+=`<div class="doc-grid">${fmust.map(docRow).join("")||`<div class="docs-intro" style="grid-column:1/-1">此層在 27001 必備清單中無強制文件（多為組織自有，如作業指引、外部法規/客戶規範）。</div>`}</div>`;
   if(fopt.length)dB+=`<div class="sech" style="margin:18px 0 8px">關鍵紀錄（稽核常看，非逐字強制）</div><div class="doc-grid">${fopt.map(docRow).join("")}</div>`;
   // 標準家族 section body：每個家族為巢狀可收合
@@ -1207,7 +1209,7 @@ function renderDocs(){
   docsEl.innerHTML=h;docsEl.style.paddingRight="";
   docsEl.querySelector(".toc-fab").addEventListener("click",openTocOv);
   docsEl.querySelectorAll(".pyr-band[data-tier]").forEach(b=>b.addEventListener("click",()=>{const t=b.dataset.tier;docTierFilter=(docTierFilter===t)?null:t;renderDocs();}));
-  docsEl.querySelectorAll(".pyr-clear").forEach(b=>b.addEventListener("click",()=>{docTierFilter=null;renderDocs();}));
+  docsEl.querySelectorAll(".ctl-clearf").forEach(b=>b.addEventListener("click",()=>{docTierFilter=null;renderDocs();}));
   docsEl.querySelectorAll(".doc-row[data-go]").forEach(r=>{const go=()=>select(r.dataset.go);
     r.addEventListener("click",go);r.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});});
   docsEl.querySelectorAll(".std-card[data-std]").forEach(c=>{const go=()=>openStdPanel(stdById.get(c.dataset.std));
@@ -1499,12 +1501,13 @@ function tocJump(id){const s=document.getElementById(id);if(!s)return;
   if(id.startsWith("sec-fam"))dsecExpand(document.getElementById("sec-stds"));
   dsecExpand(s);s.scrollIntoView({behavior:REDUCE_MOTION?"auto":"smooth",block:"start"});}
 let tocOvOpener=null;
+function bgInert(on){const b=document.querySelector(".body");if(b)b.inert=on;}  // 模態開啟時把主內容移出無障礙樹/互動
 function openTocOv(){tocOvList.innerHTML=tocSections.map(s=>`<button class="toc-ov-item${s.sub?" sub":""}" data-target="${s.id}">${s.label}</button>`).join("");
   tocOvList.querySelectorAll("[data-target]").forEach(b=>b.addEventListener("click",()=>{tocJump(b.dataset.target);closeTocOv();}));
   tocOvOpener=document.activeElement;
-  tocOv.classList.add("open");tocOv.setAttribute("aria-hidden","false");
+  tocOv.classList.add("open");tocOv.setAttribute("aria-hidden","false");bgInert(true);
   tocOvList.querySelector(".toc-ov-item")?.focus();}  // 焦點移入 dialog
-function closeTocOv(){tocOv.classList.remove("open");tocOv.setAttribute("aria-hidden","true");
+function closeTocOv(){tocOv.classList.remove("open");tocOv.setAttribute("aria-hidden","true");bgInert(false);  // 先解除 inert 才能還原焦點
   if(tocOvOpener&&tocOvOpener.focus){tocOvOpener.focus();tocOvOpener=null;}}  // 還原焦點到觸發者
 tocOv.addEventListener("click",e=>{if(e.target===tocOv)closeTocOv();});
 const vhint=document.getElementById("vhint"),vhintT=document.getElementById("vhint-t");
@@ -1673,19 +1676,19 @@ function downloadOscal(){const blob=new Blob([JSON.stringify(buildOscal(),null,2
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="iso27001-2022-oscal-catalog.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast("已匯出 OSCAL JSON（93 控制）");}
 
 // search
-const q=document.getElementById("q"),results=document.getElementById("results");
-q.addEventListener("input",()=>{const s=q.value.trim().toLowerCase();if(!s){results.classList.remove("open");q.setAttribute("aria-expanded","false");return;}
+const searchInput=document.getElementById("q"),results=document.getElementById("results");
+searchInput.addEventListener("input",()=>{const s=searchInput.value.trim().toLowerCase();if(!s){results.classList.remove("open");searchInput.setAttribute("aria-expanded","false");return;}
   const hits=DATA.nodes.filter(n=>[n.ref,n.title,n.title_en,n.summary].some(v=>(v||"").toLowerCase().includes(s))).slice(0,40);
   results.innerHTML=hits.map(n=>`<div class="res-item" data-id="${n.id}" tabindex="0" role="option" aria-label="${n.ref||""} ${n.title||n.id}"><span class="res-ref">${n.ref||""}</span><span class="res-t">${n.title||n.id}</span></div>`).join("")||`<div class="res-item"><span class="res-t" style="color:var(--text-3)">無結果</span></div>`;
-  results.classList.add("open");q.setAttribute("aria-expanded","true");
-  const pick=r=>{select(r.dataset.id);results.classList.remove("open");q.setAttribute("aria-expanded","false");q.value="";q.blur();};
+  results.classList.add("open");searchInput.setAttribute("aria-expanded","true");
+  const pick=r=>{select(r.dataset.id);results.classList.remove("open");searchInput.setAttribute("aria-expanded","false");searchInput.value="";searchInput.blur();};
   results.querySelectorAll("[data-id]").forEach(r=>{r.addEventListener("click",()=>pick(r));
     r.addEventListener("keydown",e=>{
       if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(r);}
       else if(e.key==="ArrowDown"){e.preventDefault();(r.nextElementSibling||results.firstElementChild)?.focus();}
-      else if(e.key==="ArrowUp"){e.preventDefault();(r.previousElementSibling||q).focus();}});});});
+      else if(e.key==="ArrowUp"){e.preventDefault();(r.previousElementSibling||searchInput).focus();}});});});
 // 從搜尋框按 ↓ 跳進結果清單
-q.addEventListener("keydown",e=>{if(e.key==="ArrowDown"&&results.classList.contains("open")){e.preventDefault();results.querySelector("[data-id]")?.focus();}});
+searchInput.addEventListener("keydown",e=>{if(e.key==="ArrowDown"&&results.classList.contains("open")){e.preventDefault();results.querySelector("[data-id]")?.focus();}});
 document.addEventListener("click",e=>{if(!e.target.closest(".search"))results.classList.remove("open");});
 
 // ---------- glossary 名詞 hover 詞彙卡 ----------
@@ -1760,8 +1763,8 @@ function buildCmdk(){cmdkItems=[
   ...STDS.map(s=>({kind:"標準",label:s.number+" "+s.title,hint:"開標準",run:()=>openStdPanel(s)})),
 ];}
 let cmdkPrevFocus=null;
-function openCmdk(){if(!cmdkItems.length)buildCmdk();cmdkPrevFocus=document.activeElement;cmdkEl.classList.add("open");cmdkEl.setAttribute("aria-hidden","false");cmdkInput.value="";filterCmdk("");cmdkInput.focus();}
-function closeCmdk(){cmdkEl.classList.remove("open");cmdkEl.setAttribute("aria-hidden","true");if(cmdkPrevFocus&&cmdkPrevFocus.focus){cmdkPrevFocus.focus();cmdkPrevFocus=null;}}
+function openCmdk(){if(!cmdkItems.length)buildCmdk();cmdkPrevFocus=document.activeElement;cmdkEl.classList.add("open");cmdkEl.setAttribute("aria-hidden","false");bgInert(true);cmdkInput.value="";filterCmdk("");cmdkInput.focus();}
+function closeCmdk(){cmdkEl.classList.remove("open");cmdkEl.setAttribute("aria-hidden","true");bgInert(false);if(cmdkPrevFocus&&cmdkPrevFocus.focus){cmdkPrevFocus.focus();cmdkPrevFocus=null;}}
 function filterCmdk(q){q=q.trim().toLowerCase();
   cmdkShown=(q?cmdkItems.filter(it=>it.label.toLowerCase().includes(q)||it.kind.includes(q)):cmdkItems).slice(0,50);
   cmdkSel=0;renderCmdk();}
@@ -1779,8 +1782,8 @@ cmdkEl.addEventListener("click",e=>{if(e.target===cmdkEl)closeCmdk();});
 // ---------- 鍵盤快捷鍵 + 說明 ----------
 const SHORTCUTS=[["⌘K / Ctrl K","命令面板（跳任何東西）"],["1 – 9","切換九個視圖（9＝考題）"],["g","切 學習／稽核者視角"],["t","切 深／淺色"],["\\","收合／展開左側選單"],["/","聚焦搜尋"],["?","顯示此快捷鍵表"],["Esc","關閉面板／選單"]];
 let helpOpener=null;
-function openHelp(){document.getElementById("help-grid").innerHTML=SHORTCUTS.map(([k,d])=>`<kbd>${k}</kbd><span>${d}</span>`).join("");helpOpener=document.activeElement;document.getElementById("help").classList.add("show");document.getElementById("help-close").focus();}
-function closeHelp(){document.getElementById("help").classList.remove("show");if(helpOpener&&helpOpener.focus){helpOpener.focus();helpOpener=null;}}
+function openHelp(){document.getElementById("help-grid").innerHTML=SHORTCUTS.map(([k,d])=>`<kbd>${k}</kbd><span>${d}</span>`).join("");helpOpener=document.activeElement;document.getElementById("help").classList.add("show");bgInert(true);document.getElementById("help-close").focus();}
+function closeHelp(){document.getElementById("help").classList.remove("show");bgInert(false);if(helpOpener&&helpOpener.focus){helpOpener.focus();helpOpener=null;}}
 // 統一 Tab 焦點陷阱：最上層 modal/overlay 開啟時，Tab 在其卡片內循環
 function focusablesIn(c){return [...c.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(x=>x.offsetParent!==null);}
 document.addEventListener("keydown",e=>{if(e.key!=="Tab")return;
