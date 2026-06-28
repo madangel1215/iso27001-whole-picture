@@ -193,6 +193,23 @@ svg#canvas{width:100%;height:100%;display:block}
 .pyr-band .pyr-c{font-family:var(--mono);font-size:11px;color:var(--text-3)}
 .pyr-clear{font-family:var(--mono);font-size:11px;color:var(--accent);cursor:pointer;text-transform:none;letter-spacing:0}
 .kbadge.tier{color:var(--text-3);border:1px solid var(--line-2)}
+/* 可收合區塊 + 右側頁內目錄(TOC) */
+.dsec{margin-bottom:24px}
+.dsec-h{cursor:pointer;user-select:none}
+.theme-h.dsec-h::before,.sech.dsec-h::before{content:"▾";font-size:10px;color:var(--text-3);margin-right:3px;transition:transform .15s var(--ease);display:inline-block}
+.dsec.collapsed>.dsec-h::before{transform:rotate(-90deg)}
+.dsec.collapsed>.dsec-body{display:none}
+.dsec.collapsed>.theme-h.dsec-h{margin-bottom:0;border-bottom-color:transparent}
+.doc-toc{position:fixed;right:14px;top:64px;width:180px;max-height:calc(100vh - 96px);overflow-y:auto;background:var(--glass);backdrop-filter:blur(18px) saturate(1.4);border:1px solid var(--line);border-radius:12px;padding:7px;z-index:7;display:flex;flex-direction:column;gap:1px;transition:width .18s var(--ease)}
+.doc-toc.collapsed{width:40px}
+.doc-toc-h{display:flex;align-items:center;gap:8px;padding:6px 8px;color:var(--text-3);font-family:var(--mono);font-size:11px;letter-spacing:.06em;cursor:pointer;background:transparent;border:0;text-align:left}
+.doc-toc-h:hover{color:var(--text)}
+.doc-toc.collapsed .toc-item{display:none}
+.toc-item{display:block;width:100%;text-align:left;background:transparent;border:0;color:var(--text-2);padding:6px 9px;border-radius:7px;cursor:pointer;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toc-item:hover{background:var(--surface-2);color:var(--text)}
+.toc-item.sub{padding-left:20px;font-size:11.5px;color:var(--text-3)}
+.toc-item.sub:hover{color:var(--text)}
+@media(max-width:900px){.doc-toc{display:none}}
 .doc-row{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;background:var(--surface);border:1px solid var(--line);border-radius:10px;cursor:pointer;transition:all .16s var(--ease)}
 .doc-row:hover{border-color:var(--accent);background:var(--surface-2)}
 .doc-row:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
@@ -475,7 +492,7 @@ const toastEl=document.getElementById("toast");
 let DATA=null, byId=new Map(), adj=new Map(), curView="pdca", selected=null, overlay=false, mode="learn";
 let DOCS=[], STDS=[], docsByNode=new Map(), stdsByNode=new Map(), stdById=new Map();
 let WS={};try{WS=JSON.parse(localStorage.getItem("ismsla_ws")||"{}");}catch(e){}
-let docTierFilter=null;
+let docTierFilter=null, docCollapsed=new Set(), tocCollapsed=false;
 function wsSave(){try{localStorage.setItem("ismsla_ws",JSON.stringify(WS));}catch(e){}}
 function wsSet(id,patch){WS[id]={...(WS[id]||{}),...patch};if(!WS[id].status&&!(WS[id].note||"").trim())delete WS[id];wsSave();}
 function updateChipStatus(id){const ch=grid.querySelector(`.chip[data-id="${id}"] .chip-st`);if(ch)ch.className="chip-st st-"+((WS[id]&&WS[id].status)||"none");}
@@ -780,35 +797,44 @@ function renderDocs(){
     `</div>`;};
   const TIERS=[["政策","政策 / 目標",46],["程序","程序書 Procedures",64],["作業","作業指引 Work instr.",82],["紀錄","表單 / 紀錄 / 報告",100]];
   const tcount=t=>DOCS.filter(d=>d.tier===t).length;
-  let h=`<div class="theme"><div class="theme-h"><span class="th-ref">7.5</span><span class="th-t">ISMS 文件化資訊 · Documented information</span><span class="th-c">${DOCS.length} 項</span></div>`+
-    `<div class="docs-intro">文件化資訊呈<b>金字塔</b>：上層定方向、下層是證據。點任一層可篩選下方清單；<b style="color:var(--cat-clause)">文件</b>=維持(maintain)、<b style="color:var(--cat-risk)">紀錄</b>=保留(retain)、<b style="color:var(--warn-strong)">必備</b>=標準強制。</div>`;
-  h+=`<div class="pyr">`+TIERS.map(([t,zh,w])=>`<button class="pyr-band${docTierFilter===t?" on":""}" data-tier="${t}" style="width:${w}%" aria-pressed="${docTierFilter===t}"><span class="pyr-n">${zh}</span><span class="pyr-c">${tcount(t)}</span></button>`).join("")+
-    `<button class="pyr-band ext${docTierFilter==="外部"?" on":""}" data-tier="外部" style="width:100%" aria-pressed="${docTierFilter==="外部"}"><span class="pyr-n">外部來源文件 External</span><span class="pyr-c">7.5.3</span></button></div>`;
+  const stdCard=s=>{const par=(s.parent||[])[0]?stdById.get((s.parent||[])[0]):null;
+    return `<div class="std-card jump" data-std="${s.id}" tabindex="0" role="button" aria-label="${s.number} ${s.title}"><div class="std-num">${s.number}</div><div class="std-title">${s.title} <span class="kbadge ${s.certifiable?"cert":"guide"}" style="margin-left:3px">${s.certifiable?"可驗證":"指引"}</span></div><div class="std-en">${s.title_en||""}</div><div class="std-role">${s.role}</div>${par?`<div class="std-rel">↳ 繼承自 ${par.number}</div>`:""}<div class="std-rel">↔ 27001：${s.relation}</div></div>`;};
+  const sec=(id,head,body)=>`<section class="dsec${docCollapsed.has(id)?" collapsed":""}" id="${id}"><div class="${head.cls} dsec-h" data-sec="${id}">${head.html}</div><div class="dsec-body">${body}</div></section>`;
+  // 文件 section body
   const inTier=d=>!docTierFilter||d.tier===docTierFilter;
   const fmust=must.filter(inTier),fopt=opt.filter(inTier);
-  if(docTierFilter)h+=`<div class="sech" style="margin:2px 0 8px">篩選層級：${docTierFilter}　<span class="pyr-clear" data-tier="">✕ 清除</span></div>`;
-  h+=`<div class="doc-grid">${fmust.map(docRow).join("")||`<div class="docs-intro" style="grid-column:1/-1">此層在 27001 必備清單中無強制文件（多為組織自有，如作業指引、外部法規/客戶規範）。</div>`}</div>`;
-  if(fopt.length)h+=`<div class="sech" style="margin:18px 0 8px">關鍵紀錄（稽核常看，非逐字強制）</div><div class="doc-grid">${fopt.map(docRow).join("")}</div>`;
-  h+=`</div>`;
-  const FAM_ORDER=["核心 ISMS","工程生命週期","風險","控制與實作","稽核與驗證","隱私","雲端","事故","AI"];
+  let dB=`<div class="docs-intro">文件化資訊呈<b>金字塔</b>：上層定方向、下層是證據。點任一層可篩選；<b style="color:var(--cat-clause)">文件</b>=維持、<b style="color:var(--cat-risk)">紀錄</b>=保留、<b style="color:var(--warn-strong)">必備</b>=標準強制。</div>`;
+  dB+=`<div class="pyr">`+TIERS.map(([t,zh,w])=>`<button class="pyr-band${docTierFilter===t?" on":""}" data-tier="${t}" style="width:${w}%" aria-pressed="${docTierFilter===t}"><span class="pyr-n">${zh}</span><span class="pyr-c">${tcount(t)}</span></button>`).join("")+
+    `<button class="pyr-band ext${docTierFilter==="外部"?" on":""}" data-tier="外部" style="width:100%" aria-pressed="${docTierFilter==="外部"}"><span class="pyr-n">外部來源文件 External</span><span class="pyr-c">7.5.3</span></button></div>`;
+  if(docTierFilter)dB+=`<div class="sech" style="margin:2px 0 8px">篩選層級：${docTierFilter}　<span class="pyr-clear" data-tier="">✕ 清除</span></div>`;
+  dB+=`<div class="doc-grid">${fmust.map(docRow).join("")||`<div class="docs-intro" style="grid-column:1/-1">此層在 27001 必備清單中無強制文件（多為組織自有，如作業指引、外部法規/客戶規範）。</div>`}</div>`;
+  if(fopt.length)dB+=`<div class="sech" style="margin:18px 0 8px">關鍵紀錄（稽核常看，非逐字強制）</div><div class="doc-grid">${fopt.map(docRow).join("")}</div>`;
+  // 標準家族 section body：每個家族為巢狀可收合
+  const FAM_ORDER=["核心 ISMS","整合管理系統","工程生命週期","風險","控制與實作","稽核與驗證","隱私","雲端","事故","AI"];
   const fams=FAM_ORDER.filter(f=>STDS.some(s=>s.family===f)).concat([...new Set(STDS.map(s=>s.family))].filter(f=>!FAM_ORDER.includes(f)));
-  h+=`<div class="theme"><div class="theme-h"><span class="th-ref">ISO 27000</span><span class="th-t">標準家族 · Standards family</span><span class="th-c">${STDS.length} 標準</span></div>`+
-    `<div class="docs-intro">圍繞 27001 的標準生態。<b style="color:var(--cat-control)">可驗證</b>=能發證(27001/42001/27701)；其餘為指引/流程。卡片標「↳ 繼承自」=血緣上游。<b>點任一張卡看它的血緣＋是哪些節點的量尺</b>。</div>`;
-  for(const f of fams){const cs=STDS.filter(s=>s.family===f).sort((a,b)=>((a.parent||[]).length?1:0)-((b.parent||[]).length?1:0));
-    h+=`<div class="sech" style="margin:14px 0 8px">${f}</div><div class="std-grid">`;
-    for(const s of cs){const par=(s.parent||[])[0]?stdById.get((s.parent||[])[0]):null;
-      h+=`<div class="std-card jump" data-std="${s.id}" tabindex="0" role="button" aria-label="${s.number} ${s.title}">`+
-        `<div class="std-num">${s.number}</div><div class="std-title">${s.title} <span class="kbadge ${s.certifiable?"cert":"guide"}" style="margin-left:3px">${s.certifiable?"可驗證":"指引"}</span></div><div class="std-en">${s.title_en||""}</div>`+
-        `<div class="std-role">${s.role}</div>${par?`<div class="std-rel">↳ 繼承自 ${par.number}</div>`:""}<div class="std-rel">↔ 27001：${s.relation}</div></div>`;}
-    h+=`</div>`;}
-  h+=`</div>`;
+  let sB=`<div class="docs-intro">圍繞 27001 的標準生態。<b style="color:var(--cat-control)">可驗證</b>=能發證；其餘為指引/流程。卡片標「↳ 繼承自」=血緣。<b>點卡看血緣＋它是哪些節點的量尺</b>。</div>`;
+  fams.forEach((f,i)=>{const fid="sec-fam-"+i;const cs=STDS.filter(s=>s.family===f).sort((a,b)=>((a.parent||[]).length?1:0)-((b.parent||[]).length?1:0));
+    sB+=sec(fid,{cls:"sech",html:`${f} <span class="th-c" style="margin-left:auto;font-family:var(--mono)">${cs.length}</span>`},`<div class="std-grid">${cs.map(stdCard).join("")}</div>`);});
+  // 右側頁內目錄 (TOC)
+  let h=`<nav class="doc-toc${tocCollapsed?" collapsed":""}" id="doc-toc" aria-label="頁內目錄"><button class="doc-toc-h" id="toc-toggle" aria-label="收合目錄">☰ <span class="toc-label">目錄</span></button>`+
+    `<button class="toc-item" data-target="sec-docs">文件化資訊</button><button class="toc-item" data-target="sec-stds">標準家族</button>`+
+    fams.map((f,i)=>`<button class="toc-item sub" data-target="sec-fam-${i}">${f}</button>`).join("")+`</nav>`;
+  h+=sec("sec-docs",{cls:"theme-h",html:`<span class="th-ref">7.5</span><span class="th-t">ISMS 文件化資訊 · Documented information</span><span class="th-c">${DOCS.length} 項</span>`},dB);
+  h+=sec("sec-stds",{cls:"theme-h",html:`<span class="th-ref">ISO 27000</span><span class="th-t">標準家族 · Standards family</span><span class="th-c">${STDS.length} 標準</span>`},sB);
   docsEl.innerHTML=h;
+  docsEl.style.paddingRight=(window.innerWidth>900?(tocCollapsed?56:200):32)+"px";
   docsEl.querySelectorAll(".pyr-band[data-tier]").forEach(b=>b.addEventListener("click",()=>{const t=b.dataset.tier;docTierFilter=(docTierFilter===t)?null:t;renderDocs();}));
   docsEl.querySelectorAll(".pyr-clear").forEach(b=>b.addEventListener("click",()=>{docTierFilter=null;renderDocs();}));
   docsEl.querySelectorAll(".doc-row[data-go]").forEach(r=>{const go=()=>select(r.dataset.go);
     r.addEventListener("click",go);r.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});});
   docsEl.querySelectorAll(".std-card[data-std]").forEach(c=>{const go=()=>openStdPanel(stdById.get(c.dataset.std));
     c.addEventListener("click",go);c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});});
+  docsEl.querySelectorAll(".dsec-h[data-sec]").forEach(hd=>hd.addEventListener("click",()=>{const id=hd.dataset.sec,s=document.getElementById(id);const c=s.classList.toggle("collapsed");c?docCollapsed.add(id):docCollapsed.delete(id);}));
+  const toc=document.getElementById("doc-toc");
+  document.getElementById("toc-toggle").addEventListener("click",()=>{tocCollapsed=!tocCollapsed;toc.classList.toggle("collapsed",tocCollapsed);docsEl.style.paddingRight=(window.innerWidth>900?(tocCollapsed?56:200):32)+"px";});
+  docsEl.querySelectorAll(".toc-item[data-target]").forEach(b=>b.addEventListener("click",()=>{const t=b.dataset.target;
+    if(t.startsWith("sec-fam")){const p=document.getElementById("sec-stds");if(p){p.classList.remove("collapsed");docCollapsed.delete("sec-stds");}}
+    const s=document.getElementById(t);if(s){s.classList.remove("collapsed");docCollapsed.delete(t);s.scrollIntoView({behavior:REDUCE_MOTION?"auto":"smooth",block:"start"});}}));
 }
 
 // ---------- relationship explorer (Cytoscape) ----------
