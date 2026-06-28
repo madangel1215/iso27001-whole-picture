@@ -314,11 +314,15 @@ details.exfb:not([open])>summary::after{transform:rotate(-90deg)}
 .mtch-sel:focus-visible{outline:none;border-color:var(--accent)}
 /* 可收合區塊 + 右側頁內目錄(TOC) */
 .dsec{margin-bottom:24px}
-.dsec-h{cursor:pointer;user-select:none}
-.theme-h.dsec-h::before,.sech.dsec-h::before{content:"▾";font-size:10px;color:var(--text-3);margin-right:3px;transition:transform .15s var(--ease);display:inline-block}
-.dsec.collapsed>.dsec-h::before{transform:rotate(-90deg)}
+.dsec-h{cursor:pointer;user-select:none;display:flex;align-items:center}
+.theme-h.dsec-h{align-items:baseline}
+.dsec-h::after{content:"▾";font-size:10px;color:var(--text-3);margin-left:auto;padding-left:8px;align-self:center;transition:transform .15s var(--ease)}
+.dsec.collapsed>.dsec-h::after{transform:rotate(-90deg)}
 .dsec.collapsed>.dsec-body{display:none}
 .dsec.collapsed>.theme-h.dsec-h{margin-bottom:0;border-bottom-color:transparent}
+.dsec-h:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* 全站焦點一致 token（補上原本沒有 focus 樣式的互動元素）*/
+.lb-btn:focus-visible,.ctl-stat:focus-visible,.pyr-band:focus-visible,.ex-nav button:focus-visible,.chip-ws button:focus-visible,.ord-chip:focus-visible,.toc-ov-item:focus-visible,.rail-item:focus-visible,.icon-btn:focus-visible,.ex-submit:focus-visible,.ex-redo:focus-visible,.ctl-clearf:focus-visible,.mrow:focus-visible,.ord-x:focus-visible,.ex-ref:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 /* 頁內目錄：☰ 按鈕 → 置中彈出(Notion 風) */
 .toc-fab{position:fixed;bottom:20px;right:20px;z-index:6;width:44px;height:44px;border-radius:12px;background:var(--glass);backdrop-filter:blur(16px) saturate(1.4);border:1px solid var(--line-2);color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.28)}
 .toc-fab:hover{color:var(--text);border-color:var(--accent)}
@@ -805,7 +809,7 @@ function drawOverlay(N,C){
     g.append(el("rect",{x,y,width:w,height:h,rx:10}));
     g.append(tx(x+w/2,y+20,"ot",pre+" "+nm));
     g.append(tx(x+w/2,y+37,"oc",cnt(pre)+" 控制"));
-    const go=()=>{ctlLayer="theme";switchView("controls");setTimeout(()=>{const s=document.getElementById("sec-ctl-"+pre);if(s){s.classList.remove("collapsed");docCollapsed.delete("sec-ctl-"+pre);s.scrollIntoView({behavior:REDUCE_MOTION?"auto":"smooth",block:"start"});}},140);};
+    const go=()=>{ctlLayer="theme";switchView("controls");setTimeout(()=>{const s=document.getElementById("sec-ctl-"+pre);if(s){dsecExpand(s);s.scrollIntoView({behavior:REDUCE_MOTION?"auto":"smooth",block:"start"});}},140);};
     g.addEventListener("click",e=>{e.stopPropagation();go();});g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});
     scene.append(g);}
 }
@@ -1066,6 +1070,12 @@ function renderAuditFlow(){
 // ---------- VIEW: controls grid ----------
 const LAYERS=[["theme","主題"],["controlType","控制類型"],["cia","CIA"],["securityDomain","安全領域"],["operationalCapability","操作能力"]];
 const themeName={"A.5":"組織控制 Organizational","A.6":"人員控制 People","A.7":"實體控制 Physical","A.8":"技術控制 Technological"};
+function wireDsec(container){container.querySelectorAll(".dsec-h[data-sec]").forEach(function(hd){
+  const sid=hd.dataset.sec;
+  const toggle=function(){const s=document.getElementById(sid);if(!s)return;const c=s.classList.toggle("collapsed");if(c)docCollapsed.add(sid);else docCollapsed.delete(sid);hd.setAttribute("aria-expanded",String(!c));};
+  hd.addEventListener("click",toggle);
+  hd.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle();}});});}
+function dsecExpand(s){if(!s)return;s.classList.remove("collapsed");const hd=s.querySelector(".dsec-h[data-sec]");if(hd){docCollapsed.delete(hd.dataset.sec);hd.setAttribute("aria-expanded","true");}}
 function ctlMatch(c){
   const q=ctlSearch.trim().toLowerCase();
   if(q&&!((c.ref||"").toLowerCase().includes(q)||(c.title||"").toLowerCase().includes(q)||(c.title_en||"").toLowerCase().includes(q)))return false;
@@ -1130,12 +1140,12 @@ function renderControls(){
   html+=`<div class="layerbar" role="radiogroup" aria-label="分層看法"><span class="lb-label">分層看法：</span>`+LAYERS.map(([k,n])=>`<button class="lb-btn${!filtering&&ctlLayer===k?" on":""}" data-layer="${k}" role="radio" aria-checked="${!filtering&&ctlLayer===k}">${n}</button>`).join("")+`</div>`;
   const LNOTE={cia:"多數控制三性兼具（機密 87／完整 84／可用 84 條），CIA 維度<b>區別力低</b>——主要用於反查具特定性質的控制，而非把控制硬分到單一性質。",operationalCapability:"ISO 27002:2022 屬性共 5 種，本工具收錄 4 種；第 5 種『Cybersecurity concepts（識別／保護／偵測／回應／復原，對齊 NIST CSF）』暫略。"};
   if(!filtering&&LNOTE[ctlLayer])html+=`<div class="docs-intro" style="margin:-6px 0 14px"><span class="mic" style="margin-right:4px;color:var(--text-3)">${icon("info",12)}</span>${LNOTE[ctlLayer]}</div>`;
-  html+=`<section class="dsec${docCollapsed.has("sec-heat")?" collapsed":""}" id="sec-heat"><div class="theme-h dsec-h" data-sec="sec-heat"><span class="th-ref">覆蓋</span><span class="th-t">覆蓋熱圖 · 主題 × 控制類型</span><span class="th-c">點格子篩選</span></div><div class="dsec-body">${heat}<div class="docs-intro" style="margin-top:8px">點<b>格子／列／欄</b>即可篩選下方控制。格子是<b>絕對數</b>（一控制可多型、列和 ≥ 小計）；主題大小不同，<b>淺色不代表缺失</b>——控制依風險評鑑選用。</div></div></section>`;
+  html+=`<section class="dsec${docCollapsed.has("sec-heat")?" collapsed":""}" id="sec-heat"><div class="theme-h dsec-h" data-sec="sec-heat" role="button" tabindex="0" aria-expanded="${!docCollapsed.has("sec-heat")}"><span class="th-ref">覆蓋</span><span class="th-t">覆蓋熱圖 · 主題 × 控制類型</span><span class="th-c">點格子篩選</span></div><div class="dsec-body">${heat}<div class="docs-intro" style="margin-top:8px">點<b>格子／列／欄</b>即可篩選下方控制。格子是<b>絕對數</b>（一控制可多型、列和 ≥ 小計）；主題大小不同，<b>淺色不代表缺失</b>——控制依風險評鑑選用。</div></div></section>`;
   if(filtering){const list=ctrls.filter(ctlMatch);
     html+=`<div class="ctl-filterbar"><span>篩選中：<b>${esc(ctlFilterLabel())}</b> · ${list.length} 條</span><button class="ctl-clearf">✕ 清除篩選</button></div>`;
     html+=list.length?`<div class="chips">${list.map(chip).join("")}</div>`:`<div class="ex-empty">沒有符合的控制。</div>`;
   }else{
-    for(const g of groups)html+=`<section class="dsec${docCollapsed.has(g.id)?" collapsed":""}" id="${g.id}"><div class="theme-h dsec-h" data-sec="${g.id}"><span class="th-t">${g.label}</span><span class="th-c">${g.items.length} 控制</span></div><div class="dsec-body"><div class="chips">${g.items.map(chip).join("")}</div></div></section>`;
+    for(const g of groups)html+=`<section class="dsec${docCollapsed.has(g.id)?" collapsed":""}" id="${g.id}"><div class="theme-h dsec-h" data-sec="${g.id}" role="button" tabindex="0" aria-expanded="${!docCollapsed.has(g.id)}"><span class="th-t">${g.label}</span><span class="th-c">${g.items.length} 控制</span></div><div class="dsec-body"><div class="chips">${g.items.map(chip).join("")}</div></div></section>`;
   }
   grid.innerHTML=html;grid.style.paddingRight="";
   grid.querySelector(".toc-fab").addEventListener("click",openTocOv);
@@ -1149,7 +1159,7 @@ function renderControls(){
   const cf=grid.querySelector(".ctl-clearf");if(cf)cf.onclick=()=>{ctlFilter=null;ctlSearch="";renderControls();};
   const si=grid.querySelector(".ctl-search");if(si)si.addEventListener("input",()=>{const pos=si.selectionStart;ctlSearch=si.value;renderControls();const ns=grid.querySelector(".ctl-search");if(ns){ns.focus();try{ns.setSelectionRange(pos,pos);}catch(e){}}});
   const ob=document.getElementById("oscal-btn");if(ob)ob.onclick=downloadOscal;
-  grid.querySelectorAll(".dsec-h[data-sec]").forEach(hd=>hd.addEventListener("click",()=>{const sid=hd.dataset.sec,s=document.getElementById(sid);const c=s.classList.toggle("collapsed");c?docCollapsed.add(sid):docCollapsed.delete(sid);}));
+  wireDsec(grid);
   grid.querySelectorAll(".chip").forEach(ch=>{
     ch.querySelectorAll(".chip-ws button").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();markCtl(ch.dataset.id,b.dataset.wsq);}));
     ch.addEventListener("click",e=>{if(e.target.closest(".chip-ws"))return;select(ch.dataset.id);});
@@ -1169,7 +1179,7 @@ function renderDocs(){
   const tcount=t=>DOCS.filter(d=>d.tier===t).length;
   const stdCard=s=>{const par=(s.parent||[])[0]?stdById.get((s.parent||[])[0]):null;
     return `<div class="std-card jump" data-std="${s.id}" tabindex="0" role="button" aria-label="${s.number} ${s.title}"><div class="std-num">${s.number}</div><div class="std-title">${s.title} <span class="kbadge ${s.certifiable?"cert":"guide"}" style="margin-left:3px">${s.certifiable?"可驗證":"指引"}</span></div><div class="std-en">${s.title_en||""}</div><div class="std-role">${s.role}</div>${par?`<div class="std-rel">↳ 繼承自 ${par.number}</div>`:""}<div class="std-rel">↔ 27001：${s.relation}</div></div>`;};
-  const sec=(id,head,body)=>`<section class="dsec${docCollapsed.has(id)?" collapsed":""}" id="${id}"><div class="${head.cls} dsec-h" data-sec="${id}">${head.html}</div><div class="dsec-body">${body}</div></section>`;
+  const sec=(id,head,body)=>`<section class="dsec${docCollapsed.has(id)?" collapsed":""}" id="${id}"><div class="${head.cls} dsec-h" data-sec="${id}" role="button" tabindex="0" aria-expanded="${!docCollapsed.has(id)}">${head.html}</div><div class="dsec-body">${body}</div></section>`;
   // 文件 section body
   const inTier=d=>!docTierFilter||d.tier===docTierFilter;
   const fmust=must.filter(inTier),fopt=opt.filter(inTier);
@@ -1198,7 +1208,7 @@ function renderDocs(){
     r.addEventListener("click",go);r.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});});
   docsEl.querySelectorAll(".std-card[data-std]").forEach(c=>{const go=()=>openStdPanel(stdById.get(c.dataset.std));
     c.addEventListener("click",go);c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});});
-  docsEl.querySelectorAll(".dsec-h[data-sec]").forEach(hd=>hd.addEventListener("click",()=>{const id=hd.dataset.sec,s=document.getElementById(id);const c=s.classList.toggle("collapsed");c?docCollapsed.add(id):docCollapsed.delete(id);}));
+  wireDsec(docsEl);
 }
 
 // ---------- relationship explorer (Cytoscape) ----------
@@ -1481,8 +1491,8 @@ const HINTS={
 let tocSections=[];
 const tocOv=document.getElementById("toc-ov"),tocOvList=document.getElementById("toc-ov-list");
 function tocJump(id){const s=document.getElementById(id);if(!s)return;
-  if(id.startsWith("sec-fam")){const p=document.getElementById("sec-stds");if(p){p.classList.remove("collapsed");docCollapsed.delete("sec-stds");}}
-  s.classList.remove("collapsed");docCollapsed.delete(id);s.scrollIntoView({behavior:REDUCE_MOTION?"auto":"smooth",block:"start"});}
+  if(id.startsWith("sec-fam"))dsecExpand(document.getElementById("sec-stds"));
+  dsecExpand(s);s.scrollIntoView({behavior:REDUCE_MOTION?"auto":"smooth",block:"start"});}
 let tocOvOpener=null;
 function openTocOv(){tocOvList.innerHTML=tocSections.map(s=>`<button class="toc-ov-item${s.sub?" sub":""}" data-target="${s.id}">${s.label}</button>`).join("");
   tocOvList.querySelectorAll("[data-target]").forEach(b=>b.addEventListener("click",()=>{tocJump(b.dataset.target);closeTocOv();}));
