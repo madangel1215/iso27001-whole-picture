@@ -11,13 +11,14 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["id", "name", "name_en", "kind", "mandatory", "clause", "nodeId", "why", "note"],
+        "required": ["id", "name", "name_en", "kind", "mandatory", "clause", "nodeId", "why", "note", "tier"],
         "additionalProperties": false,
         "properties": {
           "id": { "type": "string", "pattern": "^doc-[a-z0-9-]+$" },
           "name": { "type": "string", "minLength": 1 },
           "name_en": { "type": "string", "minLength": 1 },
           "kind": { "type": "string", "enum": ["文件", "紀錄"] },
+          "tier": { "type": "string", "enum": ["政策", "程序", "作業", "紀錄", "外部"] },
           "mandatory": { "type": "boolean" },
           "clause": { "type": "string", "minLength": 1 },
           "nodeId": { "type": ["string", "null"] },
