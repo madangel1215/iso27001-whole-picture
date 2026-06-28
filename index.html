@@ -113,6 +113,14 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-famil
 svg#canvas{width:100%;height:100%;display:block}
 .view-cap{position:absolute;left:18px;bottom:14px;font-size:12px;color:var(--text-3);
   font-family:var(--mono);letter-spacing:.04em;pointer-events:none}
+.vhint{position:absolute;top:10px;left:50%;transform:translateX(-50%);max-width:min(860px,calc(100% - 40px));
+  display:none;align-items:flex-start;gap:10px;background:var(--glass);backdrop-filter:blur(16px) saturate(1.4);
+  border:1px solid color-mix(in srgb,var(--accent) 32%,var(--line));border-radius:11px;padding:9px 12px;
+  font-size:12.5px;line-height:1.5;color:var(--text-2);box-shadow:0 10px 30px rgba(0,0,0,.3);z-index:9}
+.vhint.show{display:flex}
+.vhint .vhint-ico{color:var(--accent);flex-shrink:0}
+.vhint .vhint-x{background:transparent;border:0;color:var(--text-3);cursor:pointer;font-size:13px;flex-shrink:0;padding:0 2px}
+.vhint .vhint-x:hover{color:var(--text)}
 
 /* svg shared */
 .boundary{fill:none;stroke:var(--line-2);stroke-width:1.2;stroke-dasharray:7 6}
@@ -440,6 +448,7 @@ details.acc:not([open])>summary{margin-bottom:6px}
     <div id="docs"></div>
     <div id="cy"></div>
     <div class="view-cap" id="cap"></div>
+    <div class="vhint" id="vhint"><span class="vhint-ico">ⓘ</span><span class="vhint-t" id="vhint-t"></span><button class="vhint-x" id="vhint-x" aria-label="關閉提示">✕</button></div>
     <aside class="panel" id="panel" aria-hidden="true">
       <button class="close" id="close">✕</button>
       <div class="panel-scroll" id="pbody"></div>
@@ -776,15 +785,24 @@ function renderAuditFlow(){
 // ---------- VIEW: controls grid ----------
 function renderControls(){
   const themes=[["A.5","組織控制 Organizational"],["A.6","人員控制 People"],["A.7","實體控制 Physical"],["A.8","技術控制 Technological"]];
-  let html='<div class="ctl-toolbar"><span class="ctl-hint">附錄 A · 93 控制（4 主題）— 可匯出為 NIST OSCAL 機讀格式</span><button id="oscal-btn">⤓ 匯出 OSCAL</button></div>';
-  for(const[pre,tt]of themes){const cs=DATA.nodes.filter(n=>n.type==="control"&&(n.ref||"").startsWith(pre));
-    html+=`<div class="theme"><div class="theme-h"><span class="th-ref">${pre}</span><span class="th-t">${tt}</span><span class="th-c">${cs.length} 控制</span></div><div class="chips">`;
-    for(const c of cs)html+=`<div class="chip" data-id="${c.id}" tabindex="0" role="button" aria-label="${c.ref} ${c.title||""}"><div class="c-ref">${c.ref}<span class="chip-st st-${(WS[c.id]&&WS[c.id].status)||"none"}"></span></div><div class="c-t">${c.title||""}</div></div>`;
-    html+=`</div></div>`;}
+  const ctrls=DATA.nodes.filter(n=>n.type==="control");
+  const stN=s=>ctrls.filter(c=>WS[c.id]&&WS[c.id].status===s).length;
+  const marked=ctrls.filter(c=>WS[c.id]&&WS[c.id].status).length;
+  let html=`<nav class="doc-toc${tocCollapsed?" collapsed":""}" id="doc-toc" aria-label="頁內目錄"><button class="doc-toc-h" id="toc-toggle" aria-label="收合目錄">☰ <span class="toc-label">主題</span></button>`+
+    themes.map(([p,t])=>`<button class="toc-item" data-target="sec-ctl-${p}">${p}　${t.split(" ")[0]}</button>`).join("")+`</nav>`;
+  html+=`<div class="ctl-toolbar"><span class="ctl-hint">附錄 A · 93 控制（4 主題）· 稽核底稿已標記 <b style="color:var(--text)">${marked}/93</b>（符合 ${stN("conform")} · 觀察 ${stN("observe")} · 不符合 ${stN("nc")}）</span><button id="oscal-btn">⤓ 匯出 OSCAL</button></div>`;
+  for(const[pre,tt]of themes){const cs=ctrls.filter(c=>(c.ref||"").startsWith(pre));const id="sec-ctl-"+pre;
+    const chips=cs.map(c=>`<div class="chip" data-id="${c.id}" tabindex="0" role="button" aria-label="${c.ref} ${c.title||""}"><div class="c-ref">${c.ref}<span class="chip-st st-${(WS[c.id]&&WS[c.id].status)||"none"}"></span></div><div class="c-t">${c.title||""}</div></div>`).join("");
+    html+=`<section class="dsec${docCollapsed.has(id)?" collapsed":""}" id="${id}"><div class="theme-h dsec-h" data-sec="${id}"><span class="th-ref">${pre}</span><span class="th-t">${tt}</span><span class="th-c">${cs.length} 控制</span></div><div class="dsec-body"><div class="chips">${chips}</div></div></section>`;}
   grid.innerHTML=html;
+  grid.style.paddingRight=(window.innerWidth>900?(tocCollapsed?56:200):32)+"px";
   grid.querySelectorAll(".chip").forEach(ch=>{ch.addEventListener("click",()=>select(ch.dataset.id));
     ch.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select(ch.dataset.id);}});});
   const ob=document.getElementById("oscal-btn");if(ob)ob.onclick=downloadOscal;
+  grid.querySelectorAll(".dsec-h[data-sec]").forEach(hd=>hd.addEventListener("click",()=>{const sid=hd.dataset.sec,s=document.getElementById(sid);const c=s.classList.toggle("collapsed");c?docCollapsed.add(sid):docCollapsed.delete(sid);}));
+  const toc=document.getElementById("doc-toc");
+  document.getElementById("toc-toggle").addEventListener("click",()=>{tocCollapsed=!tocCollapsed;toc.classList.toggle("collapsed",tocCollapsed);grid.style.paddingRight=(window.innerWidth>900?(tocCollapsed?56:200):32)+"px";});
+  grid.querySelectorAll(".toc-item[data-target]").forEach(b=>b.addEventListener("click",()=>{const s=document.getElementById(b.dataset.target);if(s){s.classList.remove("collapsed");docCollapsed.delete(b.dataset.target);s.scrollIntoView({behavior:REDUCE_MOTION?"auto":"smooth",block:"start"});}}));
 }
 
 // ---------- VIEW: 文件化資訊 + ISO 27000 家族 ----------
@@ -906,6 +924,22 @@ const VIEWS={pdca:{n:"圖一",t:"PDCA 運轉",r:renderPDCA,cap:"圖一 · ISMS P
   controls:{n:"附錄A",t:"控制措施",r:renderControls,cap:"附錄 A · 93 控制措施（4 主題）"},
   docs:{n:"文件",t:"文件·標準",r:renderDocs,cap:"ISMS 文件化資訊清單（7.5）+ ISO 27000 標準家族"},
   explorer:{n:"總覽",t:"關係總覽",r:renderExplorer,cap:"關係總覽 · 只顯示有關係的節點（節點大小＝連線數；孤立控制見附錄A）"}};
+// ---------- 每視圖「怎麼看」引導提示條 ----------
+let hintDismissed=new Set();try{hintDismissed=new Set(JSON.parse(localStorage.getItem("iso_hints")||"[]"));}catch(e){}
+const HINTS={
+  pdca:"圖一＝ISMS 的 PDCA 引擎：中央領導[5]、四圈 規劃[6]/支援運作[7·8]/績效[9]/改善[10]，外環 計畫·執行·檢核·行動。點圈看條款；右上 ⚙『疊控制措施』可把控制疊上。",
+  risk:"圖二＝風險流程(31000/27005)：中央主流程 識別→分析→評估→處理→剩餘風險(◇＝決策點)；左右『溝通諮詢/監督審查』貫穿全程；左側 IEC 31010 技術。",
+  ai:"圖三＝AI 生命週期(5338)：6 階段橫向流＋持續確證(上)＋重新評估(下，迴圈回開發)；底部 22989 橫向關注帶；頂部標明上游母框架 15288/12207。",
+  aims:"AIMS＝42001 與 27001 同 PDCA 殼；環上點看共用條款，側欄是 AI 專屬(政策/風險/衝擊評鑑/生命週期/控制)，點看對應標準。",
+  audit:"稽核流程＝ISO 19011『怎麼稽核』：啟動→文審(Stage 1)→現場(Stage 2)→報告→跟催；下方為三方稽核。點框看對應標準/條款。",
+  controls:"附錄A＝93 控制(4 主題，標題可收合)。切『稽核者視角』每條看稽核三件組；面板可標稽核底稿狀態，這裡看進度。右側目錄可跳主題。",
+  docs:"文件·標準＝上方文件金字塔(點層篩選)＋下方標準家族(可收合，點卡看血緣)；右側目錄可跳段。",
+  explorer:"關係總覽＝知識圖，只顯示有關係的節點(大小＝連線數)。點節點看它連到誰；點圖例可篩選類別。",
+};
+const vhint=document.getElementById("vhint"),vhintT=document.getElementById("vhint-t");
+function showHint(k){if(!HINTS[k]||hintDismissed.has(k)){vhint.classList.remove("show");return;}vhintT.textContent=HINTS[k];vhint.classList.add("show");}
+document.getElementById("vhint-x").addEventListener("click",()=>{hintDismissed.add(curView);try{localStorage.setItem("iso_hints",JSON.stringify([...hintDismissed]));}catch(e){}vhint.classList.remove("show");});
+function resetHints(){hintDismissed.clear();try{localStorage.removeItem("iso_hints");}catch(e){}showHint(curView);toast("已重新開啟所有視圖提示");}
 const RAIL_GROUPS=[["圖解 Diagrams",["pdca","risk","ai","aims"]],["稽核 Audit",["audit"]],["清單 Lists",["controls","docs"]],["探索 Explore",["explorer"]]];
 function buildRail(){const r=document.getElementById("rail");r.innerHTML="";
   for(const[gname,keys]of RAIL_GROUPS){const g=document.createElement("div");g.className="rail-group";
@@ -923,7 +957,7 @@ function switchView(k){
     document.getElementById("cap").style.display=(isGrid||isDocs)?"none":"block";  // 滾動型 HTML 視圖不浮 caption
     if(isGrid)renderControls();else if(isExp)renderExplorer();else if(isDocs)renderDocs();else{scene.replaceChildren();VIEWS[k].r();}
     if(selected){if(isExp)cyHighlight(selected);else if(!isDocs)highlight(selected);}
-    updateHash();};
+    updateHash();showHint(k);};
   // View Transitions API：切視圖平滑過場（尊重 reduced-motion；同視圖不過場）
   if(changed&&document.startViewTransition&&!REDUCE_MOTION)document.startViewTransition(run);else run();}
 
@@ -1131,6 +1165,7 @@ function buildCmdk(){cmdkItems=[
   {kind:"動作",label:"列印 稽核清單（PDF）",run:()=>printChecklist()},
   {kind:"動作",label:"匯出 稽核底稿（CSV）",run:()=>exportWorksheet()},
   {kind:"動作",label:"清空 稽核底稿",run:()=>{if(confirm("確定清空所有稽核底稿標記與筆記？")){WS={};wsSave();if(curView==="controls")renderControls();toast("已清空稽核底稿");}}},
+  {kind:"動作",label:"重新顯示 視圖提示（怎麼看）",run:()=>resetHints()},
   {kind:"動作",label:"鍵盤快捷鍵說明",run:()=>openHelp()},
   ...DATA.nodes.map(n=>({kind:n.type==="control"?"控制":n.type==="clause"?"條款":"節點",label:(n.ref?n.ref+" ":"")+(n.title||n.id),hint:"前往",run:()=>select(n.id)})),
   ...STDS.map(s=>({kind:"標準",label:s.number+" "+s.title,hint:"開標準",run:()=>openStdPanel(s)})),
