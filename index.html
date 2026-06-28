@@ -168,6 +168,31 @@ svg#canvas{width:100%;height:100%;display:block}
   border:1px solid var(--line-2);border-radius:9px;padding:9px 16px;font-size:12.5px;color:var(--text);opacity:0;
   pointer-events:none;transition:all .25s var(--ease);z-index:30}
 .toast.show{opacity:1;transform:translateX(-50%)}
+/* onboarding + guided tour */
+.modal{position:absolute;inset:0;background:rgba(4,4,6,.8);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:40;padding:20px}
+.modal.show{display:flex}
+.modal-card{max-width:560px;background:var(--glass);backdrop-filter:blur(30px) saturate(1.4);border:1px solid var(--line-2);border-radius:20px;padding:32px 34px;box-shadow:0 40px 100px rgba(0,0,0,.6)}
+.ob-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--accent);text-transform:uppercase}
+.modal-card h1{margin:10px 0 14px;font-size:28px;font-weight:600;letter-spacing:-.02em}
+.modal-card p{color:var(--text-2);font-size:14.5px;line-height:1.7;margin:0 0 16px}
+.ob-q{font-size:14px;color:var(--text-3);background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:22px}
+.ob-q b{color:var(--text)}
+.ob-actions{display:flex;gap:12px;flex-wrap:wrap}
+.ob-go{flex:1;min-width:200px;background:var(--accent);color:#fff;border:0;border-radius:11px;padding:13px;font-size:14.5px;font-weight:600;cursor:pointer}
+.ob-go:hover{filter:brightness(1.12)}
+.ob-skip{background:var(--surface-2);color:var(--text-2);border:1px solid var(--line);border-radius:11px;padding:13px 18px;font-size:14px;cursor:pointer}
+.ob-skip:hover{color:var(--text)}
+.tourcard{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:min(760px,calc(100vw - 40px));background:var(--glass);backdrop-filter:blur(26px) saturate(1.4);border:1px solid var(--line-2);border-radius:14px;padding:13px 16px;display:none;align-items:center;gap:14px;box-shadow:0 24px 60px rgba(0,0,0,.5);z-index:35}
+.tourcard.show{display:flex}
+.tc-step{font-family:var(--mono);font-size:12px;color:var(--accent);white-space:nowrap}
+.tc-body{flex:1;min-width:0}
+.tc-title{font-size:14.5px;font-weight:600;color:var(--text)}
+.tc-text{font-size:12.5px;color:var(--text-2);line-height:1.55;margin-top:3px}
+.tc-nav{display:flex;gap:6px;white-space:nowrap}
+.tc-nav button{background:var(--surface-2);color:var(--text-2);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer}
+.tc-nav button:hover{color:var(--text);border-color:var(--line-2)}
+.tc-nav button:disabled{opacity:.4;cursor:default}
+.tour-btn{background:color-mix(in srgb,var(--accent) 16%,transparent)!important;border-color:var(--accent)!important;color:var(--text)!important}
 @media (max-width:880px){.tabs .t-txt{display:none}.search{width:150px}.panel{width:auto;left:14px}}
 </style>
 </head>
@@ -182,6 +207,7 @@ svg#canvas{width:100%;height:100%;display:block}
       <input id="q" type="text" placeholder="搜尋條款 / 控制 / 編號…" autocomplete="off" />
       <div class="results" id="results"></div>
     </div>
+    <button class="toggle tour-btn" id="tour-btn">▶ 導覽</button>
     <button class="toggle" id="mode-btn"><span class="dot"></span><span id="mode-label">學習者視角</span></button>
     <button class="toggle" id="overlay-btn"><span class="dot"></span>疊控制措施</button>
   </header>
@@ -204,6 +230,23 @@ svg#canvas{width:100%;height:100%;display:block}
       <div class="copy" id="copy">⧉ 複製此視角連結</div>
     </aside>
     <div class="toast" id="toast"></div>
+    <div class="tourcard" id="tourcard">
+      <div class="tc-step" id="tc-step"></div>
+      <div class="tc-body"><div class="tc-title" id="tc-title"></div><div class="tc-text" id="tc-text"></div></div>
+      <div class="tc-nav"><button id="tc-prev">‹</button><button id="tc-next">下一步 ›</button><button id="tc-exit">結束</button></div>
+    </div>
+    <div class="modal" id="onboard">
+      <div class="modal-card">
+        <div class="ob-eyebrow">ISO/CNS 27001:2023 · 互動全景圖</div>
+        <h1>30 秒上手</h1>
+        <p>四個分頁：<b>① PDCA 運轉 ② 風險流程 ③ AI 生命週期 ④ 附錄A 93 控制</b>。點任一節點看白話說明；右上可切「學習者 / 稽核者(LA)視角」；點節點會把<b>相關的跨圖高亮</b>、其餘變暗。</p>
+        <div class="ob-q">稽核三問當主線：<b>這是什麼架構？ · 有什麼風險？ · 產品/服務週期是什麼？</b></div>
+        <div class="ob-actions">
+          <button class="ob-go" id="ob-tour">▶ 帶我走一遍（稽核三問）</button>
+          <button class="ob-skip" id="ob-skip">我自己逛</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -440,6 +483,38 @@ function applyHash(){const p=new URLSearchParams(location.hash.replace(/^#/,""))
   switchView(v&&VIEWS[v]?v:"pdca",true);const s=p.get("sel");if(s&&byId.has(s))select(s);}
 document.getElementById("copy").addEventListener("click",()=>{navigator.clipboard?.writeText(location.href);toast("已複製此視角連結");});
 
+// ---------- guided tour: 稽核三問 ----------
+const TOUR=[
+  {view:"pdca",sel:"clause-5.1",title:"① 這是什麼架構？",text:"ISMS 用 PDCA 運轉：領導[5]為核心，規劃[6]→支援運作[7·8]→績效[9]→改善[10]，外圈計畫·執行·檢核·行動。範圍由條款 4.3 界定。"},
+  {view:"pdca",sel:"clause-4.2",title:"① 範圍與要求來源",text:"先確認利害關係人(4.2)的 5 類要求來源：法律／監管／合約／標準／政策 —— 它們轉成『風險與改善機會』餵進規劃[6]。"},
+  {view:"risk",sel:"risk-assessment",title:"② 有什麼風險？",text:"風險用 ISO 31000／27005 流程：風險評鑑(識別→分析→評估)。對應 27001 條款 6.1.2。"},
+  {view:"risk",sel:"soa",title:"② 怎麼接到控制？",text:"風險處理選出控制、記入『適用性聲明 SoA』，再排風險處理計畫；剩餘風險須持續監督審查。對應條款 6.1.3。"},
+  {view:"ai",sel:"ai-operation-monitoring",title:"③ 你們的產品／服務週期是什麼？",text:"AI 系統生命週期(ISO 5338／22989)：起始→開發→V&V→部署→營運監督→重新評估→汰除；治理／風險／安全等橫向帶貫穿全程。"},
+  {view:"controls",sel:"control-a.5.31",title:"④ 證據：你做了哪些控制？",text:"附錄 A 93 控制是落地證據。現已切到『稽核者視角』—— 每條都有 稽核問句／應備證據／常見不符合，直接拿去稽核或教學。",mode:"audit"},
+];
+let tourIdx=-1;
+const tcEl=document.getElementById("tourcard");
+function showStep(i){tourIdx=i;const s=TOUR[i];
+  if(s.mode)setMode(s.mode);
+  switchView(s.view,true);if(s.sel)select(s.sel);
+  document.getElementById("tc-step").textContent=(i+1)+" / "+TOUR.length;
+  document.getElementById("tc-title").textContent=s.title;
+  document.getElementById("tc-text").textContent=s.text;
+  document.getElementById("tc-prev").disabled=i===0;
+  document.getElementById("tc-next").textContent=i===TOUR.length-1?"完成 ✓":"下一步 ›";
+  tcEl.classList.add("show");}
+function startTour(){closeOnboard();showStep(0);}
+function exitTour(){tourIdx=-1;tcEl.classList.remove("show");}
+document.getElementById("tc-next").addEventListener("click",()=>{tourIdx<TOUR.length-1?showStep(tourIdx+1):exitTour();});
+document.getElementById("tc-prev").addEventListener("click",()=>{if(tourIdx>0)showStep(tourIdx-1);});
+document.getElementById("tc-exit").addEventListener("click",exitTour);
+document.getElementById("tour-btn").addEventListener("click",startTour);
+document.addEventListener("keydown",(e)=>{if(tourIdx<0)return;if(e.key==="ArrowRight")showStep(Math.min(tourIdx+1,TOUR.length-1));else if(e.key==="ArrowLeft")showStep(Math.max(tourIdx-1,0));else if(e.key==="Escape")exitTour();});
+// ---------- onboarding ----------
+function closeOnboard(){document.getElementById("onboard").classList.remove("show");try{localStorage.setItem("iso_seen","1");}catch(e){}}
+document.getElementById("ob-skip").addEventListener("click",closeOnboard);
+document.getElementById("ob-tour").addEventListener("click",startTour);
+
 // ---------- boot ----------
 (async function(){
   try{const r=await fetch("./data/data.json");DATA=await r.json();}catch(e){document.getElementById("cap").textContent="無法載入 data.json（需以 http 開啟）";return;}
@@ -448,7 +523,9 @@ document.getElementById("copy").addEventListener("click",()=>{navigator.clipboar
     (adj.get(e.to)||adj.set(e.to,[]).get(e.to)).push({other:e.from,rel:e.rel,dir:"in"});}
   if(DATA.meta?.accent)document.documentElement.style.setProperty("--accent",DATA.meta.accent);
   buildTabs();
+  const firstVisit = location.hash.length<=1;   // capture before switchView rewrites the hash
   if(location.hash.length>1)applyHash();else switchView("pdca",true);
+  try{ if(firstVisit && !localStorage.getItem("iso_seen")) document.getElementById("onboard").classList.add("show"); }catch(e){}
 })();
 </script>
 </body>
