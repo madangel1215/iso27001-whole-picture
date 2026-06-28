@@ -29,6 +29,13 @@ pnpm dev         # 本地預覽（或：python3 -m http.server）
 
 CI（GitHub Actions）每次 push 自動跑守門員。
 
+## 編輯 / 補充內容（老師補充）
+
+- **補充活檔**：`data/supplements.json`（陣列 `items`，每筆 `{nodeId, ref, title, note}`）。掛在哪個節點就填它的 id。此檔**不會被內容重生覆蓋**、已納入 git → 永久保留、可回溯。app 載入時合併、面板顯示「補充」區。
+- **自助表單編輯（Decap CMS）**：本機跑 `npx decap-server`，另開站台（`pnpm dev` 或 `python3 -m http.server`），打開 `/admin/` 即可用表單新增/編輯補充，存檔直接寫入 `data/supplements.json`，再 `git commit && push` 即上線。
+  - 若要「從任何裝置編輯」，需架一個 GitHub OAuth proxy（Cloudflare Worker，免費）後，`/admin/` 才能在線上登入。
+- 守門員會檢查每筆補充的 `nodeId` 是否存在、欄位是否齊（防打錯）。
+
 ## 授權
 
 說明文字為原創白話轉譯；ISO/IEC、CNS、IEC 標準正文版權屬各標準組織所有，本專案未重製其正文。

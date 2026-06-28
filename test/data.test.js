@@ -9,6 +9,8 @@ const here = dirname(fileURLToPath(import.meta.url));
 const data = JSON.parse(readFileSync(join(here, "../data/data.json"), "utf8"));
 const schema = JSON.parse(readFileSync(join(here, "../schema/data.schema.json"), "utf8"));
 
+const supplements = JSON.parse(readFileSync(join(here, "../data/supplements.json"), "utf8"));
+
 const nodeIds = new Set(data.nodes.map((n) => n.id));
 const archIds = new Set(data.architectures.map((a) => a.id));
 const linkTypes = new Set(data.meta.linkTypes);
@@ -110,6 +112,18 @@ describe("內容對帳 (覆蓋率 — 隨內容補完逐步收緊)", () => {
     const bad = controls
       .filter((c) => !(c.mapping?.nist_800_53?.length && c.mapping.nist_800_53.every((x) => FAM.test(x))))
       .map((c) => c.id);
+    expect(bad).toEqual([]);
+  });
+});
+
+describe("補充活檔 (supplements — 老師補充，防打錯)", () => {
+  const items = supplements.items || [];
+  it("每筆補充的 nodeId 都對應到存在的節點", () => {
+    const bad = items.filter((s) => !nodeIds.has(s.nodeId)).map((s) => s.nodeId);
+    expect(bad).toEqual([]);
+  });
+  it("每筆補充都有 title 與 note", () => {
+    const bad = items.filter((s) => !(s.title && s.note)).map((s) => s.nodeId || "?");
     expect(bad).toEqual([]);
   });
 });

@@ -506,6 +506,7 @@ function openPanel(n){
   if(n.title_en)h+=`<div class="en">${n.title_en}</div>`;
   if(n.summary)h+=`<div class="sum">${n.summary}</div>`;
   if(n.explanation)h+=`<div class="sech">白話說明 · Explanation</div><div class="exp">${n.explanation}</div>`;
+  if(n.supplements?.length)h+=`<div class="sech ax">補充 · 老師補充 / 相關標準</div>`+n.supplements.map(s=>`<div class="sc-item"><div class="sc-l">${s.ref?s.ref+" · ":""}${s.title||""}</div>${s.note?`<div class="sc-n">${s.note}</div>`:""}</div>`).join("");
   if(mode==="audit"&&n.audit){
     const L=(arr,cls)=>arr.map(x=>`<div class="audit-item${cls||""}">${x}</div>`).join("");
     if(n.audit.questions?.length)h+=`<div class="sech ax">稽核問句 · Audit Questions</div>${L(n.audit.questions)}`;
@@ -617,6 +618,7 @@ document.getElementById("ob-tour").addEventListener("click",startTour);
 (async function(){
   try{const r=await fetch("./data/data.json");DATA=await r.json();}catch(e){document.getElementById("cap").textContent="無法載入 data.json（需以 http 開啟）";return;}
   byId=new Map(DATA.nodes.map(n=>[n.id,n]));byRef=new Map(DATA.nodes.map(n=>[String(n.ref),n]));
+  try{const sr=await fetch("./data/supplements.json");if(sr.ok){const sup=await sr.json();for(const it of (sup.items||[])){const n=byId.get(it.nodeId);if(n)(n.supplements=n.supplements||[]).push(it);}}}catch(e){}
   for(const e of DATA.edges){(adj.get(e.from)||adj.set(e.from,[]).get(e.from)).push({other:e.to,rel:e.rel,dir:"out"});
     (adj.get(e.to)||adj.set(e.to,[]).get(e.to)).push({other:e.from,rel:e.rel,dir:"in"});}
   if(DATA.meta?.accent)document.documentElement.style.setProperty("--accent",DATA.meta.accent);

@@ -1,0 +1,29 @@
+# 本機編輯：在 repo 跑 `npx decap-server`，另開 site server，打開 /admin/ 即可表單編輯，存檔直接寫入檔案。
+# 之後若要「從任何地方編輯」，需架一個 GitHub OAuth proxy（可用 Cloudflare Worker，免費）。
+local_backend: true
+backend:
+  name: github
+  repo: madangel1215/iso27001-whole-picture
+  branch: main
+media_folder: assets
+public_folder: /assets
+locale: zh_Hant
+collections:
+  - name: supplements
+    label: 補充 / 相關標準（老師補充）
+    files:
+      - name: items
+        label: 補充項目
+        file: data/supplements.json
+        fields:
+          - { name: _about, label: 說明（勿動）, widget: string, required: false }
+          - name: items
+            label: 補充清單
+            label_singular: 一筆補充
+            widget: list
+            summary: "{{fields.nodeId}} — {{fields.ref}} {{fields.title}}"
+            fields:
+              - { name: nodeId, label: "節點 id（例：ai-vnv / control-a.5.31 / clause-6.1.3）", widget: string, hint: "要掛在哪個全景圖節點" }
+              - { name: ref, label: "標準 / 來源（例：ISO/IEC 17025）", widget: string, required: false }
+              - { name: title, label: 標題, widget: string }
+              - { name: note, label: 內容（老師補充說明）, widget: text }
