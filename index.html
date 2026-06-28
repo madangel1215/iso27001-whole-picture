@@ -15,10 +15,23 @@
   --text:#ededf0; --text-2:#a3a3ac; --text-3:#8c8c96; --faint:#55555e;
   --accent:#3b82f6;
   --glass:rgba(15,15,19,.74);
+  --disc1:#1b1b22; --disc2:#101015; --disc1c:#222530; --disc2c:#121319;
+  --cy-node:#15151b; --cy-edge:rgba(255,255,255,.1); --cy-arrow:rgba(255,255,255,.18); --cy-label:#9a9aa3;
   --font:"Inter","Noto Sans TC",-apple-system,system-ui,sans-serif;
   --mono:"SFMono-Regular",ui-monospace,"JetBrains Mono",monospace;
   --ease:cubic-bezier(.22,.61,.36,1);
 }
+:root[data-theme="light"]{
+  --bg:#f4f5f7; --surface:#ffffff; --surface-2:#eef0f3; --surface-3:#e4e7ec;
+  --line:rgba(0,0,0,.1); --line-2:rgba(0,0,0,.2);
+  --text:#16181d; --text-2:#474b54; --text-3:#5e636c; --faint:#9aa0aa;
+  --accent:#2563eb;
+  --glass:rgba(255,255,255,.8);
+  --disc1:#ffffff; --disc2:#eef1f5; --disc1c:#f1f5fc; --disc2c:#e4eaf3;
+  --cy-node:#ffffff; --cy-edge:rgba(0,0,0,.14); --cy-arrow:rgba(0,0,0,.3); --cy-label:#565a62;
+}
+#discFill stop:first-child{stop-color:var(--disc1)} #discFill stop:last-child{stop-color:var(--disc2)}
+#discCenter stop:first-child{stop-color:var(--disc1c)} #discCenter stop:last-child{stop-color:var(--disc2c)}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:var(--font);
   -webkit-font-smoothing:antialiased;overflow:hidden}
@@ -99,7 +112,7 @@ svg#canvas{width:100%;height:100%;display:block}
 .node .sub{fill:var(--text-3);font-size:12.5px;pointer-events:none}
 .node:hover .disc,.node:hover .box,.node:hover .bar{stroke:var(--accent);filter:url(#glow)}
 .node.sel .disc,.node.sel .box,.node.sel .bar{stroke:var(--accent);stroke-width:1.8;filter:url(#glow)}
-.node.sel .nm,.node.sel .lab{fill:#fff}
+.node.sel .nm,.node.sel .lab{fill:var(--text)}
 .node.linked .disc,.node.linked .box,.node.linked .bar{stroke:color-mix(in srgb,var(--accent) 55%,var(--line-2))}
 .ctrl-chip{cursor:pointer}
 .ctrl-chip rect{fill:color-mix(in srgb,var(--accent) 12%,var(--surface));stroke:var(--accent);stroke-width:.8}
@@ -127,6 +140,10 @@ svg#canvas{width:100%;height:100%;display:block}
 .chip{transition:opacity .2s var(--ease)} .chip.dim{opacity:.3}
 .chip .c-ref{font-family:var(--mono);font-size:11.5px;color:var(--accent)}
 .chip .c-t{font-size:13.5px;color:var(--text);margin-top:3px;line-height:1.45}
+.ctl-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.ctl-hint{font-size:12.5px;color:var(--text-3)}
+#oscal-btn{font-size:13px;color:var(--text-2);background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:8px 14px;cursor:pointer}
+#oscal-btn:hover{color:var(--text);border-color:var(--accent)}
 
 /* ---------- panel ---------- */
 .panel{position:absolute;top:14px;right:14px;bottom:14px;width:384px;max-width:calc(100vw - 28px);
@@ -214,6 +231,7 @@ svg#canvas{width:100%;height:100%;display:block}
       <input id="q" type="text" placeholder="搜尋條款 / 控制 / 編號…" autocomplete="off" />
       <div class="results" id="results"></div>
     </div>
+    <button class="toggle" id="theme-btn" title="切換深淺色" style="padding:6px 11px">🌙</button>
     <button class="toggle tour-btn" id="tour-btn">▶ 導覽</button>
     <button class="toggle" id="mode-btn"><span class="dot"></span><span id="mode-label">學習者視角</span></button>
     <button class="toggle" id="overlay-btn"><span class="dot"></span>疊控制措施</button>
@@ -396,41 +414,44 @@ function renderAI(){
 // ---------- VIEW: controls grid ----------
 function renderControls(){
   const themes=[["A.5","組織控制 Organizational"],["A.6","人員控制 People"],["A.7","實體控制 Physical"],["A.8","技術控制 Technological"]];
-  let html="";
+  let html='<div class="ctl-toolbar"><span class="ctl-hint">附錄 A · 93 控制（4 主題）— 可匯出為 NIST OSCAL 機讀格式</span><button id="oscal-btn">⤓ 匯出 OSCAL</button></div>';
   for(const[pre,tt]of themes){const cs=DATA.nodes.filter(n=>n.type==="control"&&(n.ref||"").startsWith(pre));
     html+=`<div class="theme"><div class="theme-h"><span class="th-ref">${pre}</span><span class="th-t">${tt}</span><span class="th-c">${cs.length} 控制</span></div><div class="chips">`;
     for(const c of cs)html+=`<div class="chip" data-id="${c.id}"><div class="c-ref">${c.ref}</div><div class="c-t">${c.title||""}</div></div>`;
     html+=`</div></div>`;}
   grid.innerHTML=html;
   grid.querySelectorAll(".chip").forEach(ch=>ch.addEventListener("click",()=>select(ch.dataset.id)));
+  const ob=document.getElementById("oscal-btn");if(ob)ob.onclick=downloadOscal;
 }
 
 // ---------- relationship explorer (Cytoscape) ----------
 let cy=null;
 const cyEl=document.getElementById("cy");
 const CAT={clause:"clause",control:"control","risk-step":"risk",bridge:"risk","risk-technique":"risk","lifecycle-stage":"ai","cross-cutting-band":"ai"};
+function buildCyStyle(){const g=getComputedStyle(document.documentElement),v=n=>g.getPropertyValue(n).trim();
+  const A=v("--accent")||"#3b82f6",node=v("--cy-node")||"#15151b",edge=v("--cy-edge"),arrow=v("--cy-arrow"),label=v("--cy-label")||"#9a9aa3";
+  const C={clause:"#5b9bf3",control:"#2eb89a",risk:"#d2933a",ai:"#9a78ef"};
+  return [
+    {selector:"node",style:{"background-color":node,"border-width":1.4,"label":"data(label)","color":label,"font-size":9,"font-family":"monospace","width":16,"height":16,"text-valign":"center","text-halign":"center"}},
+    {selector:'node[cat="clause"]',style:{"border-color":C.clause,"shape":"round-rectangle","width":22,"height":22}},
+    {selector:'node[cat="control"]',style:{"border-color":C.control,"shape":"ellipse"}},
+    {selector:'node[cat="risk"]',style:{"border-color":C.risk,"shape":"diamond","width":20,"height":20}},
+    {selector:'node[cat="ai"]',style:{"border-color":C.ai,"shape":"hexagon","width":22,"height":22}},
+    {selector:"edge",style:{"line-color":edge,"width":1,"curve-style":"bezier","target-arrow-shape":"triangle","target-arrow-color":arrow,"arrow-scale":.7}},
+    {selector:".faded",style:{"opacity":.08}},
+    {selector:".hl",style:{"opacity":1,"color":label}},
+    {selector:".sel",style:{"opacity":1,"border-color":A,"border-width":3,"background-color":A,"background-opacity":.2,"color":"#fff","width":30,"height":30,"font-size":11}},
+    {selector:".hledge",style:{"opacity":1,"line-color":A,"target-arrow-color":A,"width":2}},
+  ];}
+function applyCyTheme(){if(cy)cy.style(buildCyStyle()).update();}
 function initCy(){
-  const A=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()||"#3b82f6";
-  const C={clause:"#6ea8fe",control:"#5ccfa8",risk:"#e0a85f",ai:"#b69bff"};
   const els=[
     ...DATA.nodes.map(n=>({data:{id:n.id,label:n.ref||n.id,cat:CAT[n.type]||"ai"}})),
     ...DATA.edges.map(e=>({data:{id:e.from+"__"+e.to,source:e.from,target:e.to}})),
   ];
   cy=cytoscape({container:cyEl,elements:els,minZoom:.2,maxZoom:3,wheelSensitivity:.25,
     layout:{name:"cose",animate:false,nodeRepulsion:9000,idealEdgeLength:95,padding:50,gravity:.3,componentSpacing:120},
-    style:[
-      {selector:"node",style:{"background-color":"#15151b","border-width":1.4,"label":"data(label)","color":"#9a9aa3","font-size":9,"font-family":"monospace","width":16,"height":16,"text-valign":"center","text-halign":"center"}},
-      {selector:'node[cat="clause"]',style:{"border-color":C.clause,"shape":"round-rectangle","width":22,"height":22}},
-      {selector:'node[cat="control"]',style:{"border-color":C.control,"shape":"ellipse"}},
-      {selector:'node[cat="risk"]',style:{"border-color":C.risk,"shape":"diamond","width":20,"height":20}},
-      {selector:'node[cat="ai"]',style:{"border-color":C.ai,"shape":"hexagon","width":22,"height":22}},
-      {selector:"edge",style:{"line-color":"rgba(255,255,255,.1)","width":1,"curve-style":"bezier","target-arrow-shape":"triangle","target-arrow-color":"rgba(255,255,255,.18)","arrow-scale":.7}},
-      {selector:".faded",style:{"opacity":.08}},
-      {selector:".hl",style:{"opacity":1,"color":"#ededf0"}},
-      {selector:".sel",style:{"opacity":1,"border-color":A,"border-width":3,"background-color":A,"background-opacity":.2,"color":"#fff","width":30,"height":30,"font-size":11}},
-      {selector:".hledge",style:{"opacity":1,"line-color":A,"target-arrow-color":A,"width":2}},
-    ],
-  });
+    style:buildCyStyle()});
   cy.on("tap","node",ev=>select(ev.target.id()));
   cy.on("tap",ev=>{if(ev.target===cy){cy.elements().removeClass("faded hl sel hledge");closePanel();}});
 }
@@ -495,6 +516,7 @@ function openPanel(n){
     if(a.cia?.length){h+=`<div class="sech">CIA</div><div class="attrs">`+["機密性","完整性","可用性"].map(c=>`<span class="led ${a.cia.includes(c)?"on":""}"><span class="d"></span>${c}</span>`).join("")+`</div>`;}
     const more=[["控制類型",a.controlType],["作業能力",a.operationalCapability],["安全領域",a.securityDomain]].filter(([_,v])=>v?.length);
     for(const[lab,vals]of more)h+=`<div class="sech">${lab}</div><div class="attrs">`+vals.map(v=>`<span class="pill">${v}</span>`).join("")+`</div>`;}
+  if(n.mapping?.nist_800_53?.length)h+=`<div class="sech">對映參考 · NIST SP 800-53</div><div class="attrs">`+n.mapping.nist_800_53.map(x=>`<span class="pill">${x}</span>`).join("")+`</div>`+(n.mapping.note?`<div class="sc-n" style="margin-top:7px">${n.mapping.note}</div>`:"");
   if(n.subconcepts?.length){h+=`<div class="sech">要求來源 · Sources</div>`+n.subconcepts.map(s=>`<div class="sc-item"><div class="sc-l">${s.label}</div>${s.note?`<div class="sc-n">${s.note}</div>`:""}</div>`).join("");}
   // sibling sub-clauses
   if(n.type==="clause"){const sec=(n.ref||"").split(".")[0];const sibs=DATA.nodes.filter(x=>x.type==="clause"&&(x.ref||"").split(".")[0]===sec&&x.id!==n.id);
@@ -520,6 +542,26 @@ document.getElementById("overlay-btn").addEventListener("click",function(){overl
 const modeBtn=document.getElementById("mode-btn");
 function setMode(m){mode=m;modeBtn.classList.toggle("on",m==="audit");document.getElementById("mode-label").textContent=m==="audit"?"稽核者視角":"學習者視角";}
 modeBtn.addEventListener("click",()=>{setMode(mode==="learn"?"audit":"learn");if(selected)openPanel(byId.get(selected));updateHash();});
+// theme (dark / light)
+const themeBtn=document.getElementById("theme-btn");
+function setTheme(t){document.documentElement.setAttribute("data-theme",t);themeBtn.textContent=t==="light"?"☀":"🌙";try{localStorage.setItem("iso_theme",t);}catch(e){}applyCyTheme();}
+themeBtn.addEventListener("click",()=>setTheme(document.documentElement.getAttribute("data-theme")==="light"?"dark":"light"));
+(function(){let t=null;try{t=localStorage.getItem("iso_theme");}catch(e){}if(!t)t=(window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches)?"light":"dark";setTheme(t);})();
+// OSCAL export (client-side, NIST catalog format)
+function buildOscal(){
+  const themes={"A.5":"Organizational controls","A.6":"People controls","A.7":"Physical controls","A.8":"Technological controls"};
+  const groups=Object.entries(themes).map(([pre,title])=>({id:"iso27002-"+pre.toLowerCase().replace(".",""),title:pre+" "+title,
+    controls:DATA.nodes.filter(n=>n.type==="control"&&(n.ref||"").startsWith(pre)).map(c=>{
+      const ctl={id:c.id,title:c.title_en||c.title,props:[{name:"label",value:c.ref}],parts:[{name:"statement",prose:c.explanation||c.summary||""}]};
+      const links=(c.mapping?.nist_800_53||[]).map(x=>({href:"#"+x,rel:"related",text:"NIST SP 800-53: "+x}));
+      if(links.length)ctl.links=links;
+      return ctl;})}));
+  return {catalog:{uuid:(self.crypto&&crypto.randomUUID?crypto.randomUUID():"iso27001-catalog"),
+    metadata:{title:"ISO/IEC 27001:2022 Annex A — community catalog (paraphrased)","last-modified":new Date().toISOString(),version:DATA.meta?.version||"0","oscal-version":"1.1.2",
+      remarks:"Plain-language summaries are original work; ISO/IEC normative text is NOT reproduced. NIST 800-53 mappings are indicative."},groups}};
+}
+function downloadOscal(){const blob=new Blob([JSON.stringify(buildOscal(),null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="iso27001-2022-oscal-catalog.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast("已匯出 OSCAL JSON（93 控制）");}
 
 // search
 const q=document.getElementById("q"),results=document.getElementById("results");
@@ -530,9 +572,10 @@ q.addEventListener("input",()=>{const s=q.value.trim().toLowerCase();if(!s){resu
 document.addEventListener("click",e=>{if(!e.target.closest(".search"))results.classList.remove("open");});
 
 // deep-link
-function updateHash(){const p=new URLSearchParams();p.set("view",curView);if(overlay)p.set("ov","1");if(mode==="audit")p.set("mode","audit");if(selected)p.set("sel",selected);
+function updateHash(){const p=new URLSearchParams();p.set("view",curView);if(overlay)p.set("ov","1");if(mode==="audit")p.set("mode","audit");if(document.documentElement.getAttribute("data-theme")==="light")p.set("theme","light");if(selected)p.set("sel",selected);
   history.replaceState(null,"","#"+p.toString());}
 function applyHash(){const p=new URLSearchParams(location.hash.replace(/^#/,""));const v=p.get("view");overlay=p.get("ov")==="1";
+  if(p.get("theme"))setTheme(p.get("theme"));
   document.getElementById("overlay-btn").classList.toggle("on",overlay);
   setMode(p.get("mode")==="audit"?"audit":"learn");
   switchView(v&&VIEWS[v]?v:"pdca",true);const s=p.get("sel");if(s&&byId.has(s))select(s);}

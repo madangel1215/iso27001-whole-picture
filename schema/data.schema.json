@@ -91,6 +91,14 @@
               "evidence": { "type": "array", "items": { "type": "string" } },
               "nonconformities": { "type": "array", "items": { "type": "string" } }
             }
+          },
+          "mapping": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "nist_800_53": { "type": "array", "items": { "type": "string" } },
+              "note": { "type": "string" }
+            }
           }
         }
       }

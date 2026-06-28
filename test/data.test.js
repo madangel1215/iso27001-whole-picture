@@ -104,4 +104,12 @@ describe("內容對帳 (覆蓋率 — 隨內容補完逐步收緊)", () => {
       .map((n) => n.id);
     expect(bad).toEqual([]);
   });
+
+  it("每個控制都有 NIST 800-53 對映 (OSCAL 互通)", () => {
+    const FAM = /^(AC|AU|AT|CM|CP|IA|IR|MA|MP|PE|PL|PM|PS|PT|RA|SA|SC|SI|SR)(-\d+)?$/;
+    const bad = controls
+      .filter((c) => !(c.mapping?.nist_800_53?.length && c.mapping.nist_800_53.every((x) => FAM.test(x))))
+      .map((c) => c.id);
+    expect(bad).toEqual([]);
+  });
 });
