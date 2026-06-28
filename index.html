@@ -362,8 +362,42 @@ svg#canvas{width:100%;height:100%;display:block}
 .chip:hover{border-color:var(--accent);background:var(--surface-2)}
 .chip.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 .chip{transition:opacity .2s var(--ease)} .chip.dim{opacity:.3}
+.chip:hover{border-color:var(--accent);background:var(--surface-2);box-shadow:0 3px 12px rgba(0,0,0,.16);transform:translateY(-1px)}
+.chip{position:relative}
 .chip .c-ref{font-family:var(--mono);font-size:11.5px;color:var(--accent)}
 .chip .c-t{font-size:13.5px;color:var(--text);margin-top:3px;line-height:1.45}
+.chip .c-go{position:absolute;right:9px;top:9px;color:var(--text-3);opacity:0;transition:opacity .14s var(--ease);pointer-events:none}
+.chip:hover .c-go,.chip:focus-visible .c-go{opacity:.8}
+.chip.ws-conform{border-left:3px solid var(--cat-control)}
+.chip.ws-observe{border-left:3px solid var(--cat-risk)}
+.chip.ws-nc{border-left:3px solid var(--warn-strong)}
+.chip-ws{display:flex;gap:5px;margin-top:9px}
+.chip-ws button{flex:1;font-size:12px;padding:5px 0;border-radius:6px;border:1px solid var(--line);background:var(--surface-2);color:var(--text-3);cursor:pointer;min-height:30px;transition:all .12s var(--ease)}
+.chip-ws button:hover{border-color:var(--line-2);color:var(--text)}
+.chip-ws button.on[data-wsq="conform"]{border-color:var(--cat-control);color:var(--cat-control);background:color-mix(in srgb,var(--cat-control) 14%,var(--surface))}
+.chip-ws button.on[data-wsq="observe"]{border-color:var(--cat-risk);color:var(--cat-risk);background:color-mix(in srgb,var(--cat-risk) 14%,var(--surface))}
+.chip-ws button.on[data-wsq="nc"]{border-color:var(--warn-strong);color:var(--warn);background:color-mix(in srgb,var(--warn-strong) 14%,var(--surface))}
+/* 熱圖：可點篩選 */
+.heat-c.hcell{cursor:pointer}
+.heat-c.hcell:hover{box-shadow:inset 0 0 0 2px var(--accent)}
+.heat-c.hcell:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--accent)}
+.heat-c.hrow,.heat-c.hhead.hclk{cursor:pointer}
+.heat-c.hrow:hover,.heat-c.hhead.hclk:hover{color:var(--accent)}
+/* 控制工具列：狀態篩選 pill + 搜尋 */
+.ctl-stats{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ctl-stat{font-size:12px;padding:5px 11px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--text-2);cursor:pointer;transition:all .12s var(--ease)}
+.ctl-stat:hover{border-color:var(--line-2);color:var(--text)}
+.ctl-stat b{font-family:var(--mono)}
+.ctl-stat.on{border-color:var(--accent);background:var(--surface-2);color:var(--text)}
+.ctl-stat.on.conform{border-color:var(--cat-control)} .ctl-stat.on.observe{border-color:var(--cat-risk)} .ctl-stat.on.nc{border-color:var(--warn-strong)}
+.ctl-tools{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.ctl-search{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 11px;font-size:13px;color:var(--text);font-family:inherit;width:150px}
+.ctl-search:focus-visible{outline:none;border-color:var(--accent)}
+.ctl-filterbar{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2);background:var(--surface-2);border:1px solid var(--line-2);border-radius:10px;padding:9px 14px;margin-bottom:14px}
+.ctl-filterbar b{color:var(--text)}
+.ctl-clearf{background:none;border:0;color:var(--accent);cursor:pointer;font-size:12.5px;margin-left:auto}
+.ctl-clearf:hover{text-decoration:underline}
+@media (max-width:760px){.ctl-toolbar{flex-direction:column;align-items:stretch}.ctl-search{width:100%}.chip-ws button{min-height:38px}}
 .ctl-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
 .ctl-hint{font-size:12.5px;color:var(--text-3)}
 #oscal-btn{font-size:13px;color:var(--text-2);background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:8px 14px;cursor:pointer}
@@ -624,10 +658,15 @@ const toastEl=document.getElementById("toast");
 let DATA=null, byId=new Map(), adj=new Map(), curView="pdca", selected=null, overlay=false, mode="learn";
 let DOCS=[], STDS=[], docsByNode=new Map(), stdsByNode=new Map(), stdById=new Map();
 let WS={};try{WS=JSON.parse(localStorage.getItem("ismsla_ws")||"{}");}catch(e){}
-let docTierFilter=null, docCollapsed=new Set(), ctlLayer="theme";
+let docTierFilter=null, docCollapsed=new Set(), ctlLayer="theme", ctlFilter=null, ctlSearch="";
 function wsSave(){try{localStorage.setItem("ismsla_ws",JSON.stringify(WS));}catch(e){}}
 function wsSet(id,patch){WS[id]={...(WS[id]||{}),...patch};if(!WS[id].status&&!(WS[id].note||"").trim())delete WS[id];wsSave();}
-function updateChipStatus(id){const ch=grid.querySelector(`.chip[data-id="${id}"] .chip-st`);if(ch)ch.className="chip-st st-"+((WS[id]&&WS[id].status)||"none");}
+function updateChipStatus(id){const chip=grid.querySelector(`.chip[data-id="${id}"]`);if(!chip)return;
+  const st=(WS[id]&&WS[id].status)||"";
+  const dot=chip.querySelector(".chip-st");if(dot)dot.className="chip-st st-"+(st||"none");
+  chip.classList.remove("ws-conform","ws-observe","ws-nc");if(st)chip.classList.add("ws-"+st);
+  chip.querySelectorAll(".chip-ws button").forEach(b=>{const on=b.dataset.wsq===st;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);});
+  if(typeof updateCtlStats==="function")updateCtlStats();}
 
 const el=(t,a,k)=>{const n=document.createElementNS(SVGNS,t);for(const x in a)n.setAttribute(x,a[x]);if(k)for(const c of [].concat(k))if(c)n.append(c);return n;};
 const tx=(x,y,cls,s,ex)=>el("text",{x,y,class:cls,...(ex||{})},document.createTextNode(s));
@@ -1022,40 +1061,95 @@ function renderAuditFlow(){
 // ---------- VIEW: controls grid ----------
 const LAYERS=[["theme","主題"],["controlType","控制類型"],["cia","CIA"],["securityDomain","安全領域"],["operationalCapability","操作能力"]];
 const themeName={"A.5":"組織控制 Organizational","A.6":"人員控制 People","A.7":"實體控制 Physical","A.8":"技術控制 Technological"};
+function ctlMatch(c){
+  const q=ctlSearch.trim().toLowerCase();
+  if(q&&!((c.ref||"").toLowerCase().includes(q)||(c.title||"").toLowerCase().includes(q)||(c.title_en||"").toLowerCase().includes(q)))return false;
+  if(ctlFilter){
+    if(ctlFilter.theme&&!(c.ref||"").startsWith(ctlFilter.theme))return false;
+    if(ctlFilter.type&&!((c.attributes&&c.attributes.controlType)||[]).includes(ctlFilter.type))return false;
+    if(ctlFilter.status){const has=WS[c.id]&&WS[c.id].status;if(ctlFilter.status==="unmarked"){if(has)return false;}else if(has!==ctlFilter.status)return false;}
+  }
+  return true;
+}
+function ctlFilterLabel(){
+  const p=[];
+  if(ctlFilter){
+    if(ctlFilter.theme)p.push(ctlFilter.theme+(themeName[ctlFilter.theme]?"  "+themeName[ctlFilter.theme].split(" ")[0]:""));
+    if(ctlFilter.type)p.push(ctlFilter.type);
+    if(ctlFilter.status)p.push(({conform:"符合",observe:"觀察",nc:"不符合",unmarked:"未標記"})[ctlFilter.status]);
+  }
+  if(ctlSearch.trim())p.push("「"+ctlSearch.trim()+"」");
+  return p.join(" × ")||"全部";
+}
+function updateCtlStats(){
+  const ctrls=DATA.nodes.filter(n=>n.type==="control");
+  const stN=s=>ctrls.filter(c=>WS[c.id]&&WS[c.id].status===s).length;
+  const marked=ctrls.filter(c=>WS[c.id]&&WS[c.id].status).length;
+  const m=grid.querySelector("#ctl-marked");if(m)m.textContent=marked;
+  grid.querySelectorAll(".ctl-stat").forEach(b=>{const v=b.dataset.status,n=v==="unmarked"?93-marked:stN(v),bb=b.querySelector("b");if(bb)bb.textContent=n;});
+}
+function markCtl(id,status){
+  const cur=WS[id]&&WS[id].status,ns=cur===status?undefined:status;
+  wsSet(id,{status:ns});updateChipStatus(id);
+  if(selected===id&&panel.classList.contains("open"))openPanel(byId.get(id));  // 右側面板同條時同步
+}
 function renderControls(){
   const ctrls=DATA.nodes.filter(n=>n.type==="control");
   const stN=s=>ctrls.filter(c=>WS[c.id]&&WS[c.id].status===s).length;
   const marked=ctrls.filter(c=>WS[c.id]&&WS[c.id].status).length;
-  const chip=c=>`<div class="chip" data-id="${c.id}" tabindex="0" role="button" aria-label="${c.ref} ${c.title||""}"><div class="c-ref">${c.ref}<span class="chip-st st-${(WS[c.id]&&WS[c.id].status)||"none"}"></span></div><div class="c-t">${c.title||""}</div></div>`;
-  // 依「分層看法」分組
+  const audit=mode==="audit", filtering=!!(ctlFilter||ctlSearch.trim());
+  const chip=c=>{const st=(WS[c.id]&&WS[c.id].status)||"";
+    let s=`<div class="chip${st?" ws-"+st:""}" data-id="${c.id}" tabindex="0" role="button" aria-label="${c.ref} ${esc(c.title||"")}">`;
+    s+=`<div class="c-ref">${c.ref}<span class="chip-st st-${st||"none"}"></span></div><div class="c-t">${esc(c.title||"")}</div><span class="c-go">${icon("info",13)}</span>`;
+    if(audit)s+=`<div class="chip-ws" role="group" aria-label="稽核狀態">`+[["conform","✓ 符合"],["observe","△ 觀察"],["nc","✗ 不符合"]].map(([v,t])=>`<button data-wsq="${v}" class="${st===v?"on":""}" aria-pressed="${st===v}">${t}</button>`).join("")+`</div>`;
+    return s+`</div>`;
+  };
   let groups=[];
   if(ctlLayer==="theme"){for(const p of ["A.5","A.6","A.7","A.8"]){groups.push({id:"sec-ctl-"+p,label:`${p}　${themeName[p]}`,items:ctrls.filter(c=>(c.ref||"").startsWith(p))});}}
   else{const ORD={controlType:["預防","偵測","矯正"],cia:["機密性","完整性","可用性"],securityDomain:["治理與生態系","保護","防禦","韌性"]};
     let vals=ORD[ctlLayer]||[...new Set(ctrls.flatMap(c=>c.attributes?.[ctlLayer]||[]))].sort((a,b)=>ctrls.filter(c=>(c.attributes?.[ctlLayer]||[]).includes(b)).length-ctrls.filter(c=>(c.attributes?.[ctlLayer]||[]).includes(a)).length);
     for(const v of vals){const items=ctrls.filter(c=>(c.attributes?.[ctlLayer]||[]).includes(v));if(items.length)groups.push({id:"sec-ctl-"+v,label:v,items});}}
-  // 覆蓋熱圖：主題 × 控制類型（絕對數；一控制可多型，故列和≥主題總數）
   const T4=["A.5","A.6","A.7","A.8"],TY=["預防","偵測","矯正"];
   const cell=(p,ty)=>ctrls.filter(c=>(c.ref||"").startsWith(p)&&(c.attributes?.controlType||[]).includes(ty)).length;
   const themeTotal=p=>ctrls.filter(c=>(c.ref||"").startsWith(p)).length;
   let mx=1;for(const p of T4)for(const ty of TY)mx=Math.max(mx,cell(p,ty));
-  let heat=`<div class="heat" role="img" aria-label="覆蓋熱圖：附錄A 4 主題 × 3 控制類型的控制數（絕對數，詳見下方分組）"><div class="heat-c heat-h"></div>`+TY.map(ty=>`<div class="heat-c heat-h">${ty}</div>`).join("")+`<div class="heat-c heat-h">小計</div>`;
-  for(const p of T4)heat+=`<div class="heat-c heat-r">${p}</div>`+TY.map(ty=>{const n=cell(p,ty);return `<div class="heat-c" style="background:color-mix(in srgb,var(--cat-control) ${6+Math.round(n/mx*42)}%,var(--surface))" title="${p} ${ty}：${n} 控制（絕對數）">${n}</div>`;}).join("")+`<div class="heat-c heat-tot" title="${p} 共 ${themeTotal(p)} 控制">${themeTotal(p)}</div>`;
+  const isF=(o)=>ctlFilter&&!ctlSearch.trim()&&JSON.stringify(ctlFilter)===JSON.stringify(o);
+  let heat=`<div class="heat" role="group" aria-label="覆蓋熱圖（點格子篩選）"><div class="heat-c heat-h"></div>`+TY.map(ty=>`<div class="heat-c heat-h hhead hclk${isF({type:ty})?" on":""}" data-hcol="${ty}" tabindex="0" role="button" title="篩選 ${ty}">${ty}</div>`).join("")+`<div class="heat-c heat-h">小計</div>`;
+  for(const p of T4)heat+=`<div class="heat-c heat-r hrow" data-hrow="${p}" tabindex="0" role="button" title="篩選 ${p}">${p}</div>`+TY.map(ty=>{const n=cell(p,ty);return `<div class="heat-c hcell" data-htheme="${p}" data-htype="${ty}" tabindex="0" role="button" style="background:color-mix(in srgb,var(--cat-control) ${6+Math.round(n/mx*42)}%,var(--surface))" title="篩選 ${p} × ${ty}（${n} 條）">${n}</div>`;}).join("")+`<div class="heat-c heat-tot hrow" data-hrow="${p}" tabindex="0" role="button" title="篩選 ${p}（${themeTotal(p)} 條）">${themeTotal(p)}</div>`;
   heat+=`</div>`;
-  tocSections=[{id:"sec-heat",label:"覆蓋熱圖"},...groups.map(g=>({id:g.id,label:g.label}))];
+  tocSections=[{id:"sec-heat",label:"覆蓋熱圖"},...(filtering?[]:groups.map(g=>({id:g.id,label:g.label})))];
   let html=`<button class="toc-fab" title="頁內目錄" aria-label="開啟頁內目錄">${icon("menu",18)}</button>`;
-  html+=`<div class="ctl-toolbar"><span class="ctl-hint">附錄 A · 93 控制 · 稽核底稿已標記 <b style="color:var(--text)">${marked}/93</b>（符合 ${stN("conform")} · 觀察 ${stN("observe")} · 不符合 ${stN("nc")}）</span><button id="oscal-btn">⤓ 匯出 OSCAL</button></div>`;
-  html+=`<div class="layerbar" role="radiogroup" aria-label="分層看法"><span class="lb-label">分層看法：</span>`+LAYERS.map(([k,n])=>`<button class="lb-btn${ctlLayer===k?" on":""}" data-layer="${k}" role="radio" aria-checked="${ctlLayer===k}">${n}</button>`).join("")+`</div>`;
+  html+=`<div class="ctl-toolbar"><div class="ctl-stats"><span class="ctl-hint">附錄A · 93 控制 · 已標記 <b style="color:var(--text)" id="ctl-marked">${marked}</b>/93</span>`+
+    [["conform","✓ 符合"],["observe","△ 觀察"],["nc","✗ 不符合"],["unmarked","○ 未標"]].map(([v,t])=>`<button class="ctl-stat ${v}${ctlFilter&&ctlFilter.status===v?" on":""}" data-status="${v}">${t} <b>${v==="unmarked"?93-marked:stN(v)}</b></button>`).join("")+
+    `</div><div class="ctl-tools"><input class="ctl-search" type="text" placeholder="搜尋控制…" value="${esc(ctlSearch)}" aria-label="搜尋控制"><button id="oscal-btn">⤓ OSCAL</button></div></div>`;
+  html+=`<div class="layerbar" role="radiogroup" aria-label="分層看法"><span class="lb-label">分層看法：</span>`+LAYERS.map(([k,n])=>`<button class="lb-btn${!filtering&&ctlLayer===k?" on":""}" data-layer="${k}" role="radio" aria-checked="${!filtering&&ctlLayer===k}">${n}</button>`).join("")+`</div>`;
   const LNOTE={cia:"多數控制三性兼具（機密 87／完整 84／可用 84 條），CIA 維度<b>區別力低</b>——主要用於反查具特定性質的控制，而非把控制硬分到單一性質。",operationalCapability:"ISO 27002:2022 屬性共 5 種，本工具收錄 4 種；第 5 種『Cybersecurity concepts（識別／保護／偵測／回應／復原，對齊 NIST CSF）』暫略。"};
-  if(LNOTE[ctlLayer])html+=`<div class="docs-intro" style="margin:-6px 0 14px"><span class="mic" style="margin-right:4px;color:var(--text-3)">${icon("info",12)}</span>${LNOTE[ctlLayer]}</div>`;
-  html+=`<section class="dsec${docCollapsed.has("sec-heat")?" collapsed":""}" id="sec-heat"><div class="theme-h dsec-h" data-sec="sec-heat"><span class="th-ref">覆蓋</span><span class="th-t">覆蓋熱圖 · 主題 × 控制類型</span><span class="th-c">絕對數·深=多</span></div><div class="dsec-body">${heat}<div class="docs-intro" style="margin-top:8px">格子是各主題該控制類型的<b>絕對數</b>（一條控制可同時是預防/偵測/矯正，故各欄可重複計、列和 ≥ 主題「小計」）。主題大小不同，<b>淺色不代表缺失</b>——控制是依風險評鑑選用，不是拿來填滿矩陣。下方可用「分層看法」換個角度分組。</div></div></section>`;
-  for(const g of groups)html+=`<section class="dsec${docCollapsed.has(g.id)?" collapsed":""}" id="${g.id}"><div class="theme-h dsec-h" data-sec="${g.id}"><span class="th-t">${g.label}</span><span class="th-c">${g.items.length} 控制</span></div><div class="dsec-body"><div class="chips">${g.items.map(chip).join("")}</div></div></section>`;
+  if(!filtering&&LNOTE[ctlLayer])html+=`<div class="docs-intro" style="margin:-6px 0 14px"><span class="mic" style="margin-right:4px;color:var(--text-3)">${icon("info",12)}</span>${LNOTE[ctlLayer]}</div>`;
+  html+=`<section class="dsec${docCollapsed.has("sec-heat")?" collapsed":""}" id="sec-heat"><div class="theme-h dsec-h" data-sec="sec-heat"><span class="th-ref">覆蓋</span><span class="th-t">覆蓋熱圖 · 主題 × 控制類型</span><span class="th-c">點格子篩選</span></div><div class="dsec-body">${heat}<div class="docs-intro" style="margin-top:8px">點<b>格子／列／欄</b>即可篩選下方控制。格子是<b>絕對數</b>（一控制可多型、列和 ≥ 小計）；主題大小不同，<b>淺色不代表缺失</b>——控制依風險評鑑選用。</div></div></section>`;
+  if(filtering){const list=ctrls.filter(ctlMatch);
+    html+=`<div class="ctl-filterbar"><span>篩選中：<b>${ctlFilterLabel()}</b> · ${list.length} 條</span><button class="ctl-clearf">✕ 清除篩選</button></div>`;
+    html+=list.length?`<div class="chips">${list.map(chip).join("")}</div>`:`<div class="ex-empty">沒有符合的控制。</div>`;
+  }else{
+    for(const g of groups)html+=`<section class="dsec${docCollapsed.has(g.id)?" collapsed":""}" id="${g.id}"><div class="theme-h dsec-h" data-sec="${g.id}"><span class="th-t">${g.label}</span><span class="th-c">${g.items.length} 控制</span></div><div class="dsec-body"><div class="chips">${g.items.map(chip).join("")}</div></div></section>`;
+  }
   grid.innerHTML=html;grid.style.paddingRight="";
   grid.querySelector(".toc-fab").addEventListener("click",openTocOv);
-  grid.querySelectorAll(".lb-btn[data-layer]").forEach(b=>b.addEventListener("click",()=>{ctlLayer=b.dataset.layer;renderControls();}));
-  grid.querySelectorAll(".chip").forEach(ch=>{ch.addEventListener("click",()=>select(ch.dataset.id));
-    ch.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select(ch.dataset.id);}});});
+  grid.querySelectorAll(".lb-btn[data-layer]").forEach(b=>b.addEventListener("click",()=>{ctlLayer=b.dataset.layer;ctlFilter=null;ctlSearch="";renderControls();}));
+  const setF=f=>{ctlFilter=f;renderControls();};
+  const kgo=(el,fn)=>{el.addEventListener("click",fn);el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fn();}});};
+  grid.querySelectorAll(".hcell").forEach(c=>kgo(c,()=>setF({theme:c.dataset.htheme,type:c.dataset.htype})));
+  grid.querySelectorAll(".hrow").forEach(c=>kgo(c,()=>setF({theme:c.dataset.hrow})));
+  grid.querySelectorAll(".hhead.hclk").forEach(c=>kgo(c,()=>setF({type:c.dataset.hcol})));
+  grid.querySelectorAll(".ctl-stat").forEach(b=>b.addEventListener("click",()=>{const v=b.dataset.status;ctlFilter=(ctlFilter&&ctlFilter.status===v)?null:{status:v};renderControls();}));
+  const cf=grid.querySelector(".ctl-clearf");if(cf)cf.onclick=()=>{ctlFilter=null;ctlSearch="";renderControls();};
+  const si=grid.querySelector(".ctl-search");if(si)si.addEventListener("input",()=>{const pos=si.selectionStart;ctlSearch=si.value;renderControls();const ns=grid.querySelector(".ctl-search");if(ns){ns.focus();try{ns.setSelectionRange(pos,pos);}catch(e){}}});
   const ob=document.getElementById("oscal-btn");if(ob)ob.onclick=downloadOscal;
   grid.querySelectorAll(".dsec-h[data-sec]").forEach(hd=>hd.addEventListener("click",()=>{const sid=hd.dataset.sec,s=document.getElementById(sid);const c=s.classList.toggle("collapsed");c?docCollapsed.add(sid):docCollapsed.delete(sid);}));
+  grid.querySelectorAll(".chip").forEach(ch=>{
+    ch.querySelectorAll(".chip-ws button").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();markCtl(ch.dataset.id,b.dataset.wsq);}));
+    ch.addEventListener("click",e=>{if(e.target.closest(".chip-ws"))return;select(ch.dataset.id);});
+    ch.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&!e.target.closest(".chip-ws")){e.preventDefault();select(ch.dataset.id);}});
+  });
 }
 
 // ---------- VIEW: 文件化資訊 + ISO 27000 家族 ----------
@@ -1527,7 +1621,7 @@ document.getElementById("overlay-btn").addEventListener("click",function(){overl
   if(curView==="pdca"){scene.replaceChildren();renderPDCA();if(selected)highlight(selected);}updateHash();});
 // learner <-> auditor(LA) view mode
 const modeBtn=document.getElementById("mode-btn");
-function setMode(m){mode=m;modeBtn.classList.toggle("on",m==="audit");modeBtn.setAttribute("aria-pressed",m==="audit");document.getElementById("mode-label").textContent=m==="audit"?"稽核者視角":"學習者視角";}
+function setMode(m){mode=m;modeBtn.classList.toggle("on",m==="audit");modeBtn.setAttribute("aria-pressed",m==="audit");document.getElementById("mode-label").textContent=m==="audit"?"稽核者視角":"學習者視角";if(curView==="controls")renderControls();}
 modeBtn.addEventListener("click",()=>{setMode(mode==="learn"?"audit":"learn");if(selected)openPanel(byId.get(selected));updateHash();});
 // theme (dark / light)
 const themeBtn=document.getElementById("theme-btn");
