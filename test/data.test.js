@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { build } from "../scripts/assemble.mjs";
@@ -279,5 +279,23 @@ describe("考題 (exam — 練習題庫)", () => {
     const bad = [];
     for (const q of exam.items) for (const r of q.refs || []) if (!nodeIds.has(r)) bad.push(`${q.id}→${r}`);
     expect(bad, bad.join(", ")).toEqual([]);
+  });
+});
+
+describe("PWA / CDN 一致性守門", () => {
+  const indexHtml = readFileSync(join(here, "../index.html"), "utf8");
+  const swJs = readFileSync(join(here, "../sw.js"), "utf8");
+  const unpkg = (s) => [...s.matchAll(/https:\/\/unpkg\.com\/[^"'\s)]+/g)].map((m) => m[0]);
+  it("index.html 與 sw.js CORE 的 CDN(unpkg) 版本完全一致 (防只改一處)", () => {
+    const inHtml = [...new Set(unpkg(indexHtml))].sort();
+    const inSw = [...new Set(unpkg(swJs))].sort();
+    expect(inHtml.length).toBeGreaterThan(0);
+    expect(inHtml).toEqual(inSw);
+  });
+  it("sw.js CORE 列的本地資產都實際存在於 repo", () => {
+    const core = (swJs.match(/const CORE = \[([\s\S]*?)\]/) || [])[1] || "";
+    const paths = [...core.matchAll(/"([^"]+)"/g)].map((m) => m[1]).filter((p) => !p.startsWith("http") && p !== "./");
+    const missing = paths.filter((p) => !existsSync(join(here, "..", p)));
+    expect(missing).toEqual([]);
   });
 });

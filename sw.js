@@ -1,5 +1,5 @@
 // ISMS·LA service worker — 離線可用 app shell（cache-first）
-const CACHE = "ismsla-v0.8.0";
+const CACHE = "ismsla-v0.8.1";
 const CORE = [
   "./", "index.html", "favicon.svg", "manifest.webmanifest", "icon-192.png", "icon-512.png", "og-image.png",
   "data/data.json", "data/supplements.json", "data/documents.json", "data/standards.json", "data/exam.json",
@@ -50,7 +50,8 @@ self.addEventListener("fetch", (e) => {
     if (cached) return cached;
     try {
       const res = await fetch(req);
-      if (res && res.ok && url.origin === location.origin) { const c = await caches.open(CACHE); c.put(req, res.clone()); }
+      // 任何 ok 回應都寫回（含 CDN/CORS），確保離線完整；opaque(status 0)因 res.ok=false 自動略過
+      if (res && res.ok) { const c = await caches.open(CACHE); c.put(req, res.clone()); }
       return res;
     } catch (err) { return cached || Response.error(); }
   })());

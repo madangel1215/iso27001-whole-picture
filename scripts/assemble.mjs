@@ -11,7 +11,7 @@ const ZD = ROOT + "data/_zones";
 // ── meta + architectures（產物的固定外殼；非衍生自 zones，故在此維護）──
 const META = {
   standard: "CNS/ISO/IEC 27001:2023 (對應 ISO/IEC 27001:2022)",
-  version: "0.8.0",
+  version: "0.8.1",
   accent: "#3b82f6",
   note: "所有說明為自行撰寫之白話轉譯，未複製標準正文（版權）。條款編號與標題為事實引用。",
   linkTypes: ["feeds", "treats", "selects", "implements", "aligns", "contains"],
@@ -130,6 +130,10 @@ const EDGES = [
   E("clause-7.4", "communication-consultation", "aligns"),
   E("clause-9.1", "monitoring-review", "aligns"),
   E("clause-7.5", "documented-information", "aligns"),
+  // 文件化資訊 7.5 的子條款（7.5 contains 7.5.1/7.5.2/7.5.3）
+  E("clause-7.5", "clause-7.5.1", "contains", "7.5 文件化資訊 — 一般要求。"),
+  E("clause-7.5", "clause-7.5.2", "contains", "7.5 文件化資訊 — 建立與更新。"),
+  E("clause-7.5", "clause-7.5.3", "contains", "7.5 文件化資訊 — 管制（含 7.5.3 文件管制要求）。"),
 
   // 套圖疊圖: SoA → 控制 + 控制錨定到條款
   E("soa", "control-a.5.31", "selects"),

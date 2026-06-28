@@ -176,8 +176,9 @@ svg#canvas{width:100%;height:100%;display:block}
 .lb-btn{font-size:12.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text-2);cursor:pointer;transition:all .14s var(--ease)}
 .lb-btn:hover{border-color:var(--line-2);color:var(--text)}
 .lb-btn.on{border-color:var(--accent);color:var(--text);background:var(--surface-2)}
-.heat{display:grid;grid-template-columns:auto repeat(3,minmax(60px,110px));gap:4px;margin:2px 0 4px}
-.heat-c{padding:10px 8px;border-radius:6px;text-align:center;font-size:13px;color:var(--text);font-family:var(--mono)}
+.heat{display:grid;grid-template-columns:auto repeat(3,minmax(56px,1fr)) auto;gap:4px;margin:2px 0 4px}
+.heat-c{padding:10px 8px;border-radius:6px;text-align:center;font-size:13px;color:var(--text);font-family:var(--mono);text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.heat-tot{color:var(--text-3);background:var(--surface-2)!important;text-shadow:none}
 .heat-h{color:var(--text-3);font-size:11.5px;background:transparent;padding:4px 8px}
 .heat-r{color:var(--accent);background:transparent!important;text-align:left}
 .ovl-chip{cursor:pointer}
@@ -430,6 +431,11 @@ details.acc:not([open])>summary{margin-bottom:6px}
   .rail.open ~ .rail-scrim{display:block;position:fixed;inset:52px 0 0 0;background:rgba(0,0,0,.45);z-index:13}
   .rail.collapsed .ri-label,.rail.collapsed .rail-group-h{display:revert}
   .rail.collapsed .rail-item{justify-content:flex-start;padding:9px 10px}
+  /* 觸控目標 ≥44px（行動裝置防誤觸）*/
+  .ws-status button{min-height:44px;padding:8px 4px}
+  .lb-btn{min-height:44px;padding:10px 14px}
+  .exo{padding:13px}
+  .ex-ref,.toc-ov-item{min-height:40px}
 }
 /* ---------- command palette (⌘K) + help + glossary ---------- */
 .cmdk{position:fixed;inset:0;background:rgba(4,4,6,.6);backdrop-filter:blur(6px);display:none;justify-content:center;align-items:flex-start;padding-top:13vh;z-index:50}
@@ -498,16 +504,16 @@ details.acc:not([open])>summary{margin-bottom:6px}
     <div class="spacer"></div>
     <div class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input id="q" type="text" placeholder="搜尋 / ⌘K…" autocomplete="off" />
-      <div class="results" id="results"></div>
+      <input id="q" type="text" placeholder="搜尋 / ⌘K…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="results" aria-autocomplete="list" aria-label="搜尋條款／控制／標準" />
+      <div class="results" id="results" role="listbox" aria-label="搜尋結果"></div>
     </div>
     <div class="menu-wrap">
-      <button class="icon-btn tour-btn" id="tour-btn" title="導覽">▶</button>
-      <button class="icon-btn" id="settings-btn" title="設定" aria-haspopup="true" aria-expanded="false">⚙</button>
+      <button class="icon-btn tour-btn" id="tour-btn" title="導覽" aria-label="稽核三問導覽">▶</button>
+      <button class="icon-btn" id="settings-btn" title="設定" aria-label="設定" aria-haspopup="true" aria-expanded="false">⚙</button>
       <div class="menu" id="settings-menu" role="menu">
         <button class="mrow" id="theme-btn" role="menuitem"><span class="mic" id="theme-ico"></span><span>深／淺色</span></button>
         <button class="mrow" id="mode-btn" role="menuitem"><span class="mic"></span><span id="mode-label">學習者視角</span></button>
-        <button class="mrow" id="overlay-btn" role="menuitem"><span class="mic"></span><span>疊控制措施</span></button>
+        <button class="mrow" id="overlay-btn" role="menuitem" aria-pressed="false"><span class="mic"></span><span>疊控制措施</span></button>
         <div class="menu-sep"></div>
         <button class="mrow" id="tour-btn2" role="menuitem"><span class="mic"></span><span>稽核三問導覽</span></button>
         <button class="mrow" id="print-btn" role="menuitem"><span class="mic"></span><span>列印稽核清單 (PDF)</span></button>
@@ -536,8 +542,8 @@ details.acc:not([open])>summary{margin-bottom:6px}
     <div id="cy"></div>
     <div class="view-cap" id="cap"></div>
     <div class="vhint" id="vhint"><span class="vhint-ico">ⓘ</span><span class="vhint-t" id="vhint-t"></span><button class="vhint-x" id="vhint-x" aria-label="關閉提示">✕</button></div>
-    <aside class="panel" id="panel" aria-hidden="true">
-      <button class="close" id="close">✕</button>
+    <aside class="panel" id="panel" role="region" aria-label="節點詳情" aria-hidden="true">
+      <button class="close" id="close" aria-label="關閉詳情">✕</button>
       <div class="panel-scroll" id="pbody"></div>
       <div class="copy" id="copy">⧉ 複製此視角連結</div>
     </aside>
@@ -578,7 +584,7 @@ details.acc:not([open])>summary{margin-bottom:6px}
   </div>
   <div class="term-pop" id="term-pop" aria-hidden="true"></div>
   <div class="toc-overlay" id="toc-ov" aria-hidden="true">
-    <div class="toc-ov-card" role="dialog" aria-label="頁內目錄">
+    <div class="toc-ov-card" role="dialog" aria-modal="true" aria-label="頁內目錄">
       <div class="toc-ov-h">頁內目錄 · 跳到段落</div>
       <div class="toc-ov-list" id="toc-ov-list"></div>
     </div>
@@ -590,11 +596,12 @@ details.acc:not([open])>summary{margin-bottom:6px}
 const SVGNS="http://www.w3.org/2000/svg";
 const scene=document.getElementById("scene"), svg=document.getElementById("canvas");
 const grid=document.getElementById("grid"), docsEl=document.getElementById("docs"), panel=document.getElementById("panel"), pbody=document.getElementById("pbody");
+panel.inert=true;  // 關閉時不可聚焦（取代 aria-hidden 含可聚焦子元素的違規）
 const toastEl=document.getElementById("toast");
 let DATA=null, byId=new Map(), adj=new Map(), curView="pdca", selected=null, overlay=false, mode="learn";
 let DOCS=[], STDS=[], docsByNode=new Map(), stdsByNode=new Map(), stdById=new Map();
 let WS={};try{WS=JSON.parse(localStorage.getItem("ismsla_ws")||"{}");}catch(e){}
-let docTierFilter=null, docCollapsed=new Set(), tocCollapsed=false, ctlLayer="theme";
+let docTierFilter=null, docCollapsed=new Set(), ctlLayer="theme";
 function wsSave(){try{localStorage.setItem("ismsla_ws",JSON.stringify(WS));}catch(e){}}
 function wsSet(id,patch){WS[id]={...(WS[id]||{}),...patch};if(!WS[id].status&&!(WS[id].note||"").trim())delete WS[id];wsSave();}
 function updateChipStatus(id){const ch=grid.querySelector(`.chip[data-id="${id}"] .chip-st`);if(ch)ch.className="chip-st st-"+((WS[id]&&WS[id].status)||"none");}
@@ -647,7 +654,7 @@ const FAM_IC={"核心 ISMS":"shield","整合管理系統":"layers","工程生命
 function icon(name,size){const p=ICONS[name];if(!p)return"";return `<svg class="ic" viewBox="0 0 24 24" width="${size||16}" height="${size||16}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;}
 function sechIcon(t){if(/對應 ISO|相關標準/.test(t))return"link";if(/白話說明/.test(t))return"info";if(/補充|關鍵概念/.test(t))return"lightbulb";if(/需要的文件|文件化/.test(t))return"docs";if(/稽核問句/.test(t))return"question";if(/應備證據/.test(t))return"check2";if(/常見不符合/.test(t))return"alert";if(/工作底稿/.test(t))return"clipboard";if(/要求來源|同章節|關聯|繼承|衍生|量尺|對應圖/.test(t))return"link";return"dot";}
 // SVG 場景內的 icon（嵌套 <svg>，給圖表方框用）
-function svgIcon(name,x,y,size){const s=el("svg",{x,y,width:size||16,height:size||16,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor","stroke-width":2,"stroke-linecap":"round","stroke-linejoin":"round",class:"svgic"});s.innerHTML=ICONS[name]||"";return s;}
+function svgIcon(name,x,y,size){const s=el("svg",{x,y,width:size||16,height:size||16,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor","stroke-width":2,"stroke-linecap":"round","stroke-linejoin":"round",class:"svgic","aria-hidden":"true",focusable:"false"});s.innerHTML=ICONS[name]||"";return s;}
 
 // which view a node belongs to — 依 type 分類（單一來源，與 CAT/renderControls 一致）
 function homeView(id){const n=byId.get(id);if(!n)return "pdca";
@@ -721,9 +728,9 @@ function renderPDCA(){
   if(overlay)drawOverlay(N,C);
 }
 function drawOverlay(N,C){
-  // 控制層外環：附錄A 4 主題置於 PDCA 四角(＝包在管理系統外的落地層)；點主題→附錄A 該主題
+  // 控制層外環：附錄A 4 主題置於 PDCA 四角(＝由管理系統治理、仍在範圍內的落地層)；點主題→附錄A 該主題
   const cnt=p=>DATA.nodes.filter(n=>n.type==="control"&&(n.ref||"").startsWith(p)).length;
-  scene.append(tx(560,100,"flow-label","附錄A 控制層 — 93 控制經 6.1.3 SoA 選出、在 7·8 運作落地（點主題看控制）"));
+  scene.append(tx(560,100,"flow-label","附錄A 控制層（仍在 ISMS 範圍內）— 經 6.1.2 風險評鑑、6.1.3 選定並記入 SoA（含排除理由），於 8.1 落實運作（點主題看控制）"));
   // 連到 支援/運作[7·8]（控制真正落地處）
   scene.append(el("line",{class:"flow-line",x1:N.n78.x,y1:N.n78.y-N.n78.r,x2:N.n78.x,y2:118,"marker-end":"url(#ah)"}));
   const C4=[["A.5","組織控制",250,116],["A.8","技術控制",790,116],["A.6","人員控制",250,748],["A.7","實體控制",790,748]];
@@ -889,6 +896,7 @@ const AUDIT={
     {h:"分級",items:["主要 Major：系統性失效、整個要求缺漏，或多個次要累積使系統失效；危及 ISMS 達成預期結果。通常須限期矯正、影響發證。","次要 Minor：單一、偶發、非系統性的疏漏，不致使系統失效。","觀察／改善機會 OFI：不算不符合，但有改善空間或潛在風險。"]},
     {h:"NC 報告三要件（缺一不可）",items:["① 客觀證據：看到／聽到／量到的事實（文件、紀錄、現場觀察）。","② 違反的要求：對到 27001 哪一條款／SoA／組織自訂要求。","③ 不符合陳述：清楚說明『事實』與『要求』如何不符。"]},
     {h:"撰寫原則",items:["對事不對人、可追溯、用詞中性。","現場由受稽方確認，避免事後爭議。","不替受稽方寫矯正方式（那是對方的責任）。"]},
+    {h:"開立後：改正 vs 矯正措施（§10.2）",items:["改正 Correction：立即圍堵／補救眼前問題（如把外洩文件下架）——治標。","矯正措施 Corrective action：根因分析(如 5-Why)→消除原因、防止再發——治本。","受稽方須提矯正計畫(含時程與負責人)；由稽核方驗證有效性後才結案(close-out)。","對應 27001 §10.2『不符合與矯正措施』；兩者不可混為一談。"]},
   ]},
   stage:{title:"驗證旅程 · Stage 1 / Stage 2",lead:"第三方驗證的完整旅程；依 ISO/IEC 17021-1 ＋ 27006。",std:["iso-27006","iso-19011"],sections:[
     {h:"Stage 1 · 文件審查／準備度",items:["審查文件化資訊，確認範圍／SoA／風險流程已就緒。","評估場址與受稽準備度、規劃 Stage 2、找出潛在不符合區域。"]},
@@ -898,6 +906,21 @@ const AUDIT={
   tech:{title:"稽核技巧 · Techniques",lead:"用對方法才問得出客觀證據。",std:["iso-19011"],sections:[
     {h:"提問與晤談",items:["開放式問句(5W1H)，少用是／否封閉問句，讓受稽方多說。","對到實際做事的人、營造安全氛圍、追問到證據。"]},
     {h:"取證",items:["抽樣 Sampling：風險基礎、樣本具代表性，記錄抽樣依據（無法 100% 查）。","客觀證據：文件／紀錄／觀察／陳述（陳述需佐證），避免臆測。","稽核軌跡 Audit trail：循一線索前後追（如 事故→通報→處理→改善→紀錄）。","三角驗證：問＋看＋查紀錄，多來源交叉佐證。"]},
+  ]},
+  principles:{title:"七大稽核原則 · ISO 19011 §4",lead:"LA 一切判斷的底座；七原則貫穿整個稽核。",std:["iso-19011"],sections:[
+    {h:"七大原則",items:[
+      "誠信 Integrity：專業的根本——誠實、負責、公正執行。",
+      "公正表達 Fair presentation：發現、結論與報告真實準確、忠實反映。",
+      "專業審慎 Due professional care：依任務重要性勤勉判斷。",
+      "保密 Confidentiality：妥善保護稽核中取得的資訊，不當揭露。",
+      "獨立 Independence：對受稽活動保持客觀、無利益衝突、不偏不倚。",
+      "證據導向 Evidence-based：結論建立在可驗證的客觀證據與合理抽樣。",
+      "風險導向 Risk-based approach：依風險與機會規劃與執行，聚焦重要處。"]},
+  ]},
+  programme:{title:"稽核方案管理 · ISO 19011 §5",lead:"管理『一整套稽核』的層級，有別於單次稽核(§6)。",std:["iso-19011"],sections:[
+    {h:"方案 Programme ≠ 單次 audit",items:["方案＝為特定期間、特定目的規劃的一組稽核安排；單次 audit 只是其中一場。"]},
+    {h:"建立方案",items:["訂方案目標(對齊管理目標與政策)。","決定範圍/規模/型態(內稽計畫、供應商、多場址…)。","識別與評鑑方案的風險與機會。","資源與準則：稽核員能力、方法、時程、預算。"]},
+    {h:"執行與改善",items:["指派各次稽核的目標/範圍/方法、選定稽核組。","監督方案、保存紀錄、審查並持續改善方案成效。"]},
   ]},
   competence:{title:"稽核員能力與行為 · ISO 19011 §7",lead:"主導稽核員(LA)的資格基礎。",std:["iso-19011"],sections:[
     {h:"個人行為",items:["正直、開放心態、外交手腕、善觀察、敏銳、適應、堅毅、果斷、自立、有韌性、行為合乎倫理。"]},
@@ -914,11 +937,11 @@ function openAuditPanel(k){const a=AUDIT[k];if(!a)return;
   if(a.std&&a.std.length)h+=`<div class="sech">相關標準</div>`+a.std.map(id=>{const s=stdById.get(id);return s?`<div class="rel" data-std="${id}"><span class="rel-chip">標準</span><span class="rel-t">${s.number} ${s.title}</span></div>`:"";}).join("");
   pbody.innerHTML=h;accordionize(pbody);tagGlossary(pbody);
   pbody.querySelectorAll("[data-std]").forEach(r=>r.addEventListener("click",()=>openStdPanel(stdById.get(r.dataset.std))));
-  panel.classList.add("open");panel.setAttribute("aria-hidden","false");}
+  panel.inert=false;panel.classList.add("open");panel.setAttribute("aria-hidden","false");}
 
 // ---------- VIEW: 稽核流程 (ISO 19011 · 如何稽核) ----------
 function renderAuditFlow(){
-  svg.setAttribute("viewBox","0 0 1380 564");
+  svg.setAttribute("viewBox","0 0 1380 624");
   const click=(g,fn)=>{g.style.cursor="pointer";g.setAttribute("tabindex","0");g.setAttribute("role","button");
     g.addEventListener("click",e=>{e.stopPropagation();fn();});
     g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fn();}});return g;};
@@ -955,12 +978,21 @@ function renderAuditFlow(){
     click(g,fn);scene.append(g);});
   // 稽核實務深入(d)：點看細節面板
   const dy=ty+92;scene.append(tx(28,dy-14,"note-h","稽核實務深入 · 點看細節"));
-  const deep=[["不符合 NC","分級 ＋ 報告三要件","nc","alert"],["驗證旅程","Stage 1/2 → 監督 → 再驗證","stage","layers"],["稽核技巧","問句／晤談／抽樣／證據","tech","audit"],["稽核員能力","ISO 19011 §7 行為與知識","competence","user"]];
-  const dw=(1344/4)-12;deep.forEach(([t,sub,k,ic],i)=>{const x=18+i*(1344/4);const g=el("g",{class:"node","aria-label":t});
-    g.append(el("rect",{class:"box",x,y:dy,width:dw,height:60,rx:9}));
-    g.append(svgIcon(ic,x+13,dy+13,16));
-    g.append(tx(x+dw/2,dy+26,"nm sm",t,{"text-anchor":"middle"}));
-    g.append(tx(x+dw/2,dy+45,"sub",sub,{"text-anchor":"middle"}));
+  const deep=[
+    ["不符合 NC","分級＋三要件＋改正/矯正措施","nc","alert"],
+    ["驗證旅程","Stage 1/2 → 監督 → 再驗證","stage","layers"],
+    ["七大稽核原則","ISO 19011 §4 的判斷底座","principles","shield"],
+    ["稽核方案管理","§5 programme ≠ 單次 audit","programme","clipboard"],
+    ["稽核技巧","問句／晤談／抽樣／證據","tech","audit"],
+    ["稽核員能力","ISO 19011 §7 行為與知識","competence","user"],
+  ];
+  const cols=3,dw=(1344/cols)-12,dh=60,dgap=12;
+  deep.forEach(([t,sub,k,ic],i)=>{const col=i%cols,row=Math.floor(i/cols);const x=18+col*(1344/cols),y=dy+row*(dh+dgap);
+    const g=el("g",{class:"node","aria-label":t});
+    g.append(el("rect",{class:"box",x,y,width:dw,height:dh,rx:9}));
+    g.append(svgIcon(ic,x+13,y+13,16));
+    g.append(tx(x+dw/2,y+26,"nm sm",t,{"text-anchor":"middle"}));
+    g.append(tx(x+dw/2,y+45,"sub",sub,{"text-anchor":"middle"}));
     click(g,()=>openAuditPanel(k));scene.append(g);});
 }
 
@@ -978,21 +1010,24 @@ function renderControls(){
   else{const ORD={controlType:["預防","偵測","矯正"],cia:["機密性","完整性","可用性"],securityDomain:["治理與生態系","保護","防禦","韌性"]};
     let vals=ORD[ctlLayer]||[...new Set(ctrls.flatMap(c=>c.attributes?.[ctlLayer]||[]))].sort((a,b)=>ctrls.filter(c=>(c.attributes?.[ctlLayer]||[]).includes(b)).length-ctrls.filter(c=>(c.attributes?.[ctlLayer]||[]).includes(a)).length);
     for(const v of vals){const items=ctrls.filter(c=>(c.attributes?.[ctlLayer]||[]).includes(v));if(items.length)groups.push({id:"sec-ctl-"+v,label:v,items});}}
-  // 覆蓋熱圖：主題 × 控制類型
+  // 覆蓋熱圖：主題 × 控制類型（絕對數；一控制可多型，故列和≥主題總數）
   const T4=["A.5","A.6","A.7","A.8"],TY=["預防","偵測","矯正"];
   const cell=(p,ty)=>ctrls.filter(c=>(c.ref||"").startsWith(p)&&(c.attributes?.controlType||[]).includes(ty)).length;
+  const themeTotal=p=>ctrls.filter(c=>(c.ref||"").startsWith(p)).length;
   let mx=1;for(const p of T4)for(const ty of TY)mx=Math.max(mx,cell(p,ty));
-  let heat=`<div class="heat"><div class="heat-c heat-h"></div>`+TY.map(ty=>`<div class="heat-c heat-h">${ty}</div>`).join("");
-  for(const p of T4)heat+=`<div class="heat-c heat-r">${p}</div>`+TY.map(ty=>{const n=cell(p,ty);return `<div class="heat-c" style="background:color-mix(in srgb,var(--cat-control) ${8+Math.round(n/mx*64)}%,var(--surface))" title="${p} ${ty}：${n} 控制">${n||""}</div>`;}).join("");
+  let heat=`<div class="heat" role="img" aria-label="覆蓋熱圖：附錄A 4 主題 × 3 控制類型的控制數（絕對數，詳見下方分組）"><div class="heat-c heat-h"></div>`+TY.map(ty=>`<div class="heat-c heat-h">${ty}</div>`).join("")+`<div class="heat-c heat-h">小計</div>`;
+  for(const p of T4)heat+=`<div class="heat-c heat-r">${p}</div>`+TY.map(ty=>{const n=cell(p,ty);return `<div class="heat-c" style="background:color-mix(in srgb,var(--cat-control) ${6+Math.round(n/mx*42)}%,var(--surface))" title="${p} ${ty}：${n} 控制（絕對數）">${n}</div>`;}).join("")+`<div class="heat-c heat-tot" title="${p} 共 ${themeTotal(p)} 控制">${themeTotal(p)}</div>`;
   heat+=`</div>`;
   tocSections=[{id:"sec-heat",label:"覆蓋熱圖"},...groups.map(g=>({id:g.id,label:g.label}))];
-  let html=`<button class="toc-fab" id="toc-fab" title="頁內目錄" aria-label="開啟頁內目錄">${icon("menu",18)}</button>`;
+  let html=`<button class="toc-fab" title="頁內目錄" aria-label="開啟頁內目錄">${icon("menu",18)}</button>`;
   html+=`<div class="ctl-toolbar"><span class="ctl-hint">附錄 A · 93 控制 · 稽核底稿已標記 <b style="color:var(--text)">${marked}/93</b>（符合 ${stN("conform")} · 觀察 ${stN("observe")} · 不符合 ${stN("nc")}）</span><button id="oscal-btn">⤓ 匯出 OSCAL</button></div>`;
-  html+=`<div class="layerbar"><span class="lb-label">分層看法：</span>`+LAYERS.map(([k,n])=>`<button class="lb-btn${ctlLayer===k?" on":""}" data-layer="${k}">${n}</button>`).join("")+`</div>`;
-  html+=`<section class="dsec${docCollapsed.has("sec-heat")?" collapsed":""}" id="sec-heat"><div class="theme-h dsec-h" data-sec="sec-heat"><span class="th-ref">覆蓋</span><span class="th-t">覆蓋熱圖 · 主題 × 控制類型</span><span class="th-c">深=控制多</span></div><div class="dsec-body">${heat}<div class="docs-intro" style="margin-top:8px">看哪格淺＝該主題該類型控制少（稽核常問：有沒有偵測/矯正控制）。下方依「分層看法」切換分組。</div></div></section>`;
+  html+=`<div class="layerbar" role="radiogroup" aria-label="分層看法"><span class="lb-label">分層看法：</span>`+LAYERS.map(([k,n])=>`<button class="lb-btn${ctlLayer===k?" on":""}" data-layer="${k}" role="radio" aria-checked="${ctlLayer===k}">${n}</button>`).join("")+`</div>`;
+  const LNOTE={cia:"多數控制三性兼具（機密 87／完整 84／可用 84 條），CIA 維度<b>區別力低</b>——主要用於反查具特定性質的控制，而非把控制硬分到單一性質。",operationalCapability:"ISO 27002:2022 屬性共 5 種，本工具收錄 4 種；第 5 種『Cybersecurity concepts（識別／保護／偵測／回應／復原，對齊 NIST CSF）』暫略。"};
+  if(LNOTE[ctlLayer])html+=`<div class="docs-intro" style="margin:-6px 0 14px"><span class="mic" style="margin-right:4px;color:var(--text-3)">${icon("info",12)}</span>${LNOTE[ctlLayer]}</div>`;
+  html+=`<section class="dsec${docCollapsed.has("sec-heat")?" collapsed":""}" id="sec-heat"><div class="theme-h dsec-h" data-sec="sec-heat"><span class="th-ref">覆蓋</span><span class="th-t">覆蓋熱圖 · 主題 × 控制類型</span><span class="th-c">絕對數·深=多</span></div><div class="dsec-body">${heat}<div class="docs-intro" style="margin-top:8px">格子是各主題該控制類型的<b>絕對數</b>（一條控制可同時是預防/偵測/矯正，故各欄可重複計、列和 ≥ 主題「小計」）。主題大小不同，<b>淺色不代表缺失</b>——控制是依風險評鑑選用，不是拿來填滿矩陣。下方可用「分層看法」換個角度分組。</div></div></section>`;
   for(const g of groups)html+=`<section class="dsec${docCollapsed.has(g.id)?" collapsed":""}" id="${g.id}"><div class="theme-h dsec-h" data-sec="${g.id}"><span class="th-t">${g.label}</span><span class="th-c">${g.items.length} 控制</span></div><div class="dsec-body"><div class="chips">${g.items.map(chip).join("")}</div></div></section>`;
   grid.innerHTML=html;grid.style.paddingRight="";
-  grid.querySelector("#toc-fab").addEventListener("click",openTocOv);
+  grid.querySelector(".toc-fab").addEventListener("click",openTocOv);
   grid.querySelectorAll(".lb-btn[data-layer]").forEach(b=>b.addEventListener("click",()=>{ctlLayer=b.dataset.layer;renderControls();}));
   grid.querySelectorAll(".chip").forEach(ch=>{ch.addEventListener("click",()=>select(ch.dataset.id));
     ch.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select(ch.dataset.id);}});});
@@ -1030,11 +1065,11 @@ function renderDocs(){
     sB+=sec(fid,{cls:"sech",html:`${icon(FAM_IC[f]||"dot",14)} ${f} <span class="th-c" style="margin-left:auto;font-family:var(--mono)">${cs.length}</span>`},`<div class="std-grid">${cs.map(stdCard).join("")}</div>`);});
   // 頁內目錄資料（☰ 置中彈出）
   tocSections=[{id:"sec-docs",label:"文件化資訊"},{id:"sec-stds",label:"標準家族"},...fams.map((f,i)=>({id:"sec-fam-"+i,label:f,sub:true}))];
-  let h=`<button class="toc-fab" id="toc-fab" title="頁內目錄" aria-label="開啟頁內目錄">${icon("menu",18)}</button>`;
+  let h=`<button class="toc-fab" title="頁內目錄" aria-label="開啟頁內目錄">${icon("menu",18)}</button>`;
   h+=sec("sec-docs",{cls:"theme-h",html:`<span class="th-ref">7.5</span><span class="th-t">ISMS 文件化資訊 · Documented information</span><span class="th-c">${DOCS.length} 項</span>`},dB);
   h+=sec("sec-stds",{cls:"theme-h",html:`<span class="th-ref">ISO 27000</span><span class="th-t">標準家族 · Standards family</span><span class="th-c">${STDS.length} 標準</span>`},sB);
   docsEl.innerHTML=h;docsEl.style.paddingRight="";
-  docsEl.querySelector("#toc-fab").addEventListener("click",openTocOv);
+  docsEl.querySelector(".toc-fab").addEventListener("click",openTocOv);
   docsEl.querySelectorAll(".pyr-band[data-tier]").forEach(b=>b.addEventListener("click",()=>{const t=b.dataset.tier;docTierFilter=(docTierFilter===t)?null:t;renderDocs();}));
   docsEl.querySelectorAll(".pyr-clear").forEach(b=>b.addEventListener("click",()=>{docTierFilter=null;renderDocs();}));
   docsEl.querySelectorAll(".doc-row[data-go]").forEach(r=>{const go=()=>select(r.dataset.go);
@@ -1087,7 +1122,7 @@ function cyHighlight(id){if(!cy)return;const node=cy.getElementById(id);if(node.
   node.closedNeighborhood().nodes().removeClass("faded").addClass("hl");
   node.connectedEdges().removeClass("faded").addClass("hledge");
   node.removeClass("hl").addClass("sel");
-  cy.animate({center:{eles:node},zoom:Math.max(cy.zoom(),.8)},{duration:300});}
+  cy.animate({center:{eles:node},zoom:Math.max(cy.zoom(),.8)},{duration:REDUCE_MOTION?0:300});}
 function toggleCat(cat,el){catFilter[cat]=!catFilter[cat];if(el)el.classList.toggle("off",!catFilter[cat]);
   if(cy)cy.nodes(`[cat="${cat}"]`).toggleClass("hide",!catFilter[cat]);}
 function legendEl(){const d=document.createElement("div");d.className="cy-legend";
@@ -1252,7 +1287,7 @@ const HINTS={
   risk:"圖二＝風險流程(31000/27005)：中央主流程 識別→分析→評估→處理→剩餘風險(◇＝決策點)；左右『溝通諮詢/監督審查』貫穿全程；左側 IEC 31010 技術。",
   ai:"圖三＝AI 生命週期(5338)：6 階段橫向流＋持續確證(上)＋重新評估(下，迴圈回開發)；底部 22989 橫向關注帶；頂部標明上游母框架 15288/12207。",
   aims:"AIMS＝42001 與 27001 同 PDCA 殼；環上點看共用條款，側欄是 AI 專屬(政策/風險/衝擊評鑑/生命週期/控制)，點看對應標準。",
-  audit:"稽核流程＝ISO 19011『怎麼稽核』：啟動→文審(Stage 1)→現場(Stage 2)→報告→跟催；下方三方稽核＋『稽核實務深入』(NC分級/Stage1·2/技巧/能力，點看細節)。",
+  audit:"稽核流程＝ISO 19011『怎麼稽核』：啟動→文審(Stage 1)→現場(Stage 2)→報告→跟催；下方三方稽核＋『稽核實務深入』6 卡(七大原則§4／方案管理§5／NC分級＋改正vs矯正措施／Stage1·2／技巧／能力，點看細節)。",
   controls:"附錄A＝93 控制(4 主題，標題可收合)。切『稽核者視角』每條看稽核三件組；面板可標稽核底稿狀態，這裡看進度。右側目錄可跳主題。",
   docs:"文件·標準＝上方文件金字塔(點層篩選)＋下方標準家族(可收合，點卡看血緣)；右側目錄可跳段。",
   explorer:"關係總覽＝知識圖，只顯示有關係的節點(大小＝連線數)。點節點看它連到誰；點圖例可篩選類別。",
@@ -1264,10 +1299,14 @@ const tocOv=document.getElementById("toc-ov"),tocOvList=document.getElementById(
 function tocJump(id){const s=document.getElementById(id);if(!s)return;
   if(id.startsWith("sec-fam")){const p=document.getElementById("sec-stds");if(p){p.classList.remove("collapsed");docCollapsed.delete("sec-stds");}}
   s.classList.remove("collapsed");docCollapsed.delete(id);s.scrollIntoView({behavior:REDUCE_MOTION?"auto":"smooth",block:"start"});}
+let tocOvOpener=null;
 function openTocOv(){tocOvList.innerHTML=tocSections.map(s=>`<button class="toc-ov-item${s.sub?" sub":""}" data-target="${s.id}">${s.label}</button>`).join("");
   tocOvList.querySelectorAll("[data-target]").forEach(b=>b.addEventListener("click",()=>{tocJump(b.dataset.target);closeTocOv();}));
-  tocOv.classList.add("open");tocOv.setAttribute("aria-hidden","false");}
-function closeTocOv(){tocOv.classList.remove("open");tocOv.setAttribute("aria-hidden","true");}
+  tocOvOpener=document.activeElement;
+  tocOv.classList.add("open");tocOv.setAttribute("aria-hidden","false");
+  tocOvList.querySelector(".toc-ov-item")?.focus();}  // 焦點移入 dialog
+function closeTocOv(){tocOv.classList.remove("open");tocOv.setAttribute("aria-hidden","true");
+  if(tocOvOpener&&tocOvOpener.focus){tocOvOpener.focus();tocOvOpener=null;}}  // 還原焦點到觸發者
 tocOv.addEventListener("click",e=>{if(e.target===tocOv)closeTocOv();});
 const vhint=document.getElementById("vhint"),vhintT=document.getElementById("vhint-t");
 function showHint(k){if(!HINTS[k]||hintDismissed.has(k)){vhint.classList.remove("show");return;}vhintT.textContent=HINTS[k];vhint.classList.add("show");}
@@ -1334,8 +1373,8 @@ function openPanel(n){
     if(n.audit.nonconformities?.length)h+=`<div class="sech ax">常見不符合 · Nonconformities</div>${L(n.audit.nonconformities," nc")}`;
   }
   if(n.type==="control"||n.type==="clause"){const w=WS[n.id]||{};
-    h+=`<div class="sech ax">稽核工作底稿 · Worksheet</div><div class="ws-status" data-ws="${n.id}">`+
-      [["","未查"],["conform","符合"],["observe","觀察"],["nc","不符合"]].map(([v,t])=>`<button data-st="${v}" class="${(w.status||"")===v?"on":""}">${t}</button>`).join("")+
+    h+=`<div class="sech ax">稽核工作底稿 · Worksheet</div><div class="ws-status" data-ws="${n.id}" role="radiogroup" aria-label="稽核底稿狀態">`+
+      [["","未查"],["conform","符合"],["observe","觀察"],["nc","不符合"]].map(([v,t])=>`<button data-st="${v}" role="radio" aria-checked="${(w.status||"")===v}" class="${(w.status||"")===v?"on":""}">${t}</button>`).join("")+
       `</div><textarea class="ws-note" data-wsnote="${n.id}" placeholder="稽核筆記（自動存本機，可匯出 CSV）">${(w.note||"").replace(/</g,"&lt;")}</textarea>`;
   }
   if(n.attributes){const a=n.attributes;
@@ -1359,9 +1398,9 @@ function openPanel(n){
   if(wsBox){const id=wsBox.dataset.ws;
     wsBox.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{wsSet(id,{status:b.dataset.st});wsBox.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));updateChipStatus(id);}));
     const ta=pbody.querySelector("[data-wsnote]");if(ta){let t;ta.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(()=>wsSet(id,{note:ta.value}),300);});}}
-  panel.classList.add("open");panel.setAttribute("aria-hidden","false");
+  panel.inert=false;panel.classList.add("open");panel.setAttribute("aria-hidden","false");
 }
-function closePanel(){panel.classList.remove("open");panel.setAttribute("aria-hidden","true");selected=null;
+function closePanel(){panel.classList.remove("open");panel.setAttribute("aria-hidden","true");panel.inert=true;selected=null;
   scene.querySelectorAll(".node").forEach(g=>g.classList.remove("sel","linked","dim"));grid.querySelectorAll(".chip").forEach(c=>c.classList.remove("sel","dim"));updateHash();}
 function openStdPanel(s){if(!s)return;
   selected=null;scene.querySelectorAll(".node").forEach(g=>g.classList.remove("sel","linked","dim"));grid.querySelectorAll(".chip").forEach(c=>c.classList.remove("sel","dim"));
@@ -1382,7 +1421,7 @@ function openStdPanel(s){if(!s)return;
   pbody.querySelectorAll("[data-std]").forEach(r=>r.addEventListener("click",()=>openStdPanel(stdById.get(r.dataset.std))));
   pbody.querySelectorAll("[data-go]").forEach(r=>r.addEventListener("click",()=>select(r.dataset.go)));
   pbody.querySelectorAll("[data-view]").forEach(r=>r.addEventListener("click",()=>switchView(r.dataset.view)));
-  panel.classList.add("open");panel.setAttribute("aria-hidden","false");}
+  panel.inert=false;panel.classList.add("open");panel.setAttribute("aria-hidden","false");}
 document.getElementById("close").addEventListener("click",closePanel);
 svg.addEventListener("click",()=>{if(selected)closePanel();});
 document.addEventListener("keydown",e=>{if(e.key==="/"){const tag=(e.target.tagName||"").toLowerCase();if(tag==="input"||tag==="textarea"||e.target.isContentEditable||cmdkEl.classList.contains("open"))return;e.preventDefault();document.getElementById("q").focus();}});
@@ -1435,11 +1474,11 @@ function downloadOscal(){const blob=new Blob([JSON.stringify(buildOscal(),null,2
 
 // search
 const q=document.getElementById("q"),results=document.getElementById("results");
-q.addEventListener("input",()=>{const s=q.value.trim().toLowerCase();if(!s){results.classList.remove("open");return;}
+q.addEventListener("input",()=>{const s=q.value.trim().toLowerCase();if(!s){results.classList.remove("open");q.setAttribute("aria-expanded","false");return;}
   const hits=DATA.nodes.filter(n=>[n.ref,n.title,n.title_en,n.summary].some(v=>(v||"").toLowerCase().includes(s))).slice(0,40);
   results.innerHTML=hits.map(n=>`<div class="res-item" data-id="${n.id}" tabindex="0" role="option" aria-label="${n.ref||""} ${n.title||n.id}"><span class="res-ref">${n.ref||""}</span><span class="res-t">${n.title||n.id}</span></div>`).join("")||`<div class="res-item"><span class="res-t" style="color:var(--text-3)">無結果</span></div>`;
-  results.classList.add("open");
-  const pick=r=>{select(r.dataset.id);results.classList.remove("open");q.value="";q.blur();};
+  results.classList.add("open");q.setAttribute("aria-expanded","true");
+  const pick=r=>{select(r.dataset.id);results.classList.remove("open");q.setAttribute("aria-expanded","false");q.value="";q.blur();};
   results.querySelectorAll("[data-id]").forEach(r=>{r.addEventListener("click",()=>pick(r));
     r.addEventListener("keydown",e=>{
       if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(r);}
@@ -1481,13 +1520,15 @@ function tagGlossary(root){
     span.tabIndex=0;span.setAttribute("role","button");span.setAttribute("aria-label","名詞："+term);
     mid.parentNode.replaceChild(span,mid);seen.add(term);break;}}
 }
-const termPop=document.getElementById("term-pop");
+const termPop=document.getElementById("term-pop");let termFor=null;
 function showTerm(el){const def=GLOSSARY[el.dataset.term];if(!def)return;
   termPop.innerHTML=`<b>${el.dataset.term}</b>${def}`;termPop.classList.add("show");termPop.setAttribute("aria-hidden","false");termPop.dataset.for=el.dataset.term;
+  if(termFor&&termFor!==el)termFor.removeAttribute("aria-describedby");
+  termFor=el;el.setAttribute("aria-describedby","term-pop");  // 讓讀屏把定義唸給 .term
   const r=el.getBoundingClientRect();const pw=termPop.offsetWidth,ph=termPop.offsetHeight;
   let x=r.left,y=r.bottom+6;if(x+pw>innerWidth-10)x=innerWidth-10-pw;if(y+ph>innerHeight-10)y=r.top-6-ph;
   termPop.style.left=Math.max(8,x)+"px";termPop.style.top=Math.max(8,y)+"px";}
-function hideTerm(){termPop.classList.remove("show");termPop.setAttribute("aria-hidden","true");termPop.dataset.for="";}
+function hideTerm(){termPop.classList.remove("show");termPop.setAttribute("aria-hidden","true");termPop.dataset.for="";if(termFor){termFor.removeAttribute("aria-describedby");termFor=null;}}
 pbody.addEventListener("mouseover",e=>{const t=e.target.closest(".term");if(t)showTerm(t);});
 pbody.addEventListener("mouseout",e=>{if(e.target.closest(".term"))hideTerm();});
 pbody.addEventListener("focusin",e=>{const t=e.target.closest(".term");if(t)showTerm(t);});
@@ -1508,7 +1549,9 @@ function buildCmdk(){cmdkItems=[
   {kind:"動作",label:"匯出 稽核底稿（CSV）",run:()=>exportWorksheet()},
   {kind:"動作",label:"清空 稽核底稿",run:()=>{if(confirm("確定清空所有稽核底稿標記與筆記？")){WS={};wsSave();if(curView==="controls")renderControls();toast("已清空稽核底稿");}}},
   {kind:"動作",label:"重新顯示 視圖提示（怎麼看）",run:()=>resetHints()},
-  {kind:"稽核",label:"不符合 NC · 分級與報告三要件",run:()=>{switchView("audit");openAuditPanel("nc");}},
+  {kind:"稽核",label:"七大稽核原則 · ISO 19011 §4",run:()=>{switchView("audit");openAuditPanel("principles");}},
+  {kind:"稽核",label:"稽核方案管理 · ISO 19011 §5",run:()=>{switchView("audit");openAuditPanel("programme");}},
+  {kind:"稽核",label:"不符合 NC · 分級／報告三要件／改正vs矯正措施",run:()=>{switchView("audit");openAuditPanel("nc");}},
   {kind:"稽核",label:"驗證旅程 · Stage 1 / Stage 2",run:()=>{switchView("audit");openAuditPanel("stage");}},
   {kind:"稽核",label:"稽核技巧 · 問句/晤談/抽樣/證據",run:()=>{switchView("audit");openAuditPanel("tech");}},
   {kind:"稽核",label:"稽核員能力與行為 · 19011 §7",run:()=>{switchView("audit");openAuditPanel("competence");}},
@@ -1535,8 +1578,23 @@ cmdkEl.addEventListener("click",e=>{if(e.target===cmdkEl)closeCmdk();});
 
 // ---------- 鍵盤快捷鍵 + 說明 ----------
 const SHORTCUTS=[["⌘K / Ctrl K","命令面板（跳任何東西）"],["1 – 9","切換九個視圖（9＝考題）"],["g","切 學習／稽核者視角"],["t","切 深／淺色"],["\\","收合／展開左側選單"],["/","聚焦搜尋"],["?","顯示此快捷鍵表"],["Esc","關閉面板／選單"]];
-function openHelp(){document.getElementById("help-grid").innerHTML=SHORTCUTS.map(([k,d])=>`<kbd>${k}</kbd><span>${d}</span>`).join("");document.getElementById("help").classList.add("show");document.getElementById("help-close").focus();}
-function closeHelp(){document.getElementById("help").classList.remove("show");}
+let helpOpener=null;
+function openHelp(){document.getElementById("help-grid").innerHTML=SHORTCUTS.map(([k,d])=>`<kbd>${k}</kbd><span>${d}</span>`).join("");helpOpener=document.activeElement;document.getElementById("help").classList.add("show");document.getElementById("help-close").focus();}
+function closeHelp(){document.getElementById("help").classList.remove("show");if(helpOpener&&helpOpener.focus){helpOpener.focus();helpOpener=null;}}
+// 統一 Tab 焦點陷阱：最上層 modal/overlay 開啟時，Tab 在其卡片內循環
+function focusablesIn(c){return [...c.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(x=>x.offsetParent!==null);}
+document.addEventListener("keydown",e=>{if(e.key!=="Tab")return;
+  let card=null;
+  if(document.getElementById("help").classList.contains("show"))card=document.querySelector("#help .modal-card");
+  else if(document.getElementById("onboard").classList.contains("show"))card=document.querySelector("#onboard .modal-card");
+  else if(tocOv.classList.contains("open"))card=tocOv.querySelector(".toc-ov-card");
+  else if(cmdkEl.classList.contains("open"))card=cmdkEl.querySelector(".cmdk-card");
+  if(!card)return;
+  const f=focusablesIn(card);if(!f.length){e.preventDefault();return;}
+  const first=f[0],last=f[f.length-1];
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&(document.activeElement===last||!card.contains(document.activeElement))){e.preventDefault();first.focus();}
+});
 document.getElementById("help-close").addEventListener("click",closeHelp);
 document.addEventListener("keydown",e=>{
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openCmdk();return;}
@@ -1583,7 +1641,7 @@ function updateHash(){const p=new URLSearchParams();p.set("view",curView);if(ove
   history.replaceState(null,"","#"+p.toString());}
 function applyHash(){const p=new URLSearchParams(location.hash.replace(/^#/,""));const v=p.get("view");overlay=p.get("ov")==="1";
   if(p.get("theme"))setTheme(p.get("theme"));
-  document.getElementById("overlay-btn").classList.toggle("on",overlay);
+  {const ob=document.getElementById("overlay-btn");ob.classList.toggle("on",overlay);ob.setAttribute("aria-pressed",overlay);}
   setMode(p.get("mode")==="audit"?"audit":"learn");
   switchView(v&&VIEWS[v]?v:"pdca");const s=p.get("sel");if(s&&byId.has(s))select(s);}
 document.getElementById("copy").addEventListener("click",()=>{navigator.clipboard?.writeText(location.href);toast("已複製此視角連結");});
@@ -1642,6 +1700,7 @@ document.getElementById("ob-tour").addEventListener("click",startTour);
 })();
 // ---------- 統一 Esc（單一優先序，只關最上層；不會誤關詳情面板） ----------
 document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;
+  if(termPop.classList.contains("show")){hideTerm();return;}
   if(document.getElementById("help").classList.contains("show")){closeHelp();return;}
   if(tocOv.classList.contains("open")){closeTocOv();return;}
   if(cmdkEl.classList.contains("open")){closeCmdk();return;}

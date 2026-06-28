@@ -61,13 +61,25 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-              "controlType": { "type": "array", "items": { "type": "string" } },
+              "controlType": {
+                "type": "array",
+                "items": { "type": "string", "enum": ["預防", "偵測", "矯正"] }
+              },
               "cia": {
                 "type": "array",
                 "items": { "type": "string", "enum": ["機密性", "完整性", "可用性"] }
               },
-              "operationalCapability": { "type": "array", "items": { "type": "string" } },
-              "securityDomain": { "type": "array", "items": { "type": "string" } }
+              "operationalCapability": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["治理", "資產管理", "資訊保護", "人力資源安全", "實體安全", "系統與網路安全", "應用系統安全", "安全組態", "身分與存取管理", "威脅與脆弱性管理", "持續運作", "供應者關係安全", "法規與合規", "資安事件管理", "資安保證"]
+                }
+              },
+              "securityDomain": {
+                "type": "array",
+                "items": { "type": "string", "enum": ["治理與生態系", "保護", "防禦", "韌性"] }
+              }
             }
           },
           "subconcepts": {

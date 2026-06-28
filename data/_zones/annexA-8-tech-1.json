@@ -126,7 +126,7 @@
     "attributes": {
       "controlType": ["預防"],
       "cia": ["機密性", "完整性", "可用性"],
-      "operationalCapability": ["身分與存取管理", "應用程式安全", "安全組態"],
+      "operationalCapability": ["身分與存取管理", "應用系統安全", "安全組態"],
       "securityDomain": ["保護"]
     },
     "audit": {
@@ -532,7 +532,7 @@
     "attributes": {
       "controlType": ["偵測"],
       "cia": ["機密性", "完整性", "可用性"],
-      "operationalCapability": ["資訊安全事件管理"],
+      "operationalCapability": ["資安事件管理"],
       "securityDomain": ["保護", "防禦"]
     },
     "audit": {
@@ -568,7 +568,7 @@
     "attributes": {
       "controlType": ["偵測", "矯正"],
       "cia": ["機密性", "完整性", "可用性"],
-      "operationalCapability": ["資訊安全事件管理"],
+      "operationalCapability": ["資安事件管理"],
       "securityDomain": ["防禦"]
     },
     "audit": {
@@ -604,7 +604,7 @@
     "attributes": {
       "controlType": ["偵測"],
       "cia": ["完整性"],
-      "operationalCapability": ["資訊安全事件管理"],
+      "operationalCapability": ["資安事件管理"],
       "securityDomain": ["保護", "防禦"]
     },
     "audit": {

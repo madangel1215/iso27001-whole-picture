@@ -87,7 +87,7 @@
     "attributes": {
       "cia": ["機密性", "完整性", "可用性"],
       "controlType": ["預防", "偵測"],
-      "operationalCapability": ["供應者關係安全", "資訊安全保證"],
+      "operationalCapability": ["供應者關係安全", "資安保證"],
       "securityDomain": ["治理與生態系", "保護", "防禦"]
     },
     "audit": {
@@ -163,7 +163,7 @@
     "attributes": {
       "cia": ["機密性", "完整性", "可用性"],
       "controlType": ["矯正"],
-      "operationalCapability": ["治理", "資訊安全事件管理"],
+      "operationalCapability": ["治理", "資安事件管理"],
       "securityDomain": ["防禦"]
     },
     "audit": {
@@ -199,7 +199,7 @@
     "attributes": {
       "cia": ["機密性", "完整性", "可用性"],
       "controlType": ["偵測"],
-      "operationalCapability": ["資訊安全事件管理"],
+      "operationalCapability": ["資安事件管理"],
       "securityDomain": ["防禦"]
     },
     "audit": {
@@ -235,7 +235,7 @@
     "attributes": {
       "cia": ["機密性", "完整性", "可用性"],
       "controlType": ["矯正"],
-      "operationalCapability": ["資訊安全事件管理"],
+      "operationalCapability": ["資安事件管理"],
       "securityDomain": ["防禦"]
     },
     "audit": {
@@ -271,7 +271,7 @@
     "attributes": {
       "cia": ["機密性", "完整性", "可用性"],
       "controlType": ["矯正"],
-      "operationalCapability": ["資訊安全事件管理"],
+      "operationalCapability": ["資安事件管理"],
       "securityDomain": ["防禦"]
     },
     "audit": {
@@ -307,7 +307,7 @@
     "attributes": {
       "cia": ["機密性", "完整性", "可用性"],
       "controlType": ["矯正"],
-      "operationalCapability": ["資訊安全事件管理"],
+      "operationalCapability": ["資安事件管理"],
       "securityDomain": ["防禦"]
     },
     "audit": {
@@ -343,7 +343,7 @@
     "attributes": {
       "cia": ["機密性", "完整性", "可用性"],
       "controlType": ["預防", "矯正"],
-      "operationalCapability": ["營運持續"],
+      "operationalCapability": ["持續運作"],
       "securityDomain": ["保護", "韌性"]
     },
     "audit": {
@@ -379,7 +379,7 @@
     "attributes": {
       "cia": ["可用性"],
       "controlType": ["矯正"],
-      "operationalCapability": ["營運持續"],
+      "operationalCapability": ["持續運作"],
       "securityDomain": ["保護", "韌性"]
     },
     "audit": {
@@ -562,7 +562,7 @@
     "attributes": {
       "cia": ["機密性", "完整性", "可用性"],
       "controlType": ["預防", "矯正"],
-      "operationalCapability": ["資訊安全保證"],
+      "operationalCapability": ["資安保證"],
       "securityDomain": ["治理與生態系"]
     },
     "audit": {
@@ -598,7 +598,7 @@
     "attributes": {
       "cia": ["機密性", "完整性", "可用性"],
       "controlType": ["預防", "矯正"],
-      "operationalCapability": ["法規與合規", "資訊安全保證"],
+      "operationalCapability": ["法規與合規", "資安保證"],
       "securityDomain": ["治理與生態系"]
     },
     "audit": {
@@ -634,7 +634,7 @@
     "attributes": {
       "cia": ["機密性", "完整性", "可用性"],
       "controlType": ["預防", "矯正"],
-      "operationalCapability": ["資產管理", "實體安全", "系統與網路安全", "營運持續", "資訊安全事件管理"],
+      "operationalCapability": ["資產管理", "實體安全", "系統與網路安全", "持續運作", "資安事件管理"],
       "securityDomain": ["治理與生態系", "保護", "防禦"]
     },
     "audit": {

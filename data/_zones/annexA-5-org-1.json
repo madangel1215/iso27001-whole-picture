@@ -227,7 +227,7 @@
     "attributes": {
       "cia": ["機密性", "完整性", "可用性"],
       "controlType": ["預防", "偵測", "矯正"],
-      "operationalCapability": ["威脅與弱點管理"],
+      "operationalCapability": ["威脅與脆弱性管理"],
       "securityDomain": ["防禦", "韌性"]
     },
     "mapping": {
@@ -662,7 +662,7 @@
     "attributes": {
       "cia": ["機密性", "完整性", "可用性"],
       "controlType": ["預防"],
-      "operationalCapability": ["供應商關係安全"],
+      "operationalCapability": ["供應者關係安全"],
       "securityDomain": ["治理與生態系", "保護"]
     },
     "mapping": {

@@ -1,6 +1,6 @@
 {
   "name": "ismsla-notes",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "private": true,
   "description": "ISMS 主導稽核員 (ISMS LA) 互動課程筆記 — PDCA + 風險管理 (ISO 31000/27005) + AI 生命週期 (ISO 5338/22989) + 附錄A 控制；能學、能查、能稽核",
   "type": "module",

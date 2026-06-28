@@ -452,7 +452,7 @@
     "attributes": {
       "cia": ["機密性", "完整性", "可用性"],
       "controlType": ["預防", "偵測"],
-      "operationalCapability": ["系統與網路安全", "應用系統安全", "供應商關係安全"],
+      "operationalCapability": ["系統與網路安全", "應用系統安全", "供應者關係安全"],
       "securityDomain": ["保護", "防禦"]
     },
     "mapping": {

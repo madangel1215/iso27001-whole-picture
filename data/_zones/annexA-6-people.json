@@ -191,7 +191,7 @@
     "attributes": {
       "cia": ["機密性"],
       "controlType": ["預防"],
-      "operationalCapability": ["人力資源安全", "資訊保護", "供應商關係安全"],
+      "operationalCapability": ["人力資源安全", "資訊保護", "供應者關係安全"],
       "securityDomain": ["治理與生態系", "保護"]
     },
     "mapping": {

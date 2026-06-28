@@ -47,7 +47,7 @@
     "attributes": {
       "cia": ["機密性", "完整性", "可用性"],
       "controlType": ["預防"],
-      "operationalCapability": ["實體安全", "身分識別與存取管理"],
+      "operationalCapability": ["實體安全", "身分與存取管理"],
       "securityDomain": ["保護"]
     },
     "audit": {
