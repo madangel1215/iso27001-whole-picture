@@ -53,6 +53,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-famil
   -webkit-font-smoothing:antialiased;overflow:hidden}
 #app{position:fixed;inset:0;display:flex;flex-direction:column}
 ::view-transition-old(root),::view-transition-new(root){animation-duration:.22s;animation-timing-function:var(--ease)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important}}
 
 /* ---------- header (slim top bar) ---------- */
 .hdr{display:flex;align-items:center;gap:12px;height:52px;padding:0 12px 0 10px;
@@ -80,7 +81,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-famil
   border-right:1px solid var(--line);display:flex;flex-direction:column;gap:1px;transition:width .2s var(--ease);z-index:14}
 .rail.collapsed{width:58px}
 .rail-group{margin-top:6px}
-.rail-group-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--faint);text-transform:uppercase;padding:7px 10px 3px;white-space:nowrap;overflow:hidden}
+.rail-group-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--text-3);text-transform:uppercase;padding:7px 10px 3px;white-space:nowrap;overflow:hidden}
 .rail-item{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:9px;cursor:pointer;color:var(--text-2);
   font-size:13.5px;white-space:nowrap;border:1px solid transparent;width:100%;text-align:left;background:transparent;transition:all .14s var(--ease)}
 .rail-item:hover{background:var(--surface);color:var(--text)}
@@ -659,7 +660,9 @@ function renderAI(){
   scene.append(el("line",{class:"flow-line",x1:ox+W/2,y1:104,x2:ox+W/2,y2:Y,"marker-start":"url(#ah)","marker-end":"url(#ah)"}));
   // 重新評估 在下方（營運與汰除之間），並迴圈回設計與開發
   const rx=ox+44,ry=Y+H+64;put(aiBox("ai-reevaluation",rx,ry,252,128));
-  scene.append(arrow(`M${ox+W/2},${Y+H} L${ox+W/2},${ry+18}`));
+  // 營運與監督 → 重新評估：L 形落在重新評估框頂中央邊緣（不插進框內、不偏心）
+  const reCx=rx+126;
+  scene.append(el("path",{class:"flow-line",d:`M${ox+W/2},${Y+H} L${ox+W/2},${ry-26} L${reCx},${ry-26} L${reCx},${ry}`,"marker-end":"url(#ah)"}));
   const ddx=xs[1]+W/2;
   scene.append(el("path",{class:"flow-line",d:`M${rx+126},${ry+128} L${rx+126},${ry+168} L${ddx},${ry+168} L${ddx},${Y+H}`,"marker-end":"url(#ah)"}));
   scene.append(tx((ddx+rx+126)/2,ry+184,"flow-label","重新評估 → 回設計與開發"));
@@ -705,12 +708,13 @@ function renderAIMS(){
     click(g,fn);scene.append(g);return {x:x+w/2,y:y+h/2,w,h};};
   const dl=(x1,y1,x2,y2)=>scene.append(el("line",{class:"flow-line",x1,y1,x2,y2,"marker-end":"url(#ah)"}));
   const std=id=>()=>{const s=stdById.get(id);if(s)openStdPanel(s);};
-  const sLP=aiSat("AI 政策與治理","ISO/IEC 42001",34,150,184,62,std("iso-42001"));dl(218,181,edgePt(C,{x:218,y:181},6).x,edgePt(C,{x:218,y:181},6).y);
-  const sRisk=aiSat("AI 風險評鑑","ISO/IEC 23894",34,420,184,62,std("iso-23894"));dl(218,451,N.n6.x-N.n6.r,460);
-  const sImp=aiSat("AI 衝擊評鑑","ISO/IEC 42005",34,590,184,62,std("iso-42005"));dl(218,621,N.n6.x-40,N.n6.r+520);
-  const sLife=aiSat("AI 系統生命週期","→ 圖三 ISO/IEC 5338",1022,236,184,62,()=>switchView("ai"));dl(1022,267,N.n78.x+N.n78.r,300);
-  const sCtl=aiSat("AI 控制 · 附錄A","9 目標 / ~38 控制 (42001)",1022,436,184,62,std("iso-42001"));dl(1022,467,N.n9.x+N.n9.r,466);
-  scene.append(tx(620,856,"flow-label","可與 27001(ISMS) · 27701(PIMS) · 9001/14001/45001 整合為一套管理系統並整合稽核（Annex SL）"));
+  // 衛星框 + 連線：每條用 edgePt 精準落在目標圓邊緣；sub 標明對應的 PDCA 條款（關係明確）
+  const sat=(label,sub,x,y,fn,disc,sx,sy)=>{aiSat(label,sub,x,y,184,62,fn);const p=edgePt(disc,{x:sx,y:sy},4);dl(sx,sy,p.x,p.y);};
+  sat("AI 政策與治理","42001 → 領導[5]",34,150,std("iso-42001"),C,218,181);
+  sat("AI 風險評鑑","23894 → 規劃[6]",34,430,std("iso-23894"),N.n6,218,461);
+  sat("AI 衝擊評鑑","42005 → 規劃[6]",34,600,std("iso-42005"),N.n6,218,631);
+  sat("AI 系統生命週期","5338 → 支援/運作[7·8]",1022,236,()=>switchView("ai"),N.n78,1022,267);
+  sat("AI 控制 · 附錄A","42001 附錄A → 績效[9]",1022,436,std("iso-42001"),N.n9,1022,467);
 }
 
 // ---------- VIEW: 稽核流程 (ISO 19011 · 如何稽核) ----------
@@ -871,7 +875,7 @@ function renderExplorer(){
 const VIEWS={pdca:{n:"圖一",t:"PDCA 運轉",r:renderPDCA,cap:"圖一 · ISMS PDCA 運轉（條款 4–10）"},
   risk:{n:"圖二",t:"風險流程",r:renderRisk,cap:"圖二 · 風險管理流程（ISO 31000 / 27005）"},
   ai:{n:"圖三",t:"AI 生命週期",r:renderAI,cap:"圖三 · AI 系統生命週期（ISO/IEC 5338 / 22989）"},
-  aims:{n:"AIMS",t:"AI 管理系統",r:renderAIMS,cap:"ISO/IEC 42001 · AI 管理系統運轉（與 27001 同 Annex SL）"},
+  aims:{n:"AIMS",t:"AI 管理系統",r:renderAIMS,cap:"ISO/IEC 42001 · AI 管理系統（與 27001 同 Annex SL；可與 27701 / 9001 / 14001 / 45001 整合稽核）"},
   audit:{n:"稽核",t:"稽核流程",r:renderAuditFlow,cap:"ISO 19011 · 管理系統稽核流程（如何稽核：啟動→文審→現場→報告→跟催）"},
   controls:{n:"附錄A",t:"控制措施",r:renderControls,cap:"附錄 A · 93 控制措施（4 主題）"},
   docs:{n:"文件",t:"文件·標準",r:renderDocs,cap:"ISMS 文件化資訊清單（7.5）+ ISO 27000 標準家族"},
