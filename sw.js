@@ -1,5 +1,5 @@
 // ISMS·LA service worker — 離線可用 app shell（cache-first）
-const CACHE = "ismsla-v0.9.6";
+const CACHE = "ismsla-v1.0.0";
 const CORE = [
   "./", "index.html", "favicon.svg", "manifest.webmanifest", "icon-192.png", "icon-512.png", "og-image.png",
   "data/data.json", "data/supplements.json", "data/documents.json", "data/standards.json", "data/exam.json",
