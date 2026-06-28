@@ -3,7 +3,7 @@
 local_backend: true
 backend:
   name: github
-  repo: madangel1215/iso27001-whole-picture
+  repo: madangel1215/ismsla-notes
   branch: main
 media_folder: assets
 public_folder: /assets
